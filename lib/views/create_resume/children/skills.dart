@@ -1,24 +1,59 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_resume_template/flutter_resume_template.dart';
-import 'package:resume_builder_app/views/widgets/app_bar.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:resume_builder_app/utils/routes/app_colors.dart';
+import 'package:resume_builder_app/views/widgets/app_bar.dart';
 
-import '../../../utils/routes/app_colors.dart';
-class SkillsDetails extends StatefulWidget {
+import '../state/create_resume_state.dart';
+
+
+class SkillsDetails extends ConsumerStatefulWidget {
   const SkillsDetails({super.key});
 
   @override
-  State<SkillsDetails> createState() => _SkillsDetailsState();
+  ConsumerState<SkillsDetails> createState() => _SkillsDetailsState();
 }
 
-class _SkillsDetailsState extends State<SkillsDetails> {
+class _SkillsDetailsState extends ConsumerState<SkillsDetails> {
   List<Language> languages = [];
+  List<TextEditingController> nameControllers = [];
+  List<int> proficiencyLevels = [];
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final skillDetails = ref.watch(templateDataModel).languages;
+      languages.addAll(skillDetails);
+      _initializeControllers();
+      setState(() {});
+    });
+  }
+
+  void _initializeControllers() {
+    nameControllers = languages.map((language) {
+      return TextEditingController(text: language.language);
+    }).toList();
+    proficiencyLevels = languages.map((language) {
+      return language.level;
+    }).toList();
+  }
+
+  @override
+  void dispose() {
+    // Dispose of all controllers
+    for (var controller in nameControllers) {
+      controller.dispose();
+    }
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: CustomAppBar().build(context, "Skills"),
+      appBar: CustomAppBar().build(context, "Skills"),
       body: Padding(
         padding: EdgeInsets.all(12.sp),
         child: SingleChildScrollView(
@@ -33,18 +68,18 @@ class _SkillsDetailsState extends State<SkillsDetails> {
                 children: [
                   TextButton.icon(
                     onPressed: () {
-                      languages.add(Language('', 1));
-                      setState(() {});
+                      setState(() {
+                        languages.add(Language('', 1));
+                        nameControllers.add(TextEditingController());
+                        proficiencyLevels.add(1);
+                      });
                     },
                     style: ButtonStyle(
                       backgroundColor: MaterialStateProperty.all<Color>(AppColors.primaryColor),
                     ),
                     label: Text(
                       "Add",
-                      style: Theme.of(context)
-                          .textTheme
-                          .headlineMedium
-                          ?.copyWith(color: Colors.white),
+                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(color: Colors.white),
                     ),
                     icon: Icon(
                       Icons.add,
@@ -53,7 +88,7 @@ class _SkillsDetailsState extends State<SkillsDetails> {
                     ),
                   ),
                 ],
-              )
+              ),
             ],
           ),
         ),
@@ -66,15 +101,19 @@ class _SkillsDetailsState extends State<SkillsDetails> {
           size: 40.sp,
         ),
         onPressed: () {
-          // Save or submit the language data
+          List<Language> skills=[];
+          for(int i=0;i<languages.length;i++){
+            skills.add(Language(nameControllers[i].text, proficiencyLevels[i]));
+          }
+          setSkills(ref, skills);
         },
       ),
     );
   }
 
   Widget skillDetailsView(Language data, int index) {
-    TextEditingController nameController = TextEditingController(text: data.language);
-    int level = data.level;
+    final nameController = nameControllers[index];
+    final level = proficiencyLevels[index];
 
     return SizedBox(
       width: 1.sw,
@@ -105,8 +144,12 @@ class _SkillsDetailsState extends State<SkillsDetails> {
                   ),
                   InkWell(
                     onTap: () {
-                      languages.removeAt(index);
-                      setState(() {});
+                      setState(() {
+                        languages.removeAt(index);
+                        nameControllers[index].dispose();
+                        nameControllers.removeAt(index);
+                        proficiencyLevels.removeAt(index);
+                      });
                     },
                     child: Icon(
                       CupertinoIcons.delete,
@@ -159,10 +202,9 @@ class _SkillsDetailsState extends State<SkillsDetails> {
                                         .headlineSmall
                                         ?.copyWith(color: Colors.grey),
                                   ),
-                                  onEditingComplete: () {
-                                    languages[index]=Language(nameController.text,level);
+                                  onChanged: (value) {
                                     setState(() {
-
+                                      languages[index] = Language(value, proficiencyLevels[index]);
                                     });
                                   },
                                 ),
@@ -193,7 +235,8 @@ class _SkillsDetailsState extends State<SkillsDetails> {
                                 groupValue: level,
                                 onChanged: (value) {
                                   setState(() {
-                                    languages[index]=Language(nameController.text,value ?? 1);
+                                    proficiencyLevels[index] = value ?? 1;
+                                    languages[index] = Language(nameController.text, proficiencyLevels[index]);
                                   });
                                 },
                               ),

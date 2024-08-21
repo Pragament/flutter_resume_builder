@@ -1,19 +1,46 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_resume_template/flutter_resume_template.dart';
-import 'package:resume_builder_app/views/widgets/app_bar.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:resume_builder_app/utils/routes/app_colors.dart';
+import 'package:resume_builder_app/views/create_resume/state/create_resume_state.dart';
+import 'package:resume_builder_app/views/widgets/app_bar.dart';
 
-import '../../../utils/routes/app_colors.dart';
-class HobbiesDetails extends StatefulWidget {
+class HobbiesDetails extends ConsumerStatefulWidget {
   const HobbiesDetails({super.key});
 
   @override
-  State<HobbiesDetails> createState() => _HobbiesDetailsState();
+  ConsumerState<HobbiesDetails> createState() => _HobbiesDetailsState();
 }
 
-class _HobbiesDetailsState extends State<HobbiesDetails> {
+class _HobbiesDetailsState extends ConsumerState<HobbiesDetails> {
   List<String> hobbies = [];
+  List<TextEditingController> nameControllers = [];
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      hobbies.addAll(ref.read(templateDataModel).hobbies);
+      _initializeControllers();
+      setState(() {});
+    });
+  }
+
+  void _initializeControllers() {
+    nameControllers = hobbies.map((hobby) {
+      return TextEditingController(text: hobby);
+    }).toList();
+  }
+
+  @override
+  void dispose() {
+    // Dispose of all controllers
+    for (var controller in nameControllers) {
+      controller.dispose();
+    }
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,14 +54,16 @@ class _HobbiesDetailsState extends State<HobbiesDetails> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               for (int i = 0; i < hobbies.length; i++)
-                hobbieDetailsView(hobbies[i], i),
+                hobbyDetailsView(hobbies[i], i),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   TextButton.icon(
                     onPressed: () {
-                      hobbies.add("");
-                      setState(() {});
+                      setState(() {
+                        hobbies.add("");
+                        nameControllers.add(TextEditingController());
+                      });
                     },
                     style: ButtonStyle(
                       backgroundColor: MaterialStateProperty.all<Color>(AppColors.primaryColor),
@@ -66,14 +95,19 @@ class _HobbiesDetailsState extends State<HobbiesDetails> {
           size: 40.sp,
         ),
         onPressed: () {
-          // Save or submit the language data
+          List<String> hobbiesData=[];
+          for(int i=0;i<hobbies.length;i++){
+            hobbiesData.add(nameControllers[i].text);
+          }
+          setHobbiesDetails(ref, hobbiesData);
+          // Save or submit the hobbies data
         },
       ),
     );
   }
 
-  Widget hobbieDetailsView(String data, int index) {
-    TextEditingController nameController = TextEditingController(text: data);
+  Widget hobbyDetailsView(String data, int index) {
+    final nameController = nameControllers[index];
 
     return SizedBox(
       width: 1.sw,
@@ -104,8 +138,11 @@ class _HobbiesDetailsState extends State<HobbiesDetails> {
                   ),
                   InkWell(
                     onTap: () {
-                      hobbies.removeAt(index);
-                      setState(() {});
+                      setState(() {
+                        hobbies.removeAt(index);
+                        nameControllers[index].dispose();
+                        nameControllers.removeAt(index);
+                      });
                     },
                     child: Icon(
                       CupertinoIcons.delete,
@@ -158,10 +195,9 @@ class _HobbiesDetailsState extends State<HobbiesDetails> {
                                         .headlineSmall
                                         ?.copyWith(color: Colors.grey),
                                   ),
-                                  onEditingComplete: () {
-                                    hobbies[index]=nameController.text;
+                                  onChanged: (value) {
                                     setState(() {
-
+                                      hobbies[index] = value;
                                     });
                                   },
                                 ),

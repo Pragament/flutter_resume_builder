@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_resume_template/flutter_resume_template.dart';
+import 'package:resume_builder_app/models/TemplateDataModel.dart';
 import 'package:resume_builder_app/utils/routes/app_colors.dart';
 import 'package:resume_builder_app/views/create_resume/state/create_resume_state.dart';
 import 'package:resume_builder_app/views/widgets/app_bar.dart';
@@ -27,13 +28,13 @@ class _PersonalDetailsState extends ConsumerState<PersonalDetails> {
 
   @override
   void initState() {
-    fullName=TextEditingController(text: ref.read(templateData).fullName);
-    email=TextEditingController(text: ref.read(templateData).email);
-    phone=TextEditingController(text: ref.read(templateData).phoneNumber);
-    country=TextEditingController(text: ref.read(templateData).country);
-    currentPosition=TextEditingController(text: ref.read(templateData).currentPosition);
-    address=TextEditingController(text: ref.read(templateData).address);
-    bio=TextEditingController(text: ref.read(templateData).bio);
+    fullName=TextEditingController(text: ref.read(templateDataModel).fullName);
+    email=TextEditingController(text: ref.read(templateDataModel).email);
+    phone=TextEditingController(text: ref.read(templateDataModel).phoneNumber);
+    country=TextEditingController(text: ref.read(templateDataModel).country);
+    currentPosition=TextEditingController(text: ref.read(templateDataModel).currentPosition);
+    address=TextEditingController(text: ref.read(templateDataModel).address);
+    bio=TextEditingController(text: ref.read(templateDataModel).bio);
     // TODO: implement initState
     super.initState();
   }
@@ -135,7 +136,7 @@ class _PersonalDetailsState extends ConsumerState<PersonalDetails> {
       floatingActionButton: BgGradientColor(
         borderRadius: BorderRadius.circular(30.sp),
         child: IconButton(onPressed: (){
-         setTemplateData(ref, TemplateData(fullName: fullName.text,email: email.text,phoneNumber: phone.text,country: country.text,address: address.text,currentPosition: currentPosition.text,bio: bio.text));
+         setTemplateData(ref, TemplateDataModel(fullName: fullName.text,email: email.text,phoneNumber: phone.text,country: country.text,address: address.text,currentPosition: currentPosition.text,bio: bio.text));
         }, icon: Icon(Icons.check,color: Colors.white,size: 40.sp)),
       ),
     );

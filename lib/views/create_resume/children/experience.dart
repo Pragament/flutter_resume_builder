@@ -1,20 +1,61 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_resume_template/flutter_resume_template.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:resume_builder_app/utils/routes/app_colors.dart';
 import 'package:resume_builder_app/views/widgets/app_bar.dart';
 import 'package:resume_builder_app/views/widgets/bg_gradient_color.dart';
 
-class ExperienceDetails extends StatefulWidget {
+import '../state/create_resume_state.dart';
+
+
+class ExperienceDetails extends ConsumerStatefulWidget {
   const ExperienceDetails({super.key});
 
   @override
-  State<ExperienceDetails> createState() => _ExperienceDetailsState();
+  ConsumerState<ExperienceDetails> createState() => _ExperienceDetailsState();
 }
 
-class _ExperienceDetailsState extends State<ExperienceDetails> {
+class _ExperienceDetailsState extends ConsumerState<ExperienceDetails> {
   List<ExperienceData> experiences = [];
+  List<List<TextEditingController>> controllers = [];
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final experienceDetails = ref.watch(templateDataModel).experience;
+      experiences.addAll(experienceDetails);
+      _initializeControllers();
+      setState(() {});
+    });
+    // Initialize the controllers list based on existing experiences
+    _initializeControllers();
+  }
+
+  void _initializeControllers() {
+    controllers = experiences.map((experience) {
+      return [
+        TextEditingController(text: experience.experienceTitle),
+        TextEditingController(text: experience.experienceLocation),
+        TextEditingController(text: experience.experiencePeriod),
+        TextEditingController(text: experience.experiencePlace),
+        TextEditingController(text: experience.experienceDescription),
+      ];
+    }).toList();
+  }
+
+  @override
+  void dispose() {
+    // Dispose of all controllers
+    for (var controllerList in controllers) {
+      for (var controller in controllerList) {
+        controller.dispose();
+      }
+    }
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,24 +75,29 @@ class _ExperienceDetailsState extends State<ExperienceDetails> {
                 children: [
                   TextButton.icon(
                     onPressed: () {
-                      experiences.add(ExperienceData(
-                        experienceTitle: '',
-                        experienceLocation: '',
-                        experiencePeriod: '',
-                        experiencePlace: '',
-                        experienceDescription: '',
-                      ));
-                      setState(() {});
+                      setState(() {
+                        experiences.add(ExperienceData(
+                          experienceTitle: '',
+                          experienceLocation: '',
+                          experiencePeriod: '',
+                          experiencePlace: '',
+                          experienceDescription: '',
+                        ));
+                        controllers.add([
+                          TextEditingController(),
+                          TextEditingController(),
+                          TextEditingController(),
+                          TextEditingController(),
+                          TextEditingController(),
+                        ]);
+                      });
                     },
                     style: ButtonStyle(
-                      backgroundColor: WidgetStatePropertyAll<Color>(AppColors.primaryColor),
+                      backgroundColor: MaterialStateProperty.all<Color>(AppColors.primaryColor),
                     ),
                     label: Text(
                       "Add",
-                      style: Theme.of(context)
-                          .textTheme
-                          .headlineMedium
-                          ?.copyWith(color: Colors.white),
+                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(color: Colors.white),
                     ),
                     icon: Icon(
                       Icons.add,
@@ -60,7 +106,7 @@ class _ExperienceDetailsState extends State<ExperienceDetails> {
                     ),
                   ),
                 ],
-              )
+              ),
             ],
           ),
         ),
@@ -69,6 +115,17 @@ class _ExperienceDetailsState extends State<ExperienceDetails> {
         borderRadius: BorderRadius.circular(30.sp),
         child: IconButton(
           onPressed: () {
+            List<ExperienceData> expData=[];
+            for (int i=0;i<experiences.length;i++) {
+              List<TextEditingController> controllersIndex=controllers[i];
+              expData.add(
+                  ExperienceData(experienceTitle:controllersIndex[0].text,
+                                 experiencePlace: controllersIndex[3].text,
+                                 experiencePeriod: controllersIndex[2].text,
+                                 experienceLocation: controllersIndex[1].text,
+                                 experienceDescription: controllersIndex[4].text, ));
+            }
+            setTemplateExperienceData(ref, expData);
             // Save or submit the experience data
           },
           icon: Icon(
@@ -81,12 +138,10 @@ class _ExperienceDetailsState extends State<ExperienceDetails> {
     );
   }
 
+
+
   Widget experienceDetailsView(ExperienceData data, int index) {
-    TextEditingController titleController = TextEditingController(text: data.experienceTitle);
-    TextEditingController locationController = TextEditingController(text: data.experienceLocation);
-    TextEditingController periodController = TextEditingController(text: data.experiencePeriod);
-    TextEditingController placeController = TextEditingController(text: data.experiencePlace);
-    TextEditingController descriptionController = TextEditingController(text: data.experienceDescription);
+    final controllersForThisIndex = controllers[index];
 
     return SizedBox(
       width: 1.sw,
@@ -117,8 +172,10 @@ class _ExperienceDetailsState extends State<ExperienceDetails> {
                   ),
                   InkWell(
                     onTap: () {
-                      experiences.removeAt(index);
-                      setState(() {});
+                      setState(() {
+                        experiences.removeAt(index);
+                        controllers.removeAt(index);
+                      });
                     },
                     child: Icon(
                       CupertinoIcons.delete,
@@ -137,234 +194,87 @@ class _ExperienceDetailsState extends State<ExperienceDetails> {
                   children: [
                     Text(
                       'Title',
-                      style: Theme.of(context)
-                          .textTheme
-                          .headlineMedium
-                          ?.copyWith(fontSize: 14.sp),
+                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontSize: 14.sp),
                     ),
                     SizedBox(height: 8.h),
-                    SizedBox(
-                      width: 1.sw,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          border: Border.all(color: AppColors.primaryColor),
-                          borderRadius: BorderRadius.circular(8.sp),
-                        ),
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 8.0.w),
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.work,
-                                color: Colors.grey,
-                                size: 20.sp,
-                              ),
-                              SizedBox(width: 8.w),
-                              Expanded(
-                                child: TextField(
-                                  controller: titleController,
-                                  decoration: InputDecoration(
-                                    border: InputBorder.none,
-                                    hintText: "Experience Title",
-                                    hintStyle: Theme.of(context)
-                                        .textTheme
-                                        .headlineSmall
-                                        ?.copyWith(color: Colors.grey),
-                                  ),
-                                  onChanged: (value) {
-                                    data.experienceTitle = value;
-                                  },
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
+                    _buildTextField(
+                      icon: Icons.work,
+                      controller: controllersForThisIndex[0],
+                      hintText: "Experience Title",
+                      onChanged: (value) {
+                        data.experienceTitle = value;
+                      },
                     ),
                     SizedBox(height: 8.sp),
                     Text(
                       'Location',
-                      style: Theme.of(context)
-                          .textTheme
-                          .headlineMedium
-                          ?.copyWith(fontSize: 14.sp),
+                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontSize: 14.sp),
                     ),
                     SizedBox(height: 8.h),
-                    SizedBox(
-                      width: 1.sw,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          border: Border.all(color: AppColors.primaryColor),
-                          borderRadius: BorderRadius.circular(8.sp),
-                        ),
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 8.0.w),
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.place,
-                                color: Colors.grey,
-                                size: 20.sp,
-                              ),
-                              SizedBox(width: 8.w),
-                              Expanded(
-                                child: TextField(
-                                  controller: locationController,
-                                  decoration: InputDecoration(
-                                    border: InputBorder.none,
-                                    hintText: "Country Name",
-                                    hintStyle: Theme.of(context)
-                                        .textTheme
-                                        .headlineSmall
-                                        ?.copyWith(color: Colors.grey),
-                                  ),
-                                  onChanged: (value) {
-                                    data.experienceLocation = value;
-                                  },
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
+                    _buildTextField(
+                      icon: Icons.language,
+                      controller: controllersForThisIndex[1],
+                      hintText: "Country Name",
+                      onChanged: (value) {
+                        data.experienceLocation = value;
+                      },
                     ),
                     SizedBox(height: 8.sp),
                     Text(
                       'Period',
-                      style: Theme.of(context)
-                          .textTheme
-                          .headlineMedium
-                          ?.copyWith(fontSize: 14.sp),
+                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontSize: 14.sp),
                     ),
                     SizedBox(height: 8.h),
-                    SizedBox(
-                      width: 1.sw,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          border: Border.all(color: AppColors.primaryColor),
-                          borderRadius: BorderRadius.circular(8.sp),
-                        ),
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 8.0.w),
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.calendar_today,
-                                color: Colors.grey,
-                                size: 20.sp,
-                              ),
-                              SizedBox(width: 8.w),
-                              Expanded(
-                                child: TextField(
-                                  controller: periodController,
-                                  decoration: InputDecoration(
-                                    border: InputBorder.none,
-                                    hintText: "Experience Period",
-                                    hintStyle: Theme.of(context)
-                                        .textTheme
-                                        .headlineSmall
-                                        ?.copyWith(color: Colors.grey),
-                                  ),
-                                  onChanged: (value) {
-                                    data.experiencePeriod = value;
-                                  },
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
+                    _buildTextField(
+                      icon: Icons.calendar_today,
+                      controller: controllersForThisIndex[2],
+                      hintText: "Experience Period",
+                      onChanged: (value) {
+                        data.experiencePeriod = value;
+                      },
                     ),
                     SizedBox(height: 8.sp),
                     Text(
                       'Place',
-                      style: Theme.of(context)
-                          .textTheme
-                          .headlineMedium
-                          ?.copyWith(fontSize: 14.sp),
+                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontSize: 14.sp),
                     ),
                     SizedBox(height: 8.h),
-                    SizedBox(
-                      width: 1.sw,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          border: Border.all(color: AppColors.primaryColor),
-                          borderRadius: BorderRadius.circular(8.sp),
-                        ),
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 8.0.w),
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.place,
-                                color: Colors.grey,
-                                size: 20.sp,
-                              ),
-                              SizedBox(width: 8.w),
-                              Expanded(
-                                child: TextField(
-                                  controller: placeController,
-                                  decoration: InputDecoration(
-                                    border: InputBorder.none,
-                                    hintText: "Remote / City Name",
-                                    hintStyle: Theme.of(context)
-                                        .textTheme
-                                        .headlineSmall
-                                        ?.copyWith(color: Colors.grey),
-                                  ),
-                                  onChanged: (value) {
-                                    data.experiencePlace = value;
-                                  },
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
+                    _buildTextField(
+                      icon: CupertinoIcons.location_solid,
+                      controller: controllersForThisIndex[3],
+                      hintText: "Remote / City Name",
+                      onChanged: (value) {
+                        data.experiencePlace = value;
+                      },
                     ),
                     SizedBox(height: 8.sp),
                     Text(
                       'Description',
-                      style: Theme.of(context)
-                          .textTheme
-                          .headlineMedium
-                          ?.copyWith(fontSize: 14.sp),
+                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontSize: 14.sp),
                     ),
                     SizedBox(height: 8.h),
-                    SizedBox(
-                      width: 1.sw,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          border: Border.all(color: AppColors.primaryColor),
-                          borderRadius: BorderRadius.circular(8.sp),
-                        ),
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 8.0.w),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                child: TextField(
-                                  controller: descriptionController,
-                                  maxLines: 5,
-                                  decoration: InputDecoration(
-                                    border: InputBorder.none,
-                                    hintText: "Experience Description",
-                                    hintStyle: Theme.of(context)
-                                        .textTheme
-                                        .headlineSmall
-                                        ?.copyWith(color: Colors.grey),
-                                  ),
-                                  onChanged: (value) {
-                                    data.experienceDescription = value;
-                                  },
-                                ),
-                              ),
-                            ],
+                    Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(color: AppColors.primaryColor),
+                        borderRadius: BorderRadius.circular(8.sp),
+                      ),
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 8.0.w),
+                        child: TextField(
+                          controller: controllersForThisIndex[4],
+                          maxLines: 5,
+                          decoration: InputDecoration(
+                            border: InputBorder.none,
+                            hintText: "Experience Description",
+                            hintStyle: Theme.of(context).textTheme.headlineSmall?.copyWith(color: Colors.grey),
                           ),
+                          onChanged: (value) {
+                            data.experienceDescription = value;
+                          },
                         ),
                       ),
                     ),
+                    SizedBox(height: 8.h),
                   ],
                 ),
               ),
@@ -374,5 +284,45 @@ class _ExperienceDetailsState extends State<ExperienceDetails> {
       ),
     );
   }
-}
 
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String hintText,
+    required ValueChanged<String> onChanged,
+    IconData icon=Icons.edit
+  }) {
+    return SizedBox(
+      width: 1.sw,
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border.all(color: AppColors.primaryColor),
+          borderRadius: BorderRadius.circular(8.sp),
+        ),
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 8.0.w),
+          child: Row(
+            children: [
+              Icon(
+                icon,
+                color: Colors.grey,
+                size: 20.sp,
+              ),
+              SizedBox(width: 8.w),
+              Expanded(
+                child: TextField(
+                  controller: controller,
+                  decoration: InputDecoration(
+                    border: InputBorder.none,
+                    hintText: hintText,
+                    hintStyle: Theme.of(context).textTheme.headlineSmall?.copyWith(color: Colors.grey),
+                  ),
+                  onChanged: onChanged,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
