@@ -1,18 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:resume_builder_app/local_database/local_db.dart';
+import 'package:resume_builder_app/models/TemplateDataModel.dart';
 import 'package:resume_builder_app/models/UserResume.dart';
 import 'package:resume_builder_app/utils/routes/app_colors.dart';
 import 'package:resume_builder_app/views/create_resume/create_resume.dart';
+import 'package:resume_builder_app/views/create_resume/state/create_resume_state.dart';
 import 'package:resume_builder_app/views/widgets/app_bar.dart';
 import 'package:resume_builder_app/views/widgets/bg_gradient_color.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends ConsumerState<HomeScreen> {
+
+
   List<UserResume> userResumes=[UserResume(resumeTitle: "Flutter Developer",name: "Rehaman Shaik",email: 'srehaman234@gmail.com')];
   @override
   Widget build(BuildContext context) {
@@ -29,7 +35,9 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: (){
+        onPressed: ()async{
+          await LocalDB.addTemplateData(TemplateDataModel());
+           setIndex(ref);
           Navigator.of(context).push(MaterialPageRoute(builder: (context)=> CreateResume()));
         },
         backgroundColor: AppColors.primaryColor,

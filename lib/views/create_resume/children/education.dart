@@ -60,13 +60,15 @@ class _EducationalDetailsState extends ConsumerState<EducationalDetails> {
     return Scaffold(
       appBar: CustomAppBar().build(context, "Educational Details"),
       body: Padding(
-        padding: EdgeInsets.all(12.sp),
+        padding: EdgeInsets.symmetric(horizontal: 12.sp),
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              SizedBox(height: 12.h,),
               for (int i = 0; i < data.length; i++) educationDetailsView(data[i], i),
+              SizedBox(height: 8.h,),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
@@ -94,6 +96,7 @@ class _EducationalDetailsState extends ConsumerState<EducationalDetails> {
                   ),
                 ],
               ),
+              SizedBox(height: 12.h,),
             ],
           ),
         ),

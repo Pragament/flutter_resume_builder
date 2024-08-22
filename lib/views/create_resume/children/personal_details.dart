@@ -24,6 +24,7 @@ class _PersonalDetailsState extends ConsumerState<PersonalDetails> {
   late TextEditingController country;
   late TextEditingController currentPosition;
   late TextEditingController address;
+  late TextEditingController street;
   late TextEditingController bio;
 
   @override
@@ -34,6 +35,7 @@ class _PersonalDetailsState extends ConsumerState<PersonalDetails> {
     country=TextEditingController(text: ref.read(templateDataModel).country);
     currentPosition=TextEditingController(text: ref.read(templateDataModel).currentPosition);
     address=TextEditingController(text: ref.read(templateDataModel).address);
+    street=TextEditingController(text: ref.read(templateDataModel).street);
     bio=TextEditingController(text: ref.read(templateDataModel).bio);
     // TODO: implement initState
     super.initState();
@@ -42,12 +44,13 @@ class _PersonalDetailsState extends ConsumerState<PersonalDetails> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar().build(context, "Personal Details"),
-      body: Padding(
-        padding: EdgeInsets.all(12.sp),
+      body: Container(
+        margin: EdgeInsets.symmetric(horizontal:  12.sp),
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              SizedBox(height: 12.h,),
               Text("Photo",style: Theme.of(context).textTheme.headlineMedium,),
               SizedBox(
                 height: 8.h,
@@ -121,13 +124,17 @@ class _PersonalDetailsState extends ConsumerState<PersonalDetails> {
               SizedBox(
                 height: 12.h,
               ),
-              textCard('Address', "House Number, Street",Icons.location_on_rounded,address,maxLines: 3),
+              textCard('Street', "House Number, Street",Icons.location_on_rounded,street,maxLines: 3),
+              SizedBox(
+                height: 12.h,
+              ),
+              textCard('Address', "City/Town, State",Icons.location_on_rounded,address,maxLines: 3),
               SizedBox(
                 height: 12.h,
               ),
               textCard('Bio', "Enter Something About you",Icons.location_on_rounded,bio,maxLines: 5),
               SizedBox(
-                height: 12.h,
+                height: 24.h,
               ),
             ],
           ),
@@ -135,8 +142,10 @@ class _PersonalDetailsState extends ConsumerState<PersonalDetails> {
       ),
       floatingActionButton: BgGradientColor(
         borderRadius: BorderRadius.circular(30.sp),
-        child: IconButton(onPressed: (){
-         setTemplateData(ref, TemplateDataModel(fullName: fullName.text,email: email.text,phoneNumber: phone.text,country: country.text,address: address.text,currentPosition: currentPosition.text,bio: bio.text));
+        child: IconButton(onPressed: ()async{
+         setTemplateData(ref, TemplateDataModel(fullName: fullName.text,email: email.text,phoneNumber: phone.text,country: country.text,street: street.text
+             ,address: address.text,currentPosition: currentPosition.text,bio: bio.text));
+
         }, icon: Icon(Icons.check,color: Colors.white,size: 40.sp)),
       ),
     );
