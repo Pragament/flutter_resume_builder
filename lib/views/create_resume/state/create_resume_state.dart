@@ -5,11 +5,16 @@ import 'package:resume_builder_app/models/TemplateDataModel.dart';
 
   final loader= StateProvider<bool>((ref)=> false);
   final templateDataModel= StateProvider<TemplateDataModel>((ref) => TemplateDataModel());
-  final templateDataIndex= StateProvider<int>((ref) => 1);
+  final templateDataIndex= StateProvider<int>((ref) => 0);
 
-  void setIndex(WidgetRef ref)async{
-    List data=await LocalDB.getTemplatesData();
-    ref.read(templateDataIndex.notifier).state=data.length+1;
+  final userResumes=StateProvider<List<TemplateDataModel>>((ref)=>[]);
+
+  void setUserResumes(WidgetRef ref,List<TemplateDataModel> resumes)async{
+    ref.read(userResumes.notifier).state=resumes;
+  }
+
+  void setIndex(WidgetRef ref,int index)async{
+    ref.read(templateDataIndex.notifier).state=index;
   }
 
   void setTemplateData(WidgetRef ref,TemplateDataModel data)async{

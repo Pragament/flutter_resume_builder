@@ -23,9 +23,12 @@ class _CreateResumeState extends ConsumerState<CreateResume> {
 
   @override
   void initState() {
-    if(widget.templateDataModel!=null) {
-      // setTemplateData(ref, widget.templateDataModel ?? TemplateDataModel());
-    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if(widget.templateDataModel!=null) {
+        print(widget.templateDataModel?.fullName);
+        setTemplateData(ref, widget.templateDataModel ?? TemplateDataModel());
+      }
+    });
     // TODO: implement initState
     super.initState();
   }
@@ -67,7 +70,8 @@ class _CreateResumeState extends ConsumerState<CreateResume> {
   bool completedPersonalDetails(TemplateDataModel? dataModel) {
     if(dataModel!=null) {
       return dataModel.fullName.isNotEmpty && dataModel.email != null &&
-          dataModel.phoneNumber != null && dataModel.currentPosition != null &&
+          dataModel.email!.isNotEmpty && dataModel.phoneNumber != null &&
+          dataModel.phoneNumber!.isNotEmpty && dataModel.currentPosition != null &&
           dataModel.country != null
           && dataModel.street != null && dataModel.address != null &&
           dataModel.bio != null;
