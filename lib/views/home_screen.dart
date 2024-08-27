@@ -31,7 +31,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     return VisibilityDetector(
       key: const Key('MyWidget'),
       onVisibilityChanged: (info){
-        if(info.visibleFraction==0.0){
+        if(info.visibleFraction!=0.0){
           getTemplateModels();
         }
       },
@@ -174,6 +174,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   TemplateData convertToTemplateData(TemplateDataModel userResume) {
+    print(userResume.educationDetails.length);
     return TemplateData(
         fullName: userResume.fullName,
         email: userResume.email==null? null:userResume.email!.isNotEmpty?userResume.email:null ,
@@ -183,7 +184,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         address: userResume.address==null? null:userResume.address!.isNotEmpty?userResume.address:null,
         street: userResume.street==null? null:userResume.street!.isNotEmpty?userResume.street:null,
         bio: userResume.bio ==null? null:userResume.bio!.isNotEmpty?userResume.bio:null,
-        experience: userResume.experience.isNotEmpty? userResume.experience:[ExperienceData(experienceTitle: '', experiencePlace: '', experiencePeriod: 'experiencePeriod', experienceLocation: '', experienceDescription: '')],
+        experience: userResume.experience.isNotEmpty? userResume.experience:data.experience,
         educationDetails: userResume.educationDetails.isNotEmpty?userResume.educationDetails:data.educationDetails,
         hobbies: userResume.hobbies.isNotEmpty?userResume.hobbies:data.hobbies,
         languages: userResume.languages.isNotEmpty?userResume.languages:data.languages,

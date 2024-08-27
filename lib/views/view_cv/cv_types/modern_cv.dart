@@ -11,29 +11,23 @@ import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
 import 'package:resume_builder_app/main.dart';
 import 'package:resume_builder_app/utils/routes/app_colors.dart';
-import 'package:resume_builder_app/views/view_cv/cv_types/business_cv.dart';
-import 'package:resume_builder_app/views/view_cv/cv_types/classic_cv.dart';
-import 'package:resume_builder_app/views/view_cv/cv_types/modern_cv.dart';
-import 'package:resume_builder_app/views/view_cv/cv_types/technical_cv.dart';
 import 'package:resume_builder_app/views/widgets/app_bar.dart';
 import 'package:pdf/widgets.dart' as pw;
 
-class ViewCv extends StatefulWidget {
-  const ViewCv({super.key,required this.templateData});
+class ModernCv extends StatefulWidget {
+  const ModernCv({super.key,required this.templateData});
   final TemplateData templateData;
 
   @override
-  State<ViewCv> createState() => _ViewCvState();
+  State<ModernCv> createState() => _ModernCvState();
 }
 
-class _ViewCvState extends State<ViewCv> with SingleTickerProviderStateMixin {
+class _ModernCvState extends State<ModernCv> with SingleTickerProviderStateMixin {
   GlobalKey key=GlobalKey();
-  late TabController tabController;
-  double height=2000;
+  double height=1800;
 
   @override
   void initState() {
-    tabController=TabController(length: 4, vsync: this);
     // TODO: implement initState
     super.initState();
   }
@@ -41,16 +35,63 @@ class _ViewCvState extends State<ViewCv> with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return  Scaffold(
-      appBar: CustomAppBar(tabBar: tabBar(),).build(context, "CV"),
-      body:TabBarView(
-        controller: tabController,
-          children: [
-            ClassicCV(templateData: widget.templateData),
-            ModernCv(templateData: widget.templateData),
-            TechnicalCV(templateData: widget.templateData),
-            BusinessCV(templateData: widget.templateData),
-          ]
+      body: RepaintBoundary(
+        key: key,
+        child: FlutterResumeTemplate(
+          data: widget.templateData,
+          templateTheme: TemplateTheme.modern,
+          imageHeight: 100,
+          imageWidth: 100,
+          emailPlaceHolder: 'Email:',
+          telPlaceHolder: 'No:',
+          height: height,
+          width: 1.6.sw,
+          experiencePlaceHolder: 'Experience',
+          educationPlaceHolder: 'Education',
+          languagePlaceHolder: 'Skills',
+          aboutMePlaceholder: 'About Me',
+          hobbiesPlaceholder: 'Hobbies',
+          mode: TemplateMode.onlyEditableMode,
+          showButtons: true,
+          imageBoxFit: BoxFit.fitHeight,
+          backgroundColorLeftSection: Colors.blue,
+          enableDivider: false,
+        ),
       ),
+      floatingActionButton: SizedBox(
+        height: 100.h,
+        child: Column(
+          children: [
+            SizedBox(
+              height: 40.h,
+              width: 40.w,
+              child: FloatingActionButton(
+                heroTag: "jhdbjh",
+                onPressed: (){
+                  height=height-100;
+                  setState(() {
+
+                  });
+                },
+                backgroundColor: AppColors.primaryColor,child: Icon(Icons.zoom_in,color: Colors.white,size: 20.sp,),),
+            ),
+            SizedBox(height: 8.w,),
+            SizedBox(
+              height: 40.h,
+              width: 40.w,
+              child: FloatingActionButton(
+                heroTag: "jhsjb",
+                onPressed: (){
+                  height=height+100;
+                  setState(() {
+                    print(height);
+                  });
+                },
+                backgroundColor: AppColors.primaryColor,child: Icon(Icons.zoom_out,color: Colors.white,size: 20.sp,),),
+            ),        ],
+        ),
+      )
+      ,
     );
   }
 
@@ -60,7 +101,7 @@ class _ViewCvState extends State<ViewCv> with SingleTickerProviderStateMixin {
     ByteData? byteData = await image.toByteData(format: ImageByteFormat.png);
     return byteData!.buffer.asUint8List();
   }
-  
+
   Future<void> saveResume()async{
     try {
       final pdf = pw.Document();
@@ -95,16 +136,4 @@ class _ViewCvState extends State<ViewCv> with SingleTickerProviderStateMixin {
     }
   }
 
-  Widget tabBar(){
-    return TabBar(
-        controller: tabController,
-        dividerHeight: 0,
-        indicatorColor: Colors.white,
-        tabs: [
-          Tab(child: Text('Classic',style: TextStyle(color: Colors.white,fontSize: 12.sp),),),
-          Tab(child: Text('Modern',style: TextStyle(color: Colors.white,fontSize: 12.sp),),),
-          Tab(child: Text('Technical',style: TextStyle(color: Colors.white,fontSize: 12.sp),),),
-          Tab(child: Text('Business',style: TextStyle(color: Colors.white,fontSize: 12.sp),),),
-        ]);
-  }
 }

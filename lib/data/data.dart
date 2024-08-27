@@ -117,8 +117,7 @@ TemplateData data = TemplateData(
       Language('Russian', 1),
     ],
     hobbies: [
-      'Bungee jumping \n'
-       '-Respb dd h hd sh d sh ',
+      'Bungee jumping ',
       'Fitness Studio',
       'Martial Art',
       'Vintage Art Collection'
