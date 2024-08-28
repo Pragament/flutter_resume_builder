@@ -59,6 +59,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             List<TemplateDataModel> models=await LocalDB.getTemplatesData();
             setIndex(ref,models.length-1);
             TemplateDataModel? model;
+            print(ref.watch(templateDataIndex));
             if(models.isNotEmpty){
               model=models[ref.watch(templateDataIndex)];
             }

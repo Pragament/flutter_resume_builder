@@ -43,7 +43,8 @@ dependencies:
   flutter_riverpod: ^2.5.1
   shared_preferences: ^2.3.2
   visibility_detector: ^0.4.0+2
-
+  firebase_crashlytics: any
+  firebase_core: any
 
 dev_dependencies:
   flutter_test:

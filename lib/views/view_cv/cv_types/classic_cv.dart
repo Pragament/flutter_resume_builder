@@ -14,6 +14,8 @@ import 'package:resume_builder_app/utils/routes/app_colors.dart';
 import 'package:resume_builder_app/views/widgets/app_bar.dart';
 import 'package:pdf/widgets.dart' as pw;
 
+import '../../widgets/custom_button.dart';
+
 class ClassicCV extends StatefulWidget {
   const ClassicCV({super.key,required this.templateData});
   final TemplateData templateData;
@@ -88,8 +90,19 @@ class _ClassicCVState extends State<ClassicCV> with SingleTickerProviderStateMix
                 backgroundColor: AppColors.primaryColor,child: Icon(Icons.zoom_out,color: Colors.white,size: 20.sp,),),
             ),        ],
         ),
-      )
-      ,
+      ),
+      bottomSheet: InkWell(
+        onTap: saveResume,
+        child: SizedBox(
+          width: 1.sw,
+          height: 70.h,
+          child: CustomButton(
+            title: 'Save',
+            borderRadius: BorderRadius.zero,
+          ),
+        ),
+      ),
+
     );
   }
 

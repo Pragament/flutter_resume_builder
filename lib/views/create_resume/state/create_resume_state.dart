@@ -25,6 +25,11 @@ import 'package:resume_builder_app/models/TemplateDataModel.dart';
     await LocalDB.updateTemplateData(templateData,ref);
   }
 
+void initTemplate(WidgetRef ref)async{
+  ref.read(templateDataModel.notifier).state= TemplateDataModel();
+}
+
+
   void setTemplateEducationData(WidgetRef ref,List<Education> data)async{
     TemplateDataModel templateData= ref.read(templateDataModel.notifier).state.copyWith(educationDetails:data);
     ref.read(templateDataModel.notifier).state=templateData;

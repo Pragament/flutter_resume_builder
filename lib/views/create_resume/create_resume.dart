@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:resume_builder_app/models/TemplateDataModel.dart';
 import 'package:resume_builder_app/utils/routes/app_colors.dart';
+import 'package:resume_builder_app/utils/routes/constants.dart';
 import 'package:resume_builder_app/views/create_resume/children/education.dart';
 import 'package:resume_builder_app/views/create_resume/children/experience.dart';
 import 'package:resume_builder_app/views/create_resume/children/hobbies.dart';
 import 'package:resume_builder_app/views/create_resume/children/personal_details.dart';
 import 'package:resume_builder_app/views/create_resume/children/skills.dart';
 import 'package:resume_builder_app/views/create_resume/state/create_resume_state.dart';
+import 'package:resume_builder_app/views/view_cv/view_cv.dart';
 import 'package:resume_builder_app/views/widgets/app_bar.dart';
 import 'package:resume_builder_app/views/widgets/bg_gradient_color.dart';
 import 'package:resume_builder_app/views/widgets/custom_button.dart';
@@ -25,8 +27,8 @@ class _CreateResumeState extends ConsumerState<CreateResume> {
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if(widget.templateDataModel!=null) {
-        print(widget.templateDataModel?.fullName);
-        setTemplateData(ref, widget.templateDataModel ?? TemplateDataModel());
+        print(widget.templateDataModel?.email);
+        initTemplate(ref);
       }
     });
     // TODO: implement initState
@@ -56,12 +58,17 @@ class _CreateResumeState extends ConsumerState<CreateResume> {
           }
         ),
       ),
-      bottomSheet: SizedBox(
-        width: 1.sw,
-        height: 70.h,
-        child: CustomButton(
-          title: 'View CV',
-          borderRadius: BorderRadius.zero,
+      bottomSheet: InkWell(
+        onTap: (){
+          Navigator.of(context).push(MaterialPageRoute(builder: (context)=> ViewCv(templateData: Constants.convertToTemplateData(ref.watch<TemplateDataModel>(templateDataModel)))));
+        },
+        child: SizedBox(
+          width: 1.sw,
+          height: 70.h,
+          child: CustomButton(
+            title: 'View CV',
+            borderRadius: BorderRadius.zero,
+          ),
         ),
       ),
     );
