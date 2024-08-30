@@ -15,8 +15,9 @@ import 'package:resume_builder_app/views/widgets/custom_button.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 class CreateResume extends ConsumerStatefulWidget {
-  CreateResume({super.key,this.templateDataModel});
-  TemplateDataModel? templateDataModel;
+   CreateResume({super.key,required this.templateDataModel,this.editResume=false});
+  final TemplateDataModel templateDataModel;
+  late bool editResume;
   @override
   ConsumerState<CreateResume> createState() => _CreateResumeState();
 }
@@ -26,8 +27,9 @@ class _CreateResumeState extends ConsumerState<CreateResume> {
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if(widget.templateDataModel!=null) {
-        print(widget.templateDataModel?.email);
+      if(widget.editResume){
+        setTemplateData(ref,widget.templateDataModel ?? TemplateDataModel());
+      }else{
         initTemplate(ref);
       }
     });

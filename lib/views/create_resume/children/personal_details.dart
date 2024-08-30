@@ -9,6 +9,8 @@ import 'package:resume_builder_app/views/widgets/bg_gradient_color.dart';
 import 'package:resume_builder_app/views/widgets/custom_button.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+
+import '../../widgets/pop_ups/custom_popups.dart';
 class PersonalDetails extends ConsumerStatefulWidget {
   PersonalDetails({super.key});
 
@@ -143,8 +145,9 @@ class _PersonalDetailsState extends ConsumerState<PersonalDetails> {
       floatingActionButton: BgGradientColor(
         borderRadius: BorderRadius.circular(30.sp),
         child: IconButton(onPressed: ()async{
-         setTemplateData(ref, TemplateDataModel(fullName: fullName.text,email: email.text,phoneNumber: phone.text,country: country.text,street: street.text
-             ,address: address.text,currentPosition: currentPosition.text,bio: bio.text));
+         await setTemplateData(ref, TemplateDataModel(fullName: fullName.text,email: email.text,phoneNumber: phone.text,country: country.text,street: street.text
+             ,address: address.text,currentPosition: currentPosition.text,bio: bio.text))
+             .whenComplete(()=>CustomPopups.showSnackBar(context,"Successfully Saved",Colors.green));;
 
         }, icon: Icon(Icons.check,color: Colors.white,size: 40.sp)),
       ),

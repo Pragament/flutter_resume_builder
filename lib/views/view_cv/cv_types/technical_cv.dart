@@ -27,6 +27,8 @@ class TechnicalCV extends StatefulWidget {
 class _TechnicalCVState extends State<TechnicalCV> with SingleTickerProviderStateMixin {
   GlobalKey key=GlobalKey();
   double height=2400;
+  bool isLoading=false;
+
 
   @override
   void initState() {
@@ -67,7 +69,7 @@ class _TechnicalCVState extends State<TechnicalCV> with SingleTickerProviderStat
               height: 40.h,
               width: 40.w,
               child: FloatingActionButton(
-                heroTag: "jhdbjh",
+                heroTag: "technical_zoom+",
                 onPressed: (){
                   height=height-100;
                   setState(() {
@@ -81,7 +83,7 @@ class _TechnicalCVState extends State<TechnicalCV> with SingleTickerProviderStat
               height: 40.h,
               width: 40.w,
               child: FloatingActionButton(
-                heroTag: "jhsjb",
+                heroTag: "technical_zoom-",
                 onPressed: (){
                   height=height+100;
                   setState(() {
@@ -99,6 +101,7 @@ class _TechnicalCVState extends State<TechnicalCV> with SingleTickerProviderStat
           height: 70.h,
           child: CustomButton(
             title: 'Save',
+            isLoading: isLoading,
             borderRadius: BorderRadius.zero,
           ),
         ),
@@ -116,6 +119,9 @@ class _TechnicalCVState extends State<TechnicalCV> with SingleTickerProviderStat
 
   Future<void> saveResume()async{
     try {
+      setState(() {
+        isLoading=true;
+      });
       final pdf = pw.Document();
 
       // Capture the widget as an image
@@ -143,7 +149,13 @@ class _TechnicalCVState extends State<TechnicalCV> with SingleTickerProviderStat
 
       // Optionally, share or print the PDF
       await Printing.sharePdf(bytes: await pdf.save(), filename: 'resume.pdf');
+      setState(() {
+        isLoading=false;
+      });
     } catch (e) {
+      setState(() {
+        isLoading=false;
+      });
       print('Error generating PDF: $e');
     }
   }

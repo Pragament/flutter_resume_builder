@@ -7,6 +7,7 @@ import 'package:resume_builder_app/utils/routes/app_colors.dart';
 import 'package:resume_builder_app/views/widgets/app_bar.dart';
 import 'package:resume_builder_app/views/widgets/bg_gradient_color.dart';
 
+import '../../widgets/pop_ups/custom_popups.dart';
 import '../state/create_resume_state.dart';
 
 
@@ -114,7 +115,7 @@ class _ExperienceDetailsState extends ConsumerState<ExperienceDetails> {
       floatingActionButton: BgGradientColor(
         borderRadius: BorderRadius.circular(30.sp),
         child: IconButton(
-          onPressed: () {
+          onPressed: ()async{
             List<ExperienceData> expData=[];
             for (int i=0;i<experiences.length;i++) {
               List<TextEditingController> controllersIndex=controllers[i];
@@ -125,7 +126,7 @@ class _ExperienceDetailsState extends ConsumerState<ExperienceDetails> {
                                  experienceLocation: controllersIndex[1].text,
                                  experienceDescription: controllersIndex[4].text, ));
             }
-            setTemplateExperienceData(ref, expData);
+            await setTemplateExperienceData(ref, expData).whenComplete(()=>CustomPopups.showSnackBar(context,"Successfully Saved",Colors.green));
             // Save or submit the experience data
           },
           icon: Icon(

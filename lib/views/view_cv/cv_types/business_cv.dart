@@ -27,6 +27,7 @@ class BusinessCV extends StatefulWidget {
 class _BusinessCVState extends State<BusinessCV> with SingleTickerProviderStateMixin {
   GlobalKey key=GlobalKey();
   double height=2000;
+  bool isLoading=false;
 
   @override
   void initState() {
@@ -66,7 +67,7 @@ class _BusinessCVState extends State<BusinessCV> with SingleTickerProviderStateM
               height: 40.h,
               width: 40.w,
               child: FloatingActionButton(
-                heroTag: "jhdbjh",
+                heroTag: "business_zoom+",
                 onPressed: (){
                   height=height-100;
                   setState(() {
@@ -80,7 +81,7 @@ class _BusinessCVState extends State<BusinessCV> with SingleTickerProviderStateM
               height: 40.h,
               width: 40.w,
               child: FloatingActionButton(
-                heroTag: "jhsjb",
+                heroTag: "business_zoom-",
                 onPressed: (){
                   height=height+100;
                   setState(() {
@@ -98,6 +99,7 @@ class _BusinessCVState extends State<BusinessCV> with SingleTickerProviderStateM
           height: 70.h,
           child: CustomButton(
             title: 'Save',
+            isLoading: isLoading,
             borderRadius: BorderRadius.zero,
           ),
         ),
@@ -114,6 +116,9 @@ class _BusinessCVState extends State<BusinessCV> with SingleTickerProviderStateM
 
   Future<void> saveResume()async{
     try {
+      setState(() {
+        isLoading=true;
+      });
       final pdf = pw.Document();
 
       // Capture the widget as an image
@@ -138,10 +143,15 @@ class _BusinessCVState extends State<BusinessCV> with SingleTickerProviderStateM
       final file = File("${output.path}/resume.pdf");
       print(file.path);
       await file.writeAsBytes(await pdf.save());
-
       // Optionally, share or print the PDF
       await Printing.sharePdf(bytes: await pdf.save(), filename: 'resume.pdf');
+      setState(() {
+        isLoading=false;
+      });
     } catch (e) {
+      setState(() {
+        isLoading=false;
+      });
       print('Error generating PDF: $e');
     }
   }

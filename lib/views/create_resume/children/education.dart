@@ -8,6 +8,7 @@ import 'package:resume_builder_app/views/widgets/app_bar.dart';
 import 'package:resume_builder_app/views/widgets/bg_gradient_color.dart';
 import 'package:resume_builder_app/views/widgets/custom_button.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:resume_builder_app/views/widgets/pop_ups/custom_popups.dart';
 
 class EducationalDetails extends ConsumerStatefulWidget {
   const EducationalDetails({super.key});
@@ -104,12 +105,12 @@ class _EducationalDetailsState extends ConsumerState<EducationalDetails> {
       floatingActionButton: BgGradientColor(
         borderRadius: BorderRadius.circular(30.sp),
         child: IconButton(
-          onPressed: () {
+          onPressed: () async{
             List<Education> educData=[];
             for (int i=0;i<data.length;i++) {
               educData.add(Education(schoolLevelControllers[i].text, schoolNameControllers[i].text));
             }
-            setTemplateEducationData(ref, educData);
+            await setTemplateEducationData(ref, educData).whenComplete(()=>CustomPopups.showSnackBar(context,"Successfully Saved",Colors.green));
           },
           icon: Icon(
             Icons.check,

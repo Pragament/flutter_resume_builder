@@ -64,7 +64,7 @@ class _MyAppState extends State<MyApp> {
           return MaterialApp(
             debugShowCheckedModeBanner: false,
             theme: AppThemes().lightTheme,
-            home: HomeScreen(),
+            home: const HomeScreen(),
           );
         }
     );
