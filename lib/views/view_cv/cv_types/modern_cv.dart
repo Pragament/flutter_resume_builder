@@ -26,6 +26,8 @@ class ModernCv extends StatefulWidget {
 class _ModernCvState extends State<ModernCv> with SingleTickerProviderStateMixin {
   GlobalKey key=GlobalKey();
   double height=1800;
+  bool isLoading=false;
+
 
   @override
   void initState() {
@@ -67,7 +69,7 @@ class _ModernCvState extends State<ModernCv> with SingleTickerProviderStateMixin
               height: 40.h,
               width: 40.w,
               child: FloatingActionButton(
-                heroTag: "jhdbjh",
+                heroTag: "modern_zoom+",
                 onPressed: (){
                   height=height-100;
                   setState(() {
@@ -81,7 +83,7 @@ class _ModernCvState extends State<ModernCv> with SingleTickerProviderStateMixin
               height: 40.h,
               width: 40.w,
               child: FloatingActionButton(
-                heroTag: "jhsjb",
+                heroTag: "modern_zoom-",
                 onPressed: (){
                   height=height+100;
                   setState(() {
@@ -99,6 +101,7 @@ class _ModernCvState extends State<ModernCv> with SingleTickerProviderStateMixin
           height: 70.h,
           child: CustomButton(
             title: 'Save',
+            isLoading: isLoading,
             borderRadius: BorderRadius.zero,
           ),
         ),
@@ -116,6 +119,9 @@ class _ModernCvState extends State<ModernCv> with SingleTickerProviderStateMixin
 
   Future<void> saveResume()async{
     try {
+      setState(() {
+        isLoading=true;
+      });
       final pdf = pw.Document();
 
       // Capture the widget as an image
@@ -143,7 +149,13 @@ class _ModernCvState extends State<ModernCv> with SingleTickerProviderStateMixin
 
       // Optionally, share or print the PDF
       await Printing.sharePdf(bytes: await pdf.save(), filename: 'resume.pdf');
+      setState(() {
+        isLoading=false;
+      });
     } catch (e) {
+      setState(() {
+        isLoading=false;
+      });
       print('Error generating PDF: $e');
     }
   }

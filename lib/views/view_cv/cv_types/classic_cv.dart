@@ -26,7 +26,9 @@ class ClassicCV extends StatefulWidget {
 
 class _ClassicCVState extends State<ClassicCV> with SingleTickerProviderStateMixin {
   GlobalKey key=GlobalKey();
-  double height=4600;
+  double height=2700;
+  bool isLoading=false;
+
 
   @override
   void initState() {
@@ -45,7 +47,6 @@ class _ClassicCVState extends State<ClassicCV> with SingleTickerProviderStateMix
           emailPlaceHolder: 'Email:',
           telPlaceHolder: 'No:',
           height: height,
-          width:700,
           experiencePlaceHolder: 'Experience',
           educationPlaceHolder: 'Education',
           languagePlaceHolder: 'Skills',
@@ -66,7 +67,7 @@ class _ClassicCVState extends State<ClassicCV> with SingleTickerProviderStateMix
               height: 40.h,
               width: 40.w,
               child: FloatingActionButton(
-                heroTag: "jhdbjh",
+                heroTag: "classic_zoom+",
                 onPressed: (){
                   height=height-100;
                   setState(() {
@@ -80,7 +81,7 @@ class _ClassicCVState extends State<ClassicCV> with SingleTickerProviderStateMix
               height: 40.h,
               width: 40.w,
               child: FloatingActionButton(
-                heroTag: "jhsjb",
+                heroTag: "classic_zoom-",
                 onPressed: (){
                   height=height+100;
                   setState(() {
@@ -98,6 +99,7 @@ class _ClassicCVState extends State<ClassicCV> with SingleTickerProviderStateMix
           height: 70.h,
           child: CustomButton(
             title: 'Save',
+            isLoading: isLoading,
             borderRadius: BorderRadius.zero,
           ),
         ),
@@ -115,6 +117,9 @@ class _ClassicCVState extends State<ClassicCV> with SingleTickerProviderStateMix
 
   Future<void> saveResume()async{
     try {
+      setState(() {
+        isLoading=true;
+      });
       final pdf = pw.Document();
 
       // Capture the widget as an image
@@ -137,12 +142,17 @@ class _ClassicCVState extends State<ClassicCV> with SingleTickerProviderStateMix
       // Get the temporary directory and save the file
       final output = await getTemporaryDirectory();
       final file = File("${output.path}/resume.pdf");
-      print(file.path);
       await file.writeAsBytes(await pdf.save());
 
       // Optionally, share or print the PDF
       await Printing.sharePdf(bytes: await pdf.save(), filename: 'resume.pdf');
+      setState(() {
+        isLoading=false;
+      });
     } catch (e) {
+      setState(() {
+        isLoading=false;
+      });
       print('Error generating PDF: $e');
     }
   }

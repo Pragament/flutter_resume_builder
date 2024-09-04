@@ -6,6 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:resume_builder_app/utils/routes/app_colors.dart';
 import 'package:resume_builder_app/views/widgets/app_bar.dart';
 
+import '../../widgets/pop_ups/custom_popups.dart';
 import '../state/create_resume_state.dart';
 
 
@@ -100,12 +101,12 @@ class _SkillsDetailsState extends ConsumerState<SkillsDetails> {
           color: Colors.white,
           size: 40.sp,
         ),
-        onPressed: () {
+        onPressed: ()async{
           List<Language> skills=[];
           for(int i=0;i<languages.length;i++){
             skills.add(Language(nameControllers[i].text, proficiencyLevels[i]));
           }
-          setSkills(ref, skills);
+         await setSkills(ref, skills).whenComplete(()=>CustomPopups.showSnackBar(context,"Successfully Saved",Colors.green));;
         },
       ),
     );

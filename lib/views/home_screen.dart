@@ -59,11 +59,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             List<TemplateDataModel> models=await LocalDB.getTemplatesData();
             setIndex(ref,models.length-1);
             TemplateDataModel? model;
-            print(ref.watch(templateDataIndex));
             if(models.isNotEmpty){
               model=models[ref.watch(templateDataIndex)];
             }
-            Navigator.of(context).push(MaterialPageRoute(builder: (context)=> CreateResume(templateDataModel: model,)));
+            Navigator.of(context).push(MaterialPageRoute(builder: (context)=> CreateResume(templateDataModel: model ?? TemplateDataModel(),)));
           },
           backgroundColor: AppColors.primaryColor,
           child: Icon(Icons.add,color: Colors.white,size: 20.sp,),
@@ -130,7 +129,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 children: [
                   iconTextButton(Icon(Icons.edit,color: Colors.white,size: 20.sp,),"Edit CV",(){
                     setIndex(ref,index-1);
-                    Navigator.of(context).push(MaterialPageRoute(builder: (context)=> CreateResume(templateDataModel: userResume,)));
+                    Navigator.of(context).push(MaterialPageRoute(builder: (context)=> CreateResume(templateDataModel: userResume,editResume: true,)));
                   }),
                   SizedBox(width: 16.w,),
                   iconTextButton(Icon(Icons.remove_red_eye_rounded,color: Colors.white,size: 20.sp,),"View Cv",(){

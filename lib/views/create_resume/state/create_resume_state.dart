@@ -17,7 +17,7 @@ import 'package:resume_builder_app/models/TemplateDataModel.dart';
     ref.read(templateDataIndex.notifier).state=index;
   }
 
-  void setTemplateData(WidgetRef ref,TemplateDataModel data)async{
+  Future<void> setTemplateData(WidgetRef ref,TemplateDataModel data)async{
     TemplateDataModel templateData=ref.read(templateDataModel.notifier).state.copyWith(fullName: data.fullName,currentPosition: data.currentPosition,
                                                                   street:data.street,address: data.address,country: data.country,
                                                                    email: data.email,phoneNumber: data.phoneNumber,bio: data.bio);
@@ -30,25 +30,25 @@ void initTemplate(WidgetRef ref)async{
 }
 
 
-  void setTemplateEducationData(WidgetRef ref,List<Education> data)async{
+  Future<void> setTemplateEducationData(WidgetRef ref,List<Education> data)async{
     TemplateDataModel templateData= ref.read(templateDataModel.notifier).state.copyWith(educationDetails:data);
     ref.read(templateDataModel.notifier).state=templateData;
     await LocalDB.updateTemplateData(templateData,ref);
   }
 
-  void setTemplateExperienceData(WidgetRef ref,List<ExperienceData> data)async{
+  Future<void> setTemplateExperienceData(WidgetRef ref,List<ExperienceData> data)async{
     TemplateDataModel templateData= ref.read(templateDataModel.notifier).state.copyWith(experience:data);
     ref.read(templateDataModel.notifier).state=templateData;
     await LocalDB.updateTemplateData(templateData,ref);
   }
 
-  void setSkills(WidgetRef ref,List<Language> data)async{
+  Future<void> setSkills(WidgetRef ref,List<Language> data)async{
     TemplateDataModel templateData=ref.read(templateDataModel.notifier).state.copyWith(languages:data);
     ref.read(templateDataModel.notifier).state= templateData;
     await LocalDB.updateTemplateData(templateData,ref);
   }
 
-  void setHobbiesDetails(WidgetRef ref,List<String> hobbies)async{
+  Future<void> setHobbiesDetails(WidgetRef ref,List<String> hobbies)async{
     TemplateDataModel templateData=ref.read(templateDataModel.notifier).state.copyWith(hobbies:hobbies);
     ref.read(templateDataModel.notifier).state=templateData;
     await LocalDB.updateTemplateData(templateData,ref);

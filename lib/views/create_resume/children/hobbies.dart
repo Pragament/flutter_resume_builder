@@ -6,6 +6,8 @@ import 'package:resume_builder_app/utils/routes/app_colors.dart';
 import 'package:resume_builder_app/views/create_resume/state/create_resume_state.dart';
 import 'package:resume_builder_app/views/widgets/app_bar.dart';
 
+import '../../widgets/pop_ups/custom_popups.dart';
+
 class HobbiesDetails extends ConsumerStatefulWidget {
   const HobbiesDetails({super.key});
 
@@ -94,12 +96,12 @@ class _HobbiesDetailsState extends ConsumerState<HobbiesDetails> {
           color: Colors.white,
           size: 40.sp,
         ),
-        onPressed: () {
+        onPressed: ()async{
           List<String> hobbiesData=[];
           for(int i=0;i<hobbies.length;i++){
             hobbiesData.add(nameControllers[i].text);
           }
-          setHobbiesDetails(ref, hobbiesData);
+          await setHobbiesDetails(ref, hobbiesData).whenComplete(()=>CustomPopups.showSnackBar(context,"Successfully Saved",Colors.green));
           // Save or submit the hobbies data
         },
       ),
