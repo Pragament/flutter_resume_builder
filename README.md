@@ -1,16 +1,9 @@
 # resume_builder_app
 
-A new Flutter project.
+Resume builder Flutter project.
 
-## Getting Started
+## Current App screenshots
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+![image](https://github.com/user-attachments/assets/140fa0de-9df7-4e14-bad7-0d3e2d72fe06)
+![image](https://github.com/user-attachments/assets/97de7cdb-2367-425e-bd2c-ed0fd892fc7d)
+![image](https://github.com/user-attachments/assets/4639e28b-f4eb-4989-97d6-04c381b69e7b)
