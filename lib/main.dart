@@ -5,7 +5,9 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_resume_template/flutter_resume_template.dart';
+import 'package:resume_builder_app/auth_provider.dart';
 import 'package:resume_builder_app/data/data.dart';
+import 'package:resume_builder_app/router.dart';
 import 'package:resume_builder_app/utils/app_themes.dart';
 import 'package:resume_builder_app/views/home_screen.dart';
 import 'package:resume_builder_app/views/sample_template.dart';
@@ -43,30 +45,28 @@ Future<void> main() async {
     }
     return true;
   };
-  runApp(const  ProviderScope(child:MyApp(),));
+  runApp(const  ProviderScope(child:MainApp(),));
 
 }
-
-class MyApp extends StatefulWidget {
-  const MyApp({super.key});
-
-  @override
-  State<MyApp> createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
+class MainApp extends ConsumerWidget {
+  const MainApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Check authentication status
+    ref.read(authProvider).checkAuthStatus();
+
+    // Initialize ScreenUtil
     return ScreenUtilInit(
-        designSize: Size(MediaQuery.of(context).size.width ,MediaQuery.of(context).size.height),
-        builder: (context,child) {
-          return MaterialApp(
-            debugShowCheckedModeBanner: false,
-            theme: AppThemes().lightTheme,
-            home: const HomeScreen(),
-          );
-        }
+      designSize: const Size(360, 690), // Set the base design size (width, height)
+      minTextAdapt: true,
+      builder: (context, child) {
+        return MaterialApp.router(
+          theme: ThemeData.light(useMaterial3: true),
+          darkTheme: ThemeData.dark(useMaterial3: true),
+          routerConfig: ref.watch(routerProvider),
+        );
+      },
     );
   }
 }

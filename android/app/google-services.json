@@ -1,13 +1,51 @@
 {
   "project_info": {
-    "project_number": "788031804627",
-    "project_id": "portfolio-a46a6",
-    "storage_bucket": "portfolio-a46a6.appspot.com"
+    "project_number": "634571473194",
+    "project_id": "resume-f687f",
+    "storage_bucket": "resume-f687f.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:788031804627:android:433847f8a152e00ea83026",
+        "mobilesdk_app_id": "1:634571473194:android:6ea1b0439d7b75703c9e53",
+        "android_client_info": {
+          "package_name": "app.r.com"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDZxKkPvVUDNOA2iXOdBAP3UgD1KORC5V4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:634571473194:android:ade63b80c887d94e3c9e53",
+        "android_client_info": {
+          "package_name": "app.resum"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDZxKkPvVUDNOA2iXOdBAP3UgD1KORC5V4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:634571473194:android:5b84ee48c7b761803c9e53",
         "android_client_info": {
           "package_name": "app.resume_builder.com.resume_builder_app"
         }
@@ -15,7 +53,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyAs91vxpOzRPv-6PF8Ow3Kxv8FjSXbb9RE"
+          "current_key": "AIzaSyDZxKkPvVUDNOA2iXOdBAP3UgD1KORC5V4"
         }
       ],
       "services": {
