@@ -42,6 +42,7 @@ dependencies:
   path_provider: ^2.1.4
   pdf: ^3.11.1
   printing: ^5.13.2
+  share_plus: ^10.0.2
   shared_preferences: ^2.3.2
   visibility_detector: ^0.4.0+2
 
@@ -59,8 +60,8 @@ flutter:
   # the material Icons class.
   uses-material-design: true
   # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
+  assets:
+    - assets/
   #   - images/a_dot_ham.jpeg
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

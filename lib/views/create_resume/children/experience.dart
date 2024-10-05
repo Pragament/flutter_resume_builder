@@ -46,6 +46,7 @@ class _ExperienceDetailsState extends ConsumerState<ExperienceDetails> {
         TextEditingController(text: experience.experiencePeriod),
         TextEditingController(text: experience.experiencePlace),
         TextEditingController(text: experience.experienceDescription),
+        TextEditingController(text: experience.experienceEndDate),
       ];
     }).toList();
   }
@@ -59,67 +60,76 @@ class _ExperienceDetailsState extends ConsumerState<ExperienceDetails> {
     }
     super.dispose();
   }
-Future<void> callGitHubApi() async {
-  const String githubApiUrl = 'https://api.github.com/user/repos';
-  final token = await getAccessToken();
-  final response = await http.get(
-    Uri.parse(githubApiUrl),
-    headers: {'Authorization': 'Bearer $token'},
-  );
 
-  if (response.statusCode == 200) {
-    final data = jsonDecode(response.body) as List<dynamic>;
+  Future<void> callGitHubApi() async {
+    const String githubApiUrl = 'https://api.github.com/user/repos';
+    final token = await getAccessToken();
+    final response = await http.get(
+      Uri.parse(githubApiUrl),
+      headers: {'Authorization': 'Bearer $token'},
+    );
 
-    setState(() {
-      repoNames = data.map((repo) {
-        final createdAt = DateTime.parse(repo['created_at']);
-        final updatedAt = DateTime.parse(repo['updated_at']);
-        
-        return {
-          'name': repo['name'],
-          'description': repo['description'] ?? "No description provided",
-          'created_at': createdAt.toLocal().toString().split(' ')[0], // Format date only
-          'updated_at': updatedAt.toLocal().toString().split(' ')[0], // Format date only
-          'selected': false, // Checkbox selection status
-        };
-      }).toList();
-    });
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body) as List<dynamic>;
 
-    showRepoSelectionDialog((selectedRepos) {
-      if (selectedRepos.isNotEmpty) {
-        setState(() {
-          for (int i = 0; i < selectedRepos.length; i++) {
-            if (i < experiences.length) {
-              controllers[i][0].text = selectedRepos[i]['name'];
-              controllers[i][4].text = selectedRepos[i]['description'];
-              controllers[i][2].text = selectedRepos[i]['created_at'];
-              controllers[i][5].text = selectedRepos[i]['updated_at'];
-            } else {
-              experiences.add(ExperienceData(
-                experienceTitle: selectedRepos[i]['name'],
-                experienceLocation: '',
-                experiencePeriod: selectedRepos[i]['created_at'],
-                experiencePlace: '',
-                experienceDescription: selectedRepos[i]['description'],
-                experienceEndDate: selectedRepos[i]['updated_at'],
-              ));
-              controllers.add([
-                TextEditingController(text: selectedRepos[i]['name']),
-                TextEditingController(),
-                TextEditingController(text: selectedRepos[i]['created_at']),
-                TextEditingController(),
-                TextEditingController(text: selectedRepos[i]['description']),
-                TextEditingController(text: selectedRepos[i]['updated_at']),
-              ]);
+      setState(() {
+        repoNames = data.map((repo) {
+          final createdAt = DateTime.parse(repo['created_at']);
+          final updatedAt = DateTime.parse(repo['updated_at']);
+
+          return {
+            'name': repo['name'],
+            'description': repo['description'] ?? "No description provided",
+            'created_at': createdAt
+                .toLocal()
+                .toString()
+                .split(' ')[0], // Format date only
+            'updated_at': updatedAt
+                .toLocal()
+                .toString()
+                .split(' ')[0], // Format date only
+            'selected': false, // Checkbox selection status
+          };
+        }).toList();
+      });
+
+      showRepoSelectionDialog((selectedRepos) {
+        if (selectedRepos.isNotEmpty) {
+          setState(() {
+            for (int i = 0; i < selectedRepos.length; i++) {
+              if (i < controllers.length) {
+                controllers[i][0].text = selectedRepos[i]['name'];
+                controllers[i][2].text = selectedRepos[i]['created_at'];
+                if (controllers[i].length > 4) {
+                  controllers[i][4].text = selectedRepos[i]['description'];
+                  controllers[i][5].text = selectedRepos[i]['updated_at'];
+                }
+              } else {
+                experiences.add(ExperienceData(
+                  experienceTitle: selectedRepos[i]['name'],
+                  experienceLocation: '',
+                  experiencePeriod: selectedRepos[i]['created_at'],
+                  experiencePlace: '',
+                  experienceDescription: selectedRepos[i]['description'],
+                  experienceEndDate: selectedRepos[i]['updated_at'],
+                ));
+                controllers.add([
+                  TextEditingController(text: selectedRepos[i]['name']),
+                  TextEditingController(),
+                  TextEditingController(text: selectedRepos[i]['created_at']),
+                  TextEditingController(),
+                  TextEditingController(text: selectedRepos[i]['description']),
+                  TextEditingController(text: selectedRepos[i]['updated_at']),
+                ]);
+              }
             }
-          }
-        });
-      }
-    });
-  } else {
-    CustomPopups.showSnackBar(context, "API Call Failed", Colors.red);
+          });
+        }
+      });
+    } else {
+      CustomPopups.showSnackBar(context, "API Call Failed", Colors.red);
+    }
   }
-}
 
   void showRepoSelectionDialog(
       Function(List<Map<String, dynamic>>) onImportSelectedRepos) {
@@ -290,137 +300,138 @@ Future<void> callGitHubApi() async {
       ),
     );
   }
-Widget experienceDetailsView(ExperienceData data, int index) {
-  final controllersForThisIndex = controllers[index];
 
-  return SizedBox(
-    width: 1.sw,
-    child: Card(
-      elevation: 3,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8.sp),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 1.sw,
-            padding: EdgeInsets.all(8.sp),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(8.sp),
-                topRight: Radius.circular(8.sp),
+  Widget experienceDetailsView(ExperienceData data, int index) {
+    final controllersForThisIndex = controllers[index];
+
+    return SizedBox(
+      width: 1.sw,
+      child: Card(
+        elevation: 3,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8.sp),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 1.sw,
+              padding: EdgeInsets.all(8.sp),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(8.sp),
+                  topRight: Radius.circular(8.sp),
+                ),
+                color: AppColors.primaryColor,
               ),
-              color: AppColors.primaryColor,
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Experience ${index + 1}',
-                  style: Theme.of(context)
-                      .textTheme
-                      .headlineMedium
-                      ?.copyWith(color: Colors.white),
-                ),
-                InkWell(
-                  onTap: () {
-                    setState(() {
-                      experiences.removeAt(index);
-                      controllers.removeAt(index);
-                    });
-                  },
-                  child: Icon(
-                    CupertinoIcons.delete,
-                    color: Colors.white,
-                    size: 18.sp,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: EdgeInsets.all(8.0.sp),
-            child: SizedBox(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  ..._buildExperienceFields(controllersForThisIndex, context),
+                  Text(
+                    'Experience ${index + 1}',
+                    style: Theme.of(context)
+                        .textTheme
+                        .headlineMedium
+                        ?.copyWith(color: Colors.white),
+                  ),
+                  InkWell(
+                    onTap: () {
+                      setState(() {
+                        experiences.removeAt(index);
+                        controllers.removeAt(index);
+                      });
+                    },
+                    child: Icon(
+                      CupertinoIcons.delete,
+                      color: Colors.white,
+                      size: 18.sp,
+                    ),
+                  ),
                 ],
               ),
             ),
-          ),
-        ],
+            Padding(
+              padding: EdgeInsets.all(8.0.sp),
+              child: SizedBox(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ..._buildExperienceFields(controllersForThisIndex, context),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
-    ),
-  );
-}
-List<Widget> _buildExperienceFields(
-    List<TextEditingController> controllersIndex, BuildContext context) {
-  return [
-    TextField(
-      controller: controllersIndex[0],
-      decoration: InputDecoration(
-        labelText: "Experience Title",
-        labelStyle: Theme.of(context)
-            .textTheme
-            .headlineMedium
-            ?.copyWith(color: AppColors.primaryColor),
-      ),
-    ),
-    TextField(
-      controller: controllersIndex[1],
-      decoration: InputDecoration(
-        labelText: "Experience Location",
-        labelStyle: Theme.of(context)
-            .textTheme
-            .headlineMedium
-            ?.copyWith(color: AppColors.primaryColor),
-      ),
-    ),
-    TextField(
-      controller: controllersIndex[2],
-      decoration: InputDecoration(
-        labelText: "Experience Start Date",
-        labelStyle: Theme.of(context)
-            .textTheme
-            .headlineMedium
-            ?.copyWith(color: AppColors.primaryColor),
-      ),
-    ),
-    TextField(
-      controller: controllersIndex[5], // Ensure this is the end date controller
-      decoration: InputDecoration(
-        labelText: "Experience End Date",
-        labelStyle: Theme.of(context)
-            .textTheme
-            .headlineMedium
-            ?.copyWith(color: AppColors.primaryColor),
-      ),
-    ),
-    TextField(
-      controller: controllersIndex[3],
-      decoration: InputDecoration(
-        labelText: "Experience Place",
-        labelStyle: Theme.of(context)
-            .textTheme
-            .headlineMedium
-            ?.copyWith(color: AppColors.primaryColor),
-      ),
-    ),
-    TextField(
-      controller: controllersIndex[4],
-      maxLines: 5,
-      decoration: InputDecoration(
-        labelText: "Experience Description",
-        labelStyle: Theme.of(context)
-            .textTheme
-            .headlineMedium
-            ?.copyWith(color: AppColors.primaryColor),
-      ),
-    ),
-  ];
-}
+    );
+  }
 
-
+  List<Widget> _buildExperienceFields(
+      List<TextEditingController> controllersIndex, BuildContext context) {
+    return [
+      TextField(
+        controller: controllersIndex[0],
+        decoration: InputDecoration(
+          labelText: "Experience Title",
+          labelStyle: Theme.of(context)
+              .textTheme
+              .headlineMedium
+              ?.copyWith(color: AppColors.primaryColor),
+        ),
+      ),
+      TextField(
+        controller: controllersIndex[1],
+        decoration: InputDecoration(
+          labelText: "Experience Location",
+          labelStyle: Theme.of(context)
+              .textTheme
+              .headlineMedium
+              ?.copyWith(color: AppColors.primaryColor),
+        ),
+      ),
+      TextField(
+        controller: controllersIndex[2],
+        decoration: InputDecoration(
+          labelText: "Experience Start Date",
+          labelStyle: Theme.of(context)
+              .textTheme
+              .headlineMedium
+              ?.copyWith(color: AppColors.primaryColor),
+        ),
+      ),
+      TextField(
+        controller:
+            controllersIndex[5], // Ensure this is the end date controller
+        decoration: InputDecoration(
+          labelText: "Experience End Date",
+          labelStyle: Theme.of(context)
+              .textTheme
+              .headlineMedium
+              ?.copyWith(color: AppColors.primaryColor),
+        ),
+      ),
+      TextField(
+        controller: controllersIndex[3],
+        decoration: InputDecoration(
+          labelText: "Experience Place",
+          labelStyle: Theme.of(context)
+              .textTheme
+              .headlineMedium
+              ?.copyWith(color: AppColors.primaryColor),
+        ),
+      ),
+      TextField(
+        controller: controllersIndex[4],
+        maxLines: 5,
+        decoration: InputDecoration(
+          labelText: "Experience Description",
+          labelStyle: Theme.of(context)
+              .textTheme
+              .headlineMedium
+              ?.copyWith(color: AppColors.primaryColor),
+        ),
+      ),
+    ];
+  }
 }
