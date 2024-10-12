@@ -46,7 +46,7 @@ class _ExperienceDetailsState extends ConsumerState<ExperienceDetails> {
         TextEditingController(text: experience.experiencePeriod),
         TextEditingController(text: experience.experiencePlace),
         TextEditingController(text: experience.experienceDescription),
-        TextEditingController(text: experience.experienceEndDate),
+        // TextEditingController(text: experience.experienceEndDate),
       ];
     }).toList();
   }
@@ -111,7 +111,7 @@ class _ExperienceDetailsState extends ConsumerState<ExperienceDetails> {
                   experiencePeriod: selectedRepos[i]['created_at'],
                   experiencePlace: '',
                   experienceDescription: selectedRepos[i]['description'],
-                  experienceEndDate: selectedRepos[i]['updated_at'],
+                  // experienceEndDate: selectedRepos[i]['updated_at'],
                 ));
                 controllers.add([
                   TextEditingController(text: selectedRepos[i]['name']),
@@ -218,7 +218,7 @@ class _ExperienceDetailsState extends ConsumerState<ExperienceDetails> {
                           experiencePeriod: '',
                           experiencePlace: '',
                           experienceDescription: '',
-                          experienceEndDate: '',
+                          // experienceEndDate: '',
                         ));
                         controllers.add([
                           TextEditingController(),
@@ -262,13 +262,16 @@ class _ExperienceDetailsState extends ConsumerState<ExperienceDetails> {
                 List<ExperienceData> expData = [];
                 for (int i = 0; i < experiences.length; i++) {
                   List<TextEditingController> controllersIndex = controllers[i];
-                  expData.add(ExperienceData(
+                  expData.add(
+                    ExperienceData(
                       experienceTitle: controllersIndex[0].text,
                       experiencePlace: controllersIndex[3].text,
                       experiencePeriod: controllersIndex[2].text,
                       experienceLocation: controllersIndex[1].text,
                       experienceDescription: controllersIndex[4].text,
-                      experienceEndDate: controllersIndex[5].text));
+                      // experienceEndDate: controllersIndex[5].text,
+                    ),
+                  );
                 }
                 await setTemplateExperienceData(ref, expData).whenComplete(() =>
                     CustomPopups.showSnackBar(
