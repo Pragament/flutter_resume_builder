@@ -1,21 +1,21 @@
 {
   "project_info": {
-    "project_number": "634571473194",
-    "project_id": "resume-f687f",
-    "storage_bucket": "resume-f687f.appspot.com"
+    "project_number": "765269707700",
+    "project_id": "githublogindev",
+    "storage_bucket": "githublogindev.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:634571473194:android:6ea1b0439d7b75703c9e53",
+        "mobilesdk_app_id": "1:765269707700:android:fb2d25dffa12201e7200e1",
         "android_client_info": {
-          "package_name": "app.r.com"
+          "package_name": "com.pragament.resumebuilder"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyDZxKkPvVUDNOA2iXOdBAP3UgD1KORC5V4"
+          "current_key": "AIzaSyB7wAF9jms4mnSOrTTh_nWqWHP4Lq-Yfto"
         }
       ],
       "services": {
@@ -26,15 +26,15 @@
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:634571473194:android:ade63b80c887d94e3c9e53",
+        "mobilesdk_app_id": "1:765269707700:android:5898231303d321777200e1",
         "android_client_info": {
-          "package_name": "app.resum"
+          "package_name": "com.example.git_rest"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyDZxKkPvVUDNOA2iXOdBAP3UgD1KORC5V4"
+          "current_key": "AIzaSyB7wAF9jms4mnSOrTTh_nWqWHP4Lq-Yfto"
         }
       ],
       "services": {
@@ -45,15 +45,34 @@
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:634571473194:android:5b84ee48c7b761803c9e53",
+        "mobilesdk_app_id": "1:765269707700:android:e3e61fbcce761df47200e1",
         "android_client_info": {
-          "package_name": "app.resume_builder.com.resume_builder_app"
+          "package_name": "com.pragament.githubinsights"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyDZxKkPvVUDNOA2iXOdBAP3UgD1KORC5V4"
+          "current_key": "AIzaSyB7wAF9jms4mnSOrTTh_nWqWHP4Lq-Yfto"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:765269707700:android:ab44781b2dadbee17200e1",
+        "android_client_info": {
+          "package_name": "com.pragament.resumebuilder"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB7wAF9jms4mnSOrTTh_nWqWHP4Lq-Yfto"
         }
       ],
       "services": {

@@ -1,4 +1,4 @@
-package app.resume_builder.com.resume_builder_app
+package com.pragament.resumebuilder
 
 import io.flutter.embedding.android.FlutterActivity
 
