@@ -1,16 +1,10 @@
-import 'dart:math';
 import 'dart:ui';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_resume_template/flutter_resume_template.dart';
 import 'package:resume_builder_app/auth_provider.dart';
-import 'package:resume_builder_app/data/data.dart';
 import 'package:resume_builder_app/router.dart';
-import 'package:resume_builder_app/utils/app_themes.dart';
-import 'package:resume_builder_app/views/home_screen.dart';
-import 'package:resume_builder_app/views/sample_template.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
