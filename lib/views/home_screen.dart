@@ -100,19 +100,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       CircleAvatar(
                         radius: 35.sp,
                         backgroundColor: AppColors.primaryColor,
-                        child: userResume.image != null
-                            ? Image.file(
-                                File(userResume.image!),
-                                fit: BoxFit.cover,
-                                width: 100.h,
-                                height: 100.h,
-                              )
-                            : Icon(
+                        backgroundImage: userResume.image != null
+                            ? FileImage(File(userResume.image!))
+                            : null,
+                        child: userResume.image == null
+                            ? Icon(
                                 Icons.person,
                                 size: 50.sp,
                                 color: Colors.white,
-                              ),
-                      )
+                              )
+                            : null,
+                      ),
                     ],
                   ),
                   SizedBox(
