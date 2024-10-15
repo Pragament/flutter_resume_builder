@@ -1,6 +1,9 @@
+import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_resume_template/flutter_resume_template.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
 import 'dart:async';
@@ -8,6 +11,8 @@ import 'dart:math';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:pdf/widgets.dart' as pw;
 import 'package:http/http.dart' as http;
+import 'package:resume_builder_app/utils/routes/app_colors.dart';
+import 'package:resume_builder_app/views/create_resume/state/create_resume_state.dart';
 
 class ResumeScreen extends StatelessWidget {
   final TemplateData templateData;
@@ -173,9 +178,20 @@ Widget _buildSideSection(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         CircleAvatar(
-          radius: 50,
-          backgroundImage: NetworkImage(templateData.image!),
+          radius: 35.sp,
+          backgroundColor: AppColors.primaryColor,
+          backgroundImage: templateData.image != null
+              ? FileImage(File(templateData.image!))
+              : null,
+          child: templateData.image == null
+              ? Icon(
+                  Icons.person,
+                  size: 50.sp,
+                  color: Colors.white,
+                )
+              : null,
         ),
+
         Column(
           children: [
             if (templateData.languages != null)

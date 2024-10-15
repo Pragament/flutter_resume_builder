@@ -39,6 +39,7 @@ dependencies:
   flutter_screenutil: ^5.9.3
   go_router: ^14.2.7
   http: ^1.2.2
+  image_picker: ^1.0.0
   path_provider: ^2.1.4
   pdf: ^3.11.1
   printing: ^5.13.2

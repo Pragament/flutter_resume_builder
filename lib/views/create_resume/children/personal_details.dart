@@ -11,9 +11,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../widgets/pop_ups/custom_popups.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
+
 class PersonalDetails extends ConsumerStatefulWidget {
   PersonalDetails({super.key});
-
 
   @override
   ConsumerState<PersonalDetails> createState() => _PersonalDetailsState();
@@ -28,32 +30,53 @@ class _PersonalDetailsState extends ConsumerState<PersonalDetails> {
   late TextEditingController address;
   late TextEditingController street;
   late TextEditingController bio;
+  XFile? _profileImage;
+  final ImagePicker _picker = ImagePicker();
 
   @override
   void initState() {
-    fullName=TextEditingController(text: ref.read(templateDataModel).fullName);
-    email=TextEditingController(text: ref.read(templateDataModel).email);
-    phone=TextEditingController(text: ref.read(templateDataModel).phoneNumber);
-    country=TextEditingController(text: ref.read(templateDataModel).country);
-    currentPosition=TextEditingController(text: ref.read(templateDataModel).currentPosition);
-    address=TextEditingController(text: ref.read(templateDataModel).address);
-    street=TextEditingController(text: ref.read(templateDataModel).street);
-    bio=TextEditingController(text: ref.read(templateDataModel).bio);
+    fullName =
+        TextEditingController(text: ref.read(templateDataModel).fullName);
+    email = TextEditingController(text: ref.read(templateDataModel).email);
+    phone =
+        TextEditingController(text: ref.read(templateDataModel).phoneNumber);
+    country = TextEditingController(text: ref.read(templateDataModel).country);
+    currentPosition = TextEditingController(
+        text: ref.read(templateDataModel).currentPosition);
+    address = TextEditingController(text: ref.read(templateDataModel).address);
+    street = TextEditingController(text: ref.read(templateDataModel).street);
+    bio = TextEditingController(text: ref.read(templateDataModel).bio);
     // TODO: implement initState
     super.initState();
   }
+
+  //function to pick images
+  Future<void> _pickImage(ImageSource source) async {
+    final pickedFile = await _picker.pickImage(source: source);
+    setState(() {
+      if (pickedFile != null) {
+        _profileImage = pickedFile;
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar().build(context, "Personal Details"),
       body: Container(
-        margin: EdgeInsets.symmetric(horizontal:  12.sp),
+        margin: EdgeInsets.symmetric(horizontal: 12.sp),
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(height: 12.h,),
-              Text("Photo",style: Theme.of(context).textTheme.headlineMedium,),
+              SizedBox(
+                height: 12.h,
+              ),
+              Text(
+                "Photo",
+                style: Theme.of(context).textTheme.headlineMedium,
+              ),
               SizedBox(
                 height: 8.h,
               ),
@@ -65,9 +88,22 @@ class _PersonalDetailsState extends ConsumerState<PersonalDetails> {
                     child: Card(
                       color: Colors.blue,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.sp)
-                      ),
-                      child: Icon(Icons.person,color: Colors.white,size: 60.sp,),
+                          borderRadius: BorderRadius.circular(8.sp)),
+                      child: _profileImage == null
+                          ? Icon(
+                              Icons.person,
+                              color: Colors.white,
+                              size: 60.sp,
+                            )
+                          : ClipRRect(
+                              borderRadius: BorderRadius.circular(8.sp),
+                              child: Image.file(
+                                File(_profileImage!.path),
+                                fit: BoxFit.cover,
+                                width: 100.h,
+                                height: 100.h,
+                              ),
+                            ),
                     ),
                   ),
                   Expanded(
@@ -75,28 +111,41 @@ class _PersonalDetailsState extends ConsumerState<PersonalDetails> {
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         ElevatedButton(
-                          onPressed: (){},
+                          onPressed: () => _pickImage(ImageSource.gallery),
                           style: ButtonStyle(
-                              backgroundColor:const  WidgetStatePropertyAll<Color>(AppColors.primaryColor),
-                              shape:WidgetStatePropertyAll<RoundedRectangleBorder>(
+                              backgroundColor:
+                                  const WidgetStatePropertyAll<Color>(
+                                      AppColors.primaryColor),
+                              shape: WidgetStatePropertyAll<
+                                      RoundedRectangleBorder>(
                                   RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12.sp)
-                                  )
-                              )
+                                      borderRadius:
+                                          BorderRadius.circular(12.sp)))),
+                          child: Text(
+                            "Add",
+                            style: Theme.of(context)
+                                .textTheme
+                                .headlineMedium
+                                ?.copyWith(color: Colors.white),
                           ),
-                          child: Text("Add",style: Theme.of(context).textTheme.headlineMedium?.copyWith(color: Colors.white),),
                         ),
                         ElevatedButton(
-                          onPressed: (){},
+                          onPressed: () => _pickImage(ImageSource.gallery),
                           style: ButtonStyle(
-                              backgroundColor: WidgetStatePropertyAll<Color>(Colors.orange),
-                              shape:WidgetStatePropertyAll<RoundedRectangleBorder>(
+                              backgroundColor:
+                                  WidgetStatePropertyAll<Color>(Colors.orange),
+                              shape: WidgetStatePropertyAll<
+                                      RoundedRectangleBorder>(
                                   RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12.sp)
-                                  )
-                              )
+                                      borderRadius:
+                                          BorderRadius.circular(12.sp)))),
+                          child: Text(
+                            "Change",
+                            style: Theme.of(context)
+                                .textTheme
+                                .headlineMedium
+                                ?.copyWith(color: Colors.white),
                           ),
-                          child: Text("Change",style: Theme.of(context).textTheme.headlineMedium?.copyWith(color: Colors.white),),
                         ),
                       ],
                     ),
@@ -106,35 +155,42 @@ class _PersonalDetailsState extends ConsumerState<PersonalDetails> {
               SizedBox(
                 height: 12.h,
               ),
-              textCard('Name', "Enter Full Name",Icons.person,fullName),
+              textCard('Name', "Enter Full Name", Icons.person, fullName),
               SizedBox(
                 height: 12.h,
               ),
-              textCard('Email', "Email Address",Icons.email,email),
+              textCard('Email', "Email Address", Icons.email, email),
               SizedBox(
                 height: 12.h,
               ),
-              textCard('Phone', "Phone Number",Icons.phone,phone),
+              textCard('Phone', "Phone Number", Icons.phone, phone),
               SizedBox(
                 height: 12.h,
               ),
-              textCard('Country', "Country Name",Icons.flight,country),
+              textCard('Country', "Country Name", Icons.flight, country),
               SizedBox(
                 height: 12.h,
               ),
-              textCard('Current Position', "Enter Designation",Icons.account_box_rounded,currentPosition),
+              textCard('Current Position', "Enter Designation",
+                  Icons.account_box_rounded, currentPosition),
               SizedBox(
                 height: 12.h,
               ),
-              textCard('Street', "House Number, Street",Icons.location_on_rounded,street,maxLines: 3),
+              textCard('Street', "House Number, Street",
+                  Icons.location_on_rounded, street,
+                  maxLines: 3),
               SizedBox(
                 height: 12.h,
               ),
-              textCard('Address', "City/Town, State",Icons.location_on_rounded,address,maxLines: 3),
+              textCard('Address', "City/Town, State", Icons.location_on_rounded,
+                  address,
+                  maxLines: 3),
               SizedBox(
                 height: 12.h,
               ),
-              textCard('Bio', "Enter Something About you",Icons.location_on_rounded,bio,maxLines: 5),
+              textCard('Bio', "Enter Something About you",
+                  Icons.location_on_rounded, bio,
+                  maxLines: 5),
               SizedBox(
                 height: 24.h,
               ),
@@ -144,38 +200,64 @@ class _PersonalDetailsState extends ConsumerState<PersonalDetails> {
       ),
       floatingActionButton: BgGradientColor(
         borderRadius: BorderRadius.circular(30.sp),
-        child: IconButton(onPressed: ()async{
-         await setTemplateData(ref, TemplateDataModel(fullName: fullName.text,email: email.text,phoneNumber: phone.text,country: country.text,street: street.text
-             ,address: address.text,currentPosition: currentPosition.text,bio: bio.text))
-             .whenComplete(()=>CustomPopups.showSnackBar(context,"Successfully Saved",Colors.green));;
-
-        }, icon: Icon(Icons.check,color: Colors.white,size: 40.sp)),
+        child: IconButton(
+            onPressed: () async {
+              await setTemplateData(
+                      ref,
+                      TemplateDataModel(
+                          fullName: fullName.text,
+                          email: email.text,
+                          phoneNumber: phone.text,
+                          country: country.text,
+                          street: street.text,
+                          address: address.text,
+                          currentPosition: currentPosition.text,
+                          bio: bio.text,
+                          image: _profileImage!.path))
+                  .whenComplete(() => CustomPopups.showSnackBar(
+                      context, "Successfully Saved", Colors.green));
+              Navigator.pop(context);
+            },
+            icon: Icon(Icons.check, color: Colors.white, size: 40.sp)),
       ),
     );
   }
 
-  Widget textCard(String title,String hintText,IconData icon,TextEditingController controller,{int maxLines=1}){
+  Widget textCard(String title, String hintText, IconData icon,
+      TextEditingController controller,
+      {int maxLines = 1}) {
     return SizedBox(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title,style: Theme.of(context).textTheme.headlineMedium,),
-          SizedBox(height: 8.h,),
+          Text(
+            title,
+            style: Theme.of(context).textTheme.headlineMedium,
+          ),
+          SizedBox(
+            height: 8.h,
+          ),
           SizedBox(
             width: 1.sw,
             child: Container(
               decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8.sp),
-                  border: Border.all(color: AppColors.primaryColor),
+                borderRadius: BorderRadius.circular(8.sp),
+                border: Border.all(color: AppColors.primaryColor),
               ),
               child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: 8.0.w),
                 child: Row(
                   children: [
                     Visibility(
-                        visible: maxLines==1,
-                        child: Icon(icon,color: Colors.grey,size: 20.sp,)),
-                    SizedBox(width: maxLines==1?8.w:0,),
+                        visible: maxLines == 1,
+                        child: Icon(
+                          icon,
+                          color: Colors.grey,
+                          size: 20.sp,
+                        )),
+                    SizedBox(
+                      width: maxLines == 1 ? 8.w : 0,
+                    ),
                     Expanded(
                       child: TextField(
                         controller: controller,
@@ -183,8 +265,10 @@ class _PersonalDetailsState extends ConsumerState<PersonalDetails> {
                         decoration: InputDecoration(
                             border: InputBorder.none,
                             hintText: hintText,
-                            hintStyle: Theme.of(context).textTheme.headlineSmall?.copyWith(color: Colors.grey)
-                        ),
+                            hintStyle: Theme.of(context)
+                                .textTheme
+                                .headlineSmall
+                                ?.copyWith(color: Colors.grey)),
                       ),
                     ),
                   ],

@@ -10,7 +10,6 @@ import 'package:resume_builder_app/views/view_cv/cv_types/modern_cv.dart';
 
 import 'package:resume_builder_app/views/widgets/app_bar.dart';
 
-
 class ViewCv extends StatefulWidget {
   const ViewCv({super.key,required this.templateData});
   final TemplateData templateData;

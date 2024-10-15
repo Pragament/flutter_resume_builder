@@ -1,6 +1,8 @@
+import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_resume_template/flutter_resume_template.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
 import 'dart:async';
@@ -8,6 +10,7 @@ import 'dart:math';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:pdf/widgets.dart' as pw;
 import 'package:http/http.dart' as http;
+import 'package:resume_builder_app/utils/routes/app_colors.dart';
 
 class ResumeScreen2 extends StatelessWidget {
   final TemplateData templateData;
@@ -173,18 +176,27 @@ Widget _buildSideSection(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         CircleAvatar(
-          radius: 50,
-          backgroundImage: NetworkImage(templateData.image!),
+          radius: 35.sp,
+          backgroundColor: AppColors.primaryColor,
+          backgroundImage: templateData.image != null
+              ? FileImage(File(templateData.image!))
+              : null,
+          child: templateData.image == null
+              ? Icon(
+                  Icons.person,
+                  size: 50.sp,
+                  color: Colors.white,
+                )
+              : null,
         ),
         Column(
           children: [
             if (templateData.languages != null)
-           
               for (var language in templateData.languages!)
                 Padding(
                   padding: const EdgeInsets.only(bottom: 5),
                   child: _buildSkillMeter(language.language,
-                      language.level /5), // Assuming level is out of 10
+                      language.level / 5), // Assuming level is out of 10
                 ),
           ],
         ),
@@ -202,11 +214,11 @@ Widget _buildSideSection(
     ),
   );
 }
+
 Widget _buildSkillMeter(String skill, double level) {
   return Column(
     children: [
       Text(skill),
-     
       SizedBox(
         width: 60, // Adjust size as needed
         height: 60, // Adjust size as needed
@@ -230,7 +242,6 @@ Widget _buildSkillMeter(String skill, double level) {
   );
 }
 
-
 const PdfColor blue = PdfColor.fromInt(0xff007bff); // A standard blue color
 const PdfColor lightblue = PdfColor.fromInt(0xffadd8e6); // Light blue color
 
@@ -245,7 +256,7 @@ Future<Uint8List> generateResume(
   final profileImage = pw.MemoryImage(response.bodyBytes);
 
   final pageTheme = await _myPageTheme(format);
- doc.addPage(
+  doc.addPage(
     pw.MultiPage(
       pageTheme: pageTheme,
       build: (pw.Context context) {

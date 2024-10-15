@@ -33,11 +33,11 @@ class _EducationalDetailsState extends ConsumerState<EducationalDetails> {
       // Initialize controllers for each item
       schoolLevelControllers = List.generate(
         data.length,
-            (index) => TextEditingController(text: data[index].schoolLevel),
+        (index) => TextEditingController(text: data[index].schoolLevel),
       );
       schoolNameControllers = List.generate(
         data.length,
-            (index) => TextEditingController(text: data[index].schoolName),
+        (index) => TextEditingController(text: data[index].schoolName),
       );
 
       setState(() {});
@@ -67,9 +67,14 @@ class _EducationalDetailsState extends ConsumerState<EducationalDetails> {
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              SizedBox(height: 12.h,),
-              for (int i = 0; i < data.length; i++) educationDetailsView(data[i], i),
-              SizedBox(height: 8.h,),
+              SizedBox(
+                height: 12.h,
+              ),
+              for (int i = 0; i < data.length; i++)
+                educationDetailsView(data[i], i),
+              SizedBox(
+                height: 8.h,
+              ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
@@ -83,11 +88,15 @@ class _EducationalDetailsState extends ConsumerState<EducationalDetails> {
                       });
                     },
                     style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all<Color>(AppColors.primaryColor),
+                      backgroundColor: WidgetStateProperty.all<Color>(
+                          AppColors.primaryColor),
                     ),
                     label: Text(
                       "Add",
-                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(color: Colors.white),
+                      style: Theme.of(context)
+                          .textTheme
+                          .headlineMedium
+                          ?.copyWith(color: Colors.white),
                     ),
                     icon: Icon(
                       Icons.add,
@@ -97,7 +106,9 @@ class _EducationalDetailsState extends ConsumerState<EducationalDetails> {
                   ),
                 ],
               ),
-              SizedBox(height: 12.h,),
+              SizedBox(
+                height: 12.h,
+              ),
             ],
           ),
         ),
@@ -105,12 +116,16 @@ class _EducationalDetailsState extends ConsumerState<EducationalDetails> {
       floatingActionButton: BgGradientColor(
         borderRadius: BorderRadius.circular(30.sp),
         child: IconButton(
-          onPressed: () async{
-            List<Education> educData=[];
-            for (int i=0;i<data.length;i++) {
-              educData.add(Education(schoolLevelControllers[i].text, schoolNameControllers[i].text));
+          onPressed: () async {
+            List<Education> educData = [];
+            for (int i = 0; i < data.length; i++) {
+              educData.add(Education(schoolLevelControllers[i].text,
+                  schoolNameControllers[i].text));
             }
-            await setTemplateEducationData(ref, educData).whenComplete(()=>CustomPopups.showSnackBar(context,"Successfully Saved",Colors.green));
+            await setTemplateEducationData(ref, educData).whenComplete(() =>
+                CustomPopups.showSnackBar(
+                    context, "Successfully Saved", Colors.green));
+            Navigator.pop(context);
           },
           icon: Icon(
             Icons.check,
@@ -148,7 +163,10 @@ class _EducationalDetailsState extends ConsumerState<EducationalDetails> {
                 children: [
                   Text(
                     'Education ${index + 1}',
-                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(color: Colors.white),
+                    style: Theme.of(context)
+                        .textTheme
+                        .headlineMedium
+                        ?.copyWith(color: Colors.white),
                   ),
                   InkWell(
                     onTap: () {
@@ -176,7 +194,10 @@ class _EducationalDetailsState extends ConsumerState<EducationalDetails> {
                   children: [
                     Text(
                       'Course/Degree',
-                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontSize: 14.sp),
+                      style: Theme.of(context)
+                          .textTheme
+                          .headlineMedium
+                          ?.copyWith(fontSize: 14.sp),
                     ),
                     SizedBox(height: 8.h),
                     SizedBox(
@@ -203,7 +224,10 @@ class _EducationalDetailsState extends ConsumerState<EducationalDetails> {
                                   decoration: InputDecoration(
                                     border: InputBorder.none,
                                     hintText: "Degree Name",
-                                    hintStyle: Theme.of(context).textTheme.headlineSmall?.copyWith(color: Colors.grey),
+                                    hintStyle: Theme.of(context)
+                                        .textTheme
+                                        .headlineSmall
+                                        ?.copyWith(color: Colors.grey),
                                   ),
                                 ),
                               ),
@@ -215,7 +239,10 @@ class _EducationalDetailsState extends ConsumerState<EducationalDetails> {
                     SizedBox(height: 8.sp),
                     Text(
                       'College/University',
-                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontSize: 14.sp),
+                      style: Theme.of(context)
+                          .textTheme
+                          .headlineMedium
+                          ?.copyWith(fontSize: 14.sp),
                     ),
                     SizedBox(height: 8.h),
                     SizedBox(
@@ -242,7 +269,10 @@ class _EducationalDetailsState extends ConsumerState<EducationalDetails> {
                                   decoration: InputDecoration(
                                     border: InputBorder.none,
                                     hintText: "College/University",
-                                    hintStyle: Theme.of(context).textTheme.headlineSmall?.copyWith(color: Colors.grey),
+                                    hintStyle: Theme.of(context)
+                                        .textTheme
+                                        .headlineSmall
+                                        ?.copyWith(color: Colors.grey),
                                   ),
                                 ),
                               ),

@@ -54,6 +54,7 @@ class WelcomeScreen extends ConsumerWidget {
                           ),
                   ],
                 ),
+                
               ),
             ),
           ),

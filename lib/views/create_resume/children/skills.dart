@@ -9,7 +9,6 @@ import 'package:resume_builder_app/views/widgets/app_bar.dart';
 import '../../widgets/pop_ups/custom_popups.dart';
 import '../state/create_resume_state.dart';
 
-
 class SkillsDetails extends ConsumerStatefulWidget {
   const SkillsDetails({super.key});
 
@@ -74,13 +73,18 @@ class _SkillsDetailsState extends ConsumerState<SkillsDetails> {
                         nameControllers.add(TextEditingController());
                         proficiencyLevels.add(1);
                       });
+                     
                     },
                     style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all<Color>(AppColors.primaryColor),
+                      backgroundColor: WidgetStateProperty.all<Color>(
+                          AppColors.primaryColor),
                     ),
                     label: Text(
                       "Add",
-                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(color: Colors.white),
+                      style: Theme.of(context)
+                          .textTheme
+                          .headlineMedium
+                          ?.copyWith(color: Colors.white),
                     ),
                     icon: Icon(
                       Icons.add,
@@ -101,12 +105,16 @@ class _SkillsDetailsState extends ConsumerState<SkillsDetails> {
           color: Colors.white,
           size: 40.sp,
         ),
-        onPressed: ()async{
-          List<Language> skills=[];
-          for(int i=0;i<languages.length;i++){
+        onPressed: () async {
+          List<Language> skills = [];
+          for (int i = 0; i < languages.length; i++) {
             skills.add(Language(nameControllers[i].text, proficiencyLevels[i]));
           }
-         await setSkills(ref, skills).whenComplete(()=>CustomPopups.showSnackBar(context,"Successfully Saved",Colors.green));;
+          await setSkills(ref, skills).whenComplete(() =>
+              CustomPopups.showSnackBar(
+                  context, "Successfully Saved", Colors.green));
+                   Navigator.pop(context);
+          
         },
       ),
     );
@@ -141,7 +149,10 @@ class _SkillsDetailsState extends ConsumerState<SkillsDetails> {
                 children: [
                   Text(
                     'Skill ${index + 1}',
-                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(color: Colors.white),
+                    style: Theme.of(context)
+                        .textTheme
+                        .headlineMedium
+                        ?.copyWith(color: Colors.white),
                   ),
                   InkWell(
                     onTap: () {
@@ -205,7 +216,8 @@ class _SkillsDetailsState extends ConsumerState<SkillsDetails> {
                                   ),
                                   onChanged: (value) {
                                     setState(() {
-                                      languages[index] = Language(value, proficiencyLevels[index]);
+                                      languages[index] = Language(
+                                          value, proficiencyLevels[index]);
                                     });
                                   },
                                 ),
@@ -237,7 +249,9 @@ class _SkillsDetailsState extends ConsumerState<SkillsDetails> {
                                 onChanged: (value) {
                                   setState(() {
                                     proficiencyLevels[index] = value ?? 1;
-                                    languages[index] = Language(nameController.text, proficiencyLevels[index]);
+                                    languages[index] = Language(
+                                        nameController.text,
+                                        proficiencyLevels[index]);
                                   });
                                 },
                               ),

@@ -122,7 +122,7 @@ TemplateData data = TemplateData(
       'Martial Art',
       'Vintage Art Collection'
     ],
-    image:
+    image: 
         'https://images.pexels.com/photos/3768911/pexels-photo-3768911.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
     backgroundImage:
         'https://images.pexels.com/photos/3768911/pexels-photo-3768911.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1');

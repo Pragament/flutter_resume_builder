@@ -102,7 +102,7 @@ class _ExperienceDetailsState extends ConsumerState<ExperienceDetails> {
                 controllers[i][2].text = selectedRepos[i]['created_at'];
                 if (controllers[i].length > 4) {
                   controllers[i][4].text = selectedRepos[i]['description'];
-                  controllers[i][5].text = selectedRepos[i]['updated_at'];
+                  controllers[i][4].text = selectedRepos[i]['updated_at'];
                 }
               } else {
                 experiences.add(ExperienceData(
@@ -230,7 +230,7 @@ class _ExperienceDetailsState extends ConsumerState<ExperienceDetails> {
                       });
                     },
                     style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all<Color>(
+                      backgroundColor: WidgetStateProperty.all<Color>(
                           AppColors.primaryColor),
                     ),
                     label: Text(
@@ -276,6 +276,7 @@ class _ExperienceDetailsState extends ConsumerState<ExperienceDetails> {
                 await setTemplateExperienceData(ref, expData).whenComplete(() =>
                     CustomPopups.showSnackBar(
                         context, "Successfully Saved", Colors.green));
+                Navigator.pop(context);
               },
               icon: Icon(
                 Icons.check,
@@ -403,17 +404,17 @@ class _ExperienceDetailsState extends ConsumerState<ExperienceDetails> {
               ?.copyWith(color: AppColors.primaryColor),
         ),
       ),
-      TextField(
-        controller:
-            controllersIndex[5], // Ensure this is the end date controller
-        decoration: InputDecoration(
-          labelText: "Experience End Date",
-          labelStyle: Theme.of(context)
-              .textTheme
-              .headlineMedium
-              ?.copyWith(color: AppColors.primaryColor),
-        ),
-      ),
+      // TextField(
+      //   controller:
+      //       controllersIndex[5], // Ensure this is the end date controller
+      //   decoration: InputDecoration(
+      //     labelText: "Experience End Date",
+      //     labelStyle: Theme.of(context)
+      //         .textTheme
+      //         .headlineMedium
+      //         ?.copyWith(color: AppColors.primaryColor),
+      //   ),
+      // ),
       TextField(
         controller: controllersIndex[3],
         decoration: InputDecoration(
