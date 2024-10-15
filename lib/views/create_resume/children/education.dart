@@ -83,7 +83,7 @@ class _EducationalDetailsState extends ConsumerState<EducationalDetails> {
                       });
                     },
                     style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all<Color>(AppColors.primaryColor),
+                      backgroundColor: WidgetStateProperty.all<Color>(AppColors.primaryColor),
                     ),
                     label: Text(
                       "Add",

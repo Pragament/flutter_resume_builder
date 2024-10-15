@@ -230,7 +230,7 @@ class _ExperienceDetailsState extends ConsumerState<ExperienceDetails> {
                       });
                     },
                     style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all<Color>(
+                      backgroundColor: WidgetStateProperty.all<Color>(
                           AppColors.primaryColor),
                     ),
                     label: Text(

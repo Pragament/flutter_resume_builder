@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter_resume_template/flutter_resume_template.dart';
 
 class TemplateDataModel {
@@ -14,7 +16,7 @@ class TemplateDataModel {
     List<Education> educationDetails=const [],
     List<Language> languages=const[],
     List<String> hobbies=const[],
-    String? image,
+    String?  image,
     String? backgroundImage,
   }) {
     _fullName = fullName;

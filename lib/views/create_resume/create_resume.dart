@@ -14,8 +14,10 @@ import 'package:resume_builder_app/views/widgets/bg_gradient_color.dart';
 import 'package:resume_builder_app/views/widgets/custom_button.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+
 class CreateResume extends ConsumerStatefulWidget {
-   CreateResume({super.key,required this.templateDataModel,this.editResume=false});
+  CreateResume(
+      {super.key, required this.templateDataModel, this.editResume = false});
   final TemplateDataModel templateDataModel;
   late bool editResume;
   @override
@@ -23,13 +25,12 @@ class CreateResume extends ConsumerStatefulWidget {
 }
 
 class _CreateResumeState extends ConsumerState<CreateResume> {
-
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if(widget.editResume){
-        setTemplateData(ref,widget.templateDataModel ?? TemplateDataModel());
-      }else{
+      if (widget.editResume) {
+        setTemplateData(ref, widget.templateDataModel ?? TemplateDataModel());
+      } else {
         initTemplate(ref);
       }
     });
@@ -40,29 +41,47 @@ class _CreateResumeState extends ConsumerState<CreateResume> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar().build(context,'Resume'),
+      appBar: CustomAppBar().build(context, 'Resume'),
       body: Padding(
         padding: EdgeInsets.all(12.w),
         child: StreamBuilder(
-          stream: ref.read(templateDataModel.notifier).stream,
-          builder: (context,data) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Sections',style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontSize: 18.sp,fontWeight: FontWeight.bold),),
-                sectionSubTitle(Icons.person,'Personal Details',PersonalDetails(),showIcon: completedPersonalDetails(data.data)),
-                sectionSubTitle(Icons.school,'Education',EducationalDetails()),
-                sectionSubTitle(Icons.work_history_outlined,'Experience',ExperienceDetails()),
-                sectionSubTitle(Icons.security_rounded,'Skills',SkillsDetails()),
-                sectionSubTitle(Icons.group_work_outlined,'Hobbies',HobbiesDetails()),
-              ],
-            );
-          }
-        ),
+            stream: ref.read(templateDataModel.notifier).stream,
+            builder: (context, data) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Sections',
+                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                        fontSize: 18.sp, fontWeight: FontWeight.bold),
+                  ),
+                  sectionSubTitle(
+                      Icons.person, 'Personal Details', PersonalDetails(),
+                      showIcon: completedPersonalDetails(data.data)),
+                  sectionSubTitle(
+                      Icons.school, 'Education', const EducationalDetails()),
+                  sectionSubTitle(Icons.work_history_outlined, 'Experience',
+                      const ExperienceDetails()),
+                  sectionSubTitle(
+                      Icons.security_rounded, 'Skills', const SkillsDetails()),
+                  sectionSubTitle(Icons.group_work_outlined, 'Hobbies',
+                      const HobbiesDetails()),
+                ],
+              );
+            }),
       ),
       bottomSheet: InkWell(
-        onTap: (){
-          Navigator.of(context).push(MaterialPageRoute(builder: (context)=> ViewCv(templateData: Constants.convertToTemplateData(ref.watch<TemplateDataModel>(templateDataModel)))));
+        onTap: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => ViewCv(
+                templateData: Constants.convertToTemplateData(
+                  ref.watch<TemplateDataModel>(templateDataModel),
+                ),
+              ),
+            ),
+          );
+          
         },
         child: SizedBox(
           width: 1.sw,
@@ -77,60 +96,83 @@ class _CreateResumeState extends ConsumerState<CreateResume> {
   }
 
   bool completedPersonalDetails(TemplateDataModel? dataModel) {
-    if(dataModel!=null) {
-      return dataModel.fullName.isNotEmpty && dataModel.email != null &&
-          dataModel.email!.isNotEmpty && dataModel.phoneNumber != null &&
-          dataModel.phoneNumber!.isNotEmpty && dataModel.currentPosition != null &&
-          dataModel.country != null
-          && dataModel.street != null && dataModel.address != null &&
+    if (dataModel != null) {
+      return dataModel.fullName.isNotEmpty &&
+          dataModel.email != null &&
+          dataModel.email!.isNotEmpty &&
+          dataModel.phoneNumber != null &&
+          dataModel.phoneNumber!.isNotEmpty &&
+          dataModel.currentPosition != null &&
+          dataModel.country != null &&
+          dataModel.street != null &&
+          dataModel.address != null &&
           dataModel.bio != null;
-    }else{
+    } else {
       return false;
     }
   }
 
- Widget sectionSubTitle(IconData icon,String title,Widget child,{bool showIcon=false}){
-   return SizedBox(
-     width: 1.sw,
-     child: InkWell(
-       onTap: (){
-         Navigator.of(context).push(MaterialPageRoute(builder: (context)=>child));
-       },
-       child: Card(
-         elevation: 2,
-         margin: EdgeInsets.only(top: 8.h),
-         shape: RoundedRectangleBorder(
-           borderRadius: BorderRadius.circular(8.sp)
-         ),
-         child: Padding(
-           padding: EdgeInsets.only(top: 8.0.h,bottom: 12.h,left: 8.w,right: 8.w),
-           child: Row(
-             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-             children: [
-               SizedBox(
-                 child: Row(
-                   children: [
-                     ClipRRect(
-                         borderRadius: BorderRadius.circular(8.sp),
-                         child: BgGradientColor(child: Padding(
-                           padding: EdgeInsets.all(4.0.sp),
-                           child: Icon(icon,color: Colors.white,size: 20.sp,),
-                         ))),
-                     SizedBox(width: 8.w,),
-                     Text(title,style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontSize: 16.sp,
-                         color: Colors.black.withOpacity(0.7)),),
-
-                   ],
-                 ),
-               ),
-               Visibility(
-                 visible: showIcon,
-                   child: Icon(Icons.check_circle_outline,color: Colors.green,size: 20.sp,))
-             ],
-           ),
-         ),
-       ),
-     ),
-   );
+  Widget sectionSubTitle(IconData icon, String title, Widget child,
+      {bool showIcon = false}) {
+    return SizedBox(
+      width: 1.sw,
+      child: InkWell(
+        onTap: () {
+          Navigator.of(context)
+              .push(MaterialPageRoute(builder: (context) => child));
+        },
+        child: Card(
+          elevation: 2,
+          margin: EdgeInsets.only(top: 8.h),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.sp)),
+          child: Padding(
+            padding: EdgeInsets.only(
+                top: 8.0.h, bottom: 12.h, left: 8.w, right: 8.w),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                SizedBox(
+                  child: Row(
+                    children: [
+                      ClipRRect(
+                          borderRadius: BorderRadius.circular(8.sp),
+                          child: BgGradientColor(
+                              child: Padding(
+                            padding: EdgeInsets.all(4.0.sp),
+                            child: Icon(
+                              icon,
+                              color: Colors.white,
+                              size: 20.sp,
+                            ),
+                          ))),
+                      SizedBox(
+                        width: 8.w,
+                      ),
+                      Text(
+                        title,
+                        style: Theme.of(context)
+                            .textTheme
+                            .headlineMedium
+                            ?.copyWith(
+                                fontSize: 16.sp,
+                                color: Colors.black.withOpacity(0.7)),
+                      ),
+                    ],
+                  ),
+                ),
+                Visibility(
+                    visible: showIcon,
+                    child: Icon(
+                      Icons.check_circle_outline,
+                      color: Colors.green,
+                      size: 20.sp,
+                    ))
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }

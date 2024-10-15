@@ -1,6 +1,8 @@
+import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_resume_template/flutter_resume_template.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
 import 'dart:async';
@@ -8,6 +10,7 @@ import 'dart:math';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:pdf/widgets.dart' as pw;
 import 'package:http/http.dart' as http;
+import 'package:resume_builder_app/views/create_resume/state/create_resume_state.dart';
 
 class ResumeScreen extends StatelessWidget {
   final TemplateData templateData;
@@ -172,9 +175,11 @@ Widget _buildSideSection(
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        CircleAvatar(
+        const CircleAvatar(
           radius: 50,
-          backgroundImage: NetworkImage(templateData.image!),
+          backgroundImage:
+          NetworkImage(
+              'https://images.pexels.com/photos/3768911/pexels-photo-3768911.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'),
         ),
         Column(
           children: [

@@ -23,3 +23,4 @@ class CustomAppBar extends AppBar {
     );
   }
 }
+

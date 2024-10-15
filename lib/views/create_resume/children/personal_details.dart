@@ -50,6 +50,7 @@ class _PersonalDetailsState extends ConsumerState<PersonalDetails> {
     super.initState();
   }
 
+  //function to pick images
   Future<void> _pickImage(ImageSource source) async {
     final pickedFile = await _picker.pickImage(source: source);
     setState(() {
@@ -194,6 +195,7 @@ class _PersonalDetailsState extends ConsumerState<PersonalDetails> {
                 height: 24.h,
               ),
             ],
+            
           ),
         ),
       ),
@@ -211,10 +213,12 @@ class _PersonalDetailsState extends ConsumerState<PersonalDetails> {
                           street: street.text,
                           address: address.text,
                           currentPosition: currentPosition.text,
-                          bio: bio.text))
+                          bio: bio.text,
+                          image: _profileImage!.path))
                   .whenComplete(() => CustomPopups.showSnackBar(
                       context, "Successfully Saved", Colors.green));
-              ;
+              Navigator.pop(context);
+            
             },
             icon: Icon(Icons.check, color: Colors.white, size: 40.sp)),
       ),
