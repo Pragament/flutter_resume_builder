@@ -65,10 +65,12 @@ class _HobbiesDetailsState extends ConsumerState<HobbiesDetails> {
                       setState(() {
                         hobbies.add("");
                         nameControllers.add(TextEditingController());
+
                       });
+                      
                     },
                     style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all<Color>(AppColors.primaryColor),
+                      backgroundColor: WidgetStateProperty.all<Color>(AppColors.primaryColor),
                     ),
                     label: Text(
                       "Add",
@@ -102,6 +104,7 @@ class _HobbiesDetailsState extends ConsumerState<HobbiesDetails> {
             hobbiesData.add(nameControllers[i].text);
           }
           await setHobbiesDetails(ref, hobbiesData).whenComplete(()=>CustomPopups.showSnackBar(context,"Successfully Saved",Colors.green));
+           Navigator.pop(context);
           // Save or submit the hobbies data
         },
       ),

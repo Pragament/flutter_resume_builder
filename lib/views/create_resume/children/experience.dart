@@ -276,6 +276,7 @@ class _ExperienceDetailsState extends ConsumerState<ExperienceDetails> {
                 await setTemplateExperienceData(ref, expData).whenComplete(() =>
                     CustomPopups.showSnackBar(
                         context, "Successfully Saved", Colors.green));
+                Navigator.pop(context);
               },
               icon: Icon(
                 Icons.check,

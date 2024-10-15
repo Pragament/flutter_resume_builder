@@ -195,7 +195,6 @@ class _PersonalDetailsState extends ConsumerState<PersonalDetails> {
                 height: 24.h,
               ),
             ],
-            
           ),
         ),
       ),
@@ -218,7 +217,6 @@ class _PersonalDetailsState extends ConsumerState<PersonalDetails> {
                   .whenComplete(() => CustomPopups.showSnackBar(
                       context, "Successfully Saved", Colors.green));
               Navigator.pop(context);
-            
             },
             icon: Icon(Icons.check, color: Colors.white, size: 40.sp)),
       ),
