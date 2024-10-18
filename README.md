@@ -6,8 +6,7 @@ The project is a Flutter application that integrates with Firebase Authenticatio
 ### Technical Implementation
 
 **Build steps**
-https://developers.google.com/android/guides/client-auth ```keytool -list -v \
--alias androiddebugkey -keystore ~/.android/debug.keystore```![image](https://github.com/user-attachments/assets/aac7528a-fb52-4131-8d0f-64782b5d6af9)
+https://developers.google.com/android/guides/client-auth ```keytool -list -v -alias androiddebugkey -keystore ~/.android/debug.keystore```![image](https://github.com/user-attachments/assets/aac7528a-fb52-4131-8d0f-64782b5d6af9)
 
 **Auth Setup - Optional**
   * Enable authentication in your firebase project
