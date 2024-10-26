@@ -15,8 +15,8 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 
 class PersonalDetails extends ConsumerStatefulWidget {
-  PersonalDetails({super.key});
-
+  PersonalDetails({super.key, required this.cvId});
+  final int cvId;
   @override
   ConsumerState<PersonalDetails> createState() => _PersonalDetailsState();
 }
@@ -35,19 +35,21 @@ class _PersonalDetailsState extends ConsumerState<PersonalDetails> {
 
   @override
   void initState() {
-    fullName =
-        TextEditingController(text: ref.read(templateDataModel).fullName);
-    email = TextEditingController(text: ref.read(templateDataModel).email);
-    phone =
-        TextEditingController(text: ref.read(templateDataModel).phoneNumber);
-    country = TextEditingController(text: ref.read(templateDataModel).country);
-    currentPosition = TextEditingController(
-        text: ref.read(templateDataModel).currentPosition);
-    address = TextEditingController(text: ref.read(templateDataModel).address);
-    street = TextEditingController(text: ref.read(templateDataModel).street);
-    bio = TextEditingController(text: ref.read(templateDataModel).bio);
-    // TODO: implement initState
     super.initState();
+
+    // Retrieve the template data using the cvId
+    final templateData =
+        ref.read(cvStateNotifierProvider)[widget.cvId] ?? TemplateDataModel();
+
+    // Initialize text controllers with the retrieved data
+    fullName = TextEditingController(text: templateData.fullName);
+    email = TextEditingController(text: templateData.email);
+    phone = TextEditingController(text: templateData.phoneNumber);
+    country = TextEditingController(text: templateData.country);
+    currentPosition = TextEditingController(text: templateData.currentPosition);
+    address = TextEditingController(text: templateData.address);
+    street = TextEditingController(text: templateData.street);
+    bio = TextEditingController(text: templateData.bio);
   }
 
   //function to pick images
@@ -204,6 +206,7 @@ class _PersonalDetailsState extends ConsumerState<PersonalDetails> {
             onPressed: () async {
               await setTemplateData(
                       ref,
+                      widget.cvId,
                       TemplateDataModel(
                           fullName: fullName.text,
                           email: email.text,
