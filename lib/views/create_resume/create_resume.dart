@@ -8,6 +8,7 @@ import 'package:resume_builder_app/views/create_resume/children/hobbies.dart';
 import 'package:resume_builder_app/views/create_resume/children/personal_details.dart';
 import 'package:resume_builder_app/views/create_resume/children/skills.dart';
 import 'package:resume_builder_app/views/create_resume/state/create_resume_state.dart';
+import 'package:resume_builder_app/views/home_screen.dart';
 import 'package:resume_builder_app/views/view_cv/view_cv.dart';
 import 'package:resume_builder_app/views/widgets/app_bar.dart';
 import 'package:resume_builder_app/views/widgets/bg_gradient_color.dart';
@@ -17,9 +18,14 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CreateResume extends ConsumerStatefulWidget {
   CreateResume(
-      {super.key, required this.templateDataModel, this.editResume = false});
+      {super.key,
+      required this.templateDataModel,
+      this.editResume = false,
+      required this.cvId});
   final TemplateDataModel templateDataModel;
-  late bool editResume;
+  final bool editResume;
+  final int cvId;
+
   @override
   ConsumerState<CreateResume> createState() => _CreateResumeState();
 }
@@ -29,12 +35,11 @@ class _CreateResumeState extends ConsumerState<CreateResume> {
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.editResume) {
-        setTemplateData(ref, widget.templateDataModel ?? TemplateDataModel());
+        setTemplateData(ref, widget.cvId, widget.templateDataModel);
       } else {
-        initTemplate(ref);
+        initTemplate(ref, widget.cvId);
       }
     });
-    // TODO: implement initState
     super.initState();
   }
 
@@ -44,31 +49,39 @@ class _CreateResumeState extends ConsumerState<CreateResume> {
       appBar: CustomAppBar().build(context, 'Resume'),
       body: Padding(
         padding: EdgeInsets.all(12.w),
-        child: StreamBuilder(
-            stream: ref.read(templateDataModel.notifier).stream,
-            builder: (context, data) {
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Sections',
-                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                        fontSize: 18.sp, fontWeight: FontWeight.bold),
-                  ),
-                  sectionSubTitle(
-                      Icons.person, 'Personal Details', PersonalDetails(),
-                      showIcon: completedPersonalDetails(data.data)),
-                  sectionSubTitle(
-                      Icons.school, 'Education', const EducationalDetails()),
-                  sectionSubTitle(Icons.work_history_outlined, 'Experience',
-                      const ExperienceDetails()),
-                  sectionSubTitle(
-                      Icons.security_rounded, 'Skills', const SkillsDetails()),
-                  sectionSubTitle(Icons.group_work_outlined, 'Hobbies',
-                      const HobbiesDetails()),
-                ],
-              );
-            }),
+        child: Consumer(
+          builder: (context, ref, child) {
+            final templateData =
+                ref.watch(cvStateNotifierProvider)[widget.cvId];
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Sections',
+                  style: Theme.of(context)
+                      .textTheme
+                      .headlineMedium
+                      ?.copyWith(fontSize: 18.sp, fontWeight: FontWeight.bold),
+                ),
+                sectionSubTitle(
+                    Icons.person, 'Personal Details', PersonalDetails(cvId: widget.cvId,),
+                    showIcon: completedPersonalDetails(templateData)),
+                sectionSubTitle(
+                    Icons.school,
+                    'Education',
+                    EducationalDetails(
+                      cvId: widget.cvId,
+                    )),
+                sectionSubTitle(Icons.work_history_outlined, 'Experience',
+                     ExperienceDetails( cvId:  widget.cvId)),
+                sectionSubTitle(
+                    Icons.security_rounded, 'Skills',  SkillsDetails( cvId: widget.cvId,)),
+                sectionSubTitle(Icons.group_work_outlined, 'Hobbies',
+                     HobbiesDetails(cvId: widget.cvId,)),
+              ],
+            );
+          },
+        ),
       ),
       bottomSheet: InkWell(
         onTap: () {
@@ -76,12 +89,11 @@ class _CreateResumeState extends ConsumerState<CreateResume> {
             MaterialPageRoute(
               builder: (context) => ViewCv(
                 templateData: Constants.convertToTemplateData(
-                  ref.watch<TemplateDataModel>(templateDataModel),
+                  ref.watch(cvStateNotifierProvider)[widget.cvId]!,
                 ),
               ),
             ),
           );
-          
         },
         child: SizedBox(
           width: 1.sw,
@@ -175,4 +187,14 @@ class _CreateResumeState extends ConsumerState<CreateResume> {
       ),
     );
   }
+}
+
+void main() {
+  runApp(
+    ProviderScope(
+      child: MaterialApp(
+        home: HomeScreen(),
+      ),
+    ),
+  );
 }
