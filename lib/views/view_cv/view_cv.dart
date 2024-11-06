@@ -7,8 +7,12 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:resume_builder_app/views/view_cv/cv_types/classic_cv.dart';
 import 'package:resume_builder_app/views/view_cv/cv_types/modern_cv.dart';
+import 'package:resume_builder_app/views/view_cv/cv_types/template2_cv.dart';
 
 import 'package:resume_builder_app/views/widgets/app_bar.dart';
+
+import 'cv_types/template1_cv.dart';
+import 'cv_types/template3_cv.dart';
 
 class ViewCv extends StatefulWidget {
   const ViewCv({super.key,required this.templateData});
@@ -25,7 +29,7 @@ class _ViewCvState extends State<ViewCv> with SingleTickerProviderStateMixin {
 
   @override
   void initState() {
-    tabController=TabController(length: 2, vsync: this);
+    tabController=TabController(length: 5, vsync: this);
     // TODO: implement initState
     super.initState();
   }
@@ -39,7 +43,9 @@ class _ViewCvState extends State<ViewCv> with SingleTickerProviderStateMixin {
           children: [
             ResumeScreen(templateData: widget.templateData),
             ResumeScreen2(templateData: widget.templateData),
-            
+            ResumeScreen3(templateData: widget.templateData),
+            ResumeScreen4(templateData: widget.templateData),
+            ResumeScreen5(templateData: widget.templateData),
           ]
       ),
     );
@@ -54,7 +60,9 @@ class _ViewCvState extends State<ViewCv> with SingleTickerProviderStateMixin {
         tabs: [
           Tab(child: Text('Classic',style: TextStyle(color: Colors.white,fontSize: 12.sp),),),
           Tab(child: Text('Modern',style: TextStyle(color: Colors.white,fontSize: 12.sp),),),
-          
+          Tab(child: Text('New1',style: TextStyle(color: Colors.white,fontSize: 12.sp),),),
+          Tab(child: Text('New2',style: TextStyle(color: Colors.white,fontSize: 12.sp),),),
+          Tab(child: Text('New3',style: TextStyle(color: Colors.white,fontSize: 12.sp),),),
         ]);
   }
 }
