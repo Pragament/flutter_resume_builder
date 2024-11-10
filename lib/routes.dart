@@ -13,7 +13,7 @@ final List<GoRoute> routes = [
   GoRoute(
     path: '/',
     name: Routes.welcomeScreen,
-    builder: (context, state) => const HomeScreen(), //TODO replace with welcome screen
+    builder: (context, state) => const WelcomeScreen(), //TODO replace with welcome screen
   ),
   GoRoute(
     path: '/${Routes.homeScreen}',

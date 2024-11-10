@@ -9,6 +9,7 @@ import 'package:resume_builder_app/models/TemplateDataModel.dart';
 import 'package:resume_builder_app/utils/routes/app_colors.dart';
 import 'package:resume_builder_app/views/create_resume/create_resume.dart';
 import 'package:resume_builder_app/views/create_resume/state/create_resume_state.dart';
+import 'package:resume_builder_app/views/jobs/ui/screens/home.dart';
 import 'package:resume_builder_app/views/view_cv/view_cv.dart';
 import 'package:resume_builder_app/views/widgets/app_bar.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -40,6 +41,33 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       },
       child: Scaffold(
         appBar: CustomAppBar().build(context, 'Home', firstPage: true),
+        drawer: Drawer(
+          child: ListView(
+            padding: EdgeInsets.zero,
+            children:<Widget> [
+              DrawerHeader(
+                  decoration: BoxDecoration(
+                    color: Colors.blue,
+                  ),
+                  child: Text("Menu",style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
+                  ),)
+              ),
+              InkWell(
+                onTap:(){
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) =>JobScreen()),
+                );
+              }, child: ListTile(
+                title: Text('Job Portal'),
+                trailing: Icon(Icons.work)
+              ),)
+
+            ],
+          ),
+        ),
         body: StreamBuilder(
             stream: ref.watch(userResumes.notifier).stream,
             builder: (context, data) {
