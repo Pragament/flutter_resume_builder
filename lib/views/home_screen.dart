@@ -9,11 +9,11 @@ import 'package:resume_builder_app/models/TemplateDataModel.dart';
 import 'package:resume_builder_app/utils/routes/app_colors.dart';
 import 'package:resume_builder_app/views/create_resume/create_resume.dart';
 import 'package:resume_builder_app/views/create_resume/state/create_resume_state.dart';
-import 'package:resume_builder_app/views/jobs/ui/screens/home.dart';
 import 'package:resume_builder_app/views/view_cv/view_cv.dart';
 import 'package:resume_builder_app/views/widgets/app_bar.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:visibility_detector/visibility_detector.dart';
+
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -26,7 +26,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   void initState() {
     getTemplateModels();
-    // TODO: implement initState
     super.initState();
   }
 
@@ -68,23 +67,23 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ],
           ),
         ),
-        body: StreamBuilder(
-            stream: ref.watch(userResumes.notifier).stream,
-            builder: (context, data) {
-              List<TemplateDataModel>? userResumes = data.data;
-              return Padding(
-                padding: EdgeInsets.symmetric(horizontal: 8.0.w, vertical: 0.h),
-                child: ListView.separated(
-                  separatorBuilder: (context, index) => SizedBox(
-                    height: 8.h,
-                  ),
-                  itemCount: userResumes != null ? userResumes.length : 0,
-                  itemBuilder: (context, index) {
-                    return userResumeWidget(userResumes![index], index + 1);
-                  },
+        body: Consumer(
+          builder: (context, ref, child) {
+            final userResumes = ref.watch(cvStateNotifierProvider);
+            return Padding(
+              padding: EdgeInsets.symmetric(horizontal: 8.0.w, vertical: 0.h),
+              child: ListView.separated(
+                separatorBuilder: (context, index) => SizedBox(
+                  height: 8.h,
                 ),
-              );
-            }),
+                itemCount: userResumes.length,
+                itemBuilder: (context, index) {
+                  return userResumeWidget(userResumes[index]!, index);
+                },
+              ),
+            );
+          },
+        ),
         floatingActionButton: FloatingActionButton(
           onPressed: () async {
             await LocalDB.addTemplateData(TemplateDataModel());
@@ -97,6 +96,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             Navigator.of(context).push(MaterialPageRoute(
                 builder: (context) => CreateResume(
                       templateDataModel: model ?? TemplateDataModel(),
+                      cvId: models.length - 1,
                     )));
           },
           backgroundColor: AppColors.primaryColor,
@@ -153,7 +153,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             userResume.currentPosition != null &&
                                     userResume.currentPosition!.isNotEmpty
                                 ? userResume.currentPosition.toString()
-                                : "Untitled $index",
+                                : "Untitled ${index + 1}",
                             style: Theme.of(context)
                                 .textTheme
                                 .headlineMedium
@@ -219,11 +219,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         size: 20.sp,
                       ),
                       "Edit CV", () {
-                    setIndex(ref, index - 1);
+                    setIndex(ref, index);
                     Navigator.of(context).push(MaterialPageRoute(
                         builder: (context) => CreateResume(
                               templateDataModel: userResume,
                               editResume: true,
+                              cvId: index,
                             )));
                   }),
                   SizedBox(
@@ -259,7 +260,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         child: TextButton(
           style: ButtonStyle(
               backgroundColor:
-                  WidgetStatePropertyAll<Color>(AppColors.primaryColor)),
+                  MaterialStateProperty.all<Color>(AppColors.primaryColor)),
           onPressed: onPressed,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -339,4 +340,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             'https://images.pexels.com/photos/3768911/pexels-photo-3768911.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
         image: userResume.image);
   }
+}
+
+void main() {
+  runApp(
+    ProviderScope(
+      child: MaterialApp(
+        home: HomeScreen(),
+      ),
+    ),
+  );
 }

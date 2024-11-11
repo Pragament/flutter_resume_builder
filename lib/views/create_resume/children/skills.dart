@@ -10,8 +10,8 @@ import '../../widgets/pop_ups/custom_popups.dart';
 import '../state/create_resume_state.dart';
 
 class SkillsDetails extends ConsumerStatefulWidget {
-  const SkillsDetails({super.key});
-
+  const SkillsDetails({super.key, required this.cvId});
+  final int cvId;
   @override
   ConsumerState<SkillsDetails> createState() => _SkillsDetailsState();
 }
@@ -25,7 +25,9 @@ class _SkillsDetailsState extends ConsumerState<SkillsDetails> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final skillDetails = ref.watch(templateDataModel).languages;
+      final skillDetails =
+          ref.watch(cvStateNotifierProvider)[widget.cvId]?.languages ?? [];
+
       languages.addAll(skillDetails);
       _initializeControllers();
       setState(() {});
@@ -73,7 +75,6 @@ class _SkillsDetailsState extends ConsumerState<SkillsDetails> {
                         nameControllers.add(TextEditingController());
                         proficiencyLevels.add(1);
                       });
-                     
                     },
                     style: ButtonStyle(
                       backgroundColor: WidgetStateProperty.all<Color>(
@@ -110,11 +111,10 @@ class _SkillsDetailsState extends ConsumerState<SkillsDetails> {
           for (int i = 0; i < languages.length; i++) {
             skills.add(Language(nameControllers[i].text, proficiencyLevels[i]));
           }
-          await setSkills(ref, skills).whenComplete(() =>
+          await setSkills(ref, widget.cvId, skills).whenComplete(() =>
               CustomPopups.showSnackBar(
                   context, "Successfully Saved", Colors.green));
-                   Navigator.pop(context);
-          
+          Navigator.pop(context);
         },
       ),
     );

@@ -4,14 +4,19 @@ import 'package:flutter_resume_template/flutter_resume_template.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:resume_builder_app/utils/routes/app_colors.dart';
 import 'package:resume_builder_app/views/create_resume/state/create_resume_state.dart';
+import 'package:resume_builder_app/views/home_screen.dart';
 import 'package:resume_builder_app/views/widgets/app_bar.dart';
 import 'package:resume_builder_app/views/widgets/bg_gradient_color.dart';
-import 'package:resume_builder_app/views/widgets/custom_button.dart';
+
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:resume_builder_app/views/widgets/pop_ups/custom_popups.dart';
 
+
+
 class EducationalDetails extends ConsumerStatefulWidget {
-  const EducationalDetails({super.key});
+  const EducationalDetails({super.key, required this.cvId});
+
+  final int cvId;
 
   @override
   ConsumerState<EducationalDetails> createState() => _EducationalDetailsState();
@@ -27,7 +32,7 @@ class _EducationalDetailsState extends ConsumerState<EducationalDetails> {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final educationDetails = ref.watch(templateDataModel).educationDetails;
+      final educationDetails = ref.watch(cvStateNotifierProvider)[widget.cvId]?.educationDetails ?? [];
       data.addAll(educationDetails);
 
       // Initialize controllers for each item
@@ -88,7 +93,7 @@ class _EducationalDetailsState extends ConsumerState<EducationalDetails> {
                       });
                     },
                     style: ButtonStyle(
-                      backgroundColor: WidgetStateProperty.all<Color>(
+                      backgroundColor: MaterialStateProperty.all<Color>(
                           AppColors.primaryColor),
                     ),
                     label: Text(
@@ -122,7 +127,7 @@ class _EducationalDetailsState extends ConsumerState<EducationalDetails> {
               educData.add(Education(schoolLevelControllers[i].text,
                   schoolNameControllers[i].text));
             }
-            await setTemplateEducationData(ref, educData).whenComplete(() =>
+            await setTemplateEducationData(ref, widget.cvId, educData).whenComplete(() =>
                 CustomPopups.showSnackBar(
                     context, "Successfully Saved", Colors.green));
             Navigator.pop(context);
@@ -291,4 +296,14 @@ class _EducationalDetailsState extends ConsumerState<EducationalDetails> {
       ),
     );
   }
+}
+
+void main() {
+  runApp(
+    ProviderScope(
+      child: MaterialApp(
+        home: HomeScreen(),
+      ),
+    ),
+  );
 }

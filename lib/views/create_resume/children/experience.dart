@@ -14,7 +14,9 @@ import '../../widgets/pop_ups/custom_popups.dart';
 import '../state/create_resume_state.dart';
 
 class ExperienceDetails extends ConsumerStatefulWidget {
-  const ExperienceDetails({super.key});
+  final int cvId;
+
+  const ExperienceDetails({super.key, required this.cvId});
 
   @override
   ConsumerState<ExperienceDetails> createState() => _ExperienceDetailsState();
@@ -30,8 +32,10 @@ class _ExperienceDetailsState extends ConsumerState<ExperienceDetails> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final experienceDetails = ref.watch(templateDataModel).experience;
+      final experienceDetails =  ref.watch(cvStateNotifierProvider)[widget.cvId]?.experience ?? [];
       experiences.addAll(experienceDetails);
+
+
       _initializeControllers();
       setState(() {});
     });
@@ -273,7 +277,7 @@ class _ExperienceDetailsState extends ConsumerState<ExperienceDetails> {
                     ),
                   );
                 }
-                await setTemplateExperienceData(ref, expData).whenComplete(() =>
+                await setTemplateExperienceData(ref,widget.cvId, expData).whenComplete(() =>
                     CustomPopups.showSnackBar(
                         context, "Successfully Saved", Colors.green));
                 Navigator.pop(context);
