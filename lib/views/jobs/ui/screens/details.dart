@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:resume_builder_app/views/jobs/ui/screens/repoListScreen.dart';
-import '../../../../models/jobs_model.dart';
+import '../../models/jobs_model.dart';
 
 class DetailsScreen extends StatefulWidget {
   final Job job;
@@ -150,7 +150,8 @@ class _DetailsScreenState extends State<DetailsScreen> {
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(15.0),
                                 child: Image.network(
-                                    "https://www.citypng.com/public/uploads/preview/pubg-gold-silhouette-soldier-with-helmet-logo-733961695143139ogipqdztwz.png"
+                                  '${widget.job.companies[i].logo}'
+                                    //"https://www.citypng.com/public/uploads/preview/pubg-gold-silhouette-soldier-with-helmet-logo-733961695143139ogipqdztwz.png"
                                 ),
                               ),
                             );
@@ -175,6 +176,7 @@ class _DetailsScreenState extends State<DetailsScreen> {
                             backgroundColor: Colors.blue,
                           ),
                             onPressed: () {
+                              selectedCompany= allCompanies.isNotEmpty?allCompanies.first:null;
                               showDialog(
                                 context: context,
                                 builder: (BuildContext context) {
@@ -195,9 +197,10 @@ class _DetailsScreenState extends State<DetailsScreen> {
                                                     Text(
                                                       "Work Available",
                                                       style: TextStyle(
-                                                          fontSize: 18,
+                                                          fontSize: 15,
                                                           fontWeight: FontWeight.bold),
                                                     ),
+                                                    SizedBox(width: 3,),
                                                     DropdownButton<String>(
                                                       value: selectedCompany,
                                                       hint: Text('Company'),

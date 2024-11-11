@@ -32,6 +32,7 @@ class AuthProvider extends ChangeNotifier {
       GithubAuthProvider githubAuthProvider = GithubAuthProvider();
       githubAuthProvider.addScope('repo');
       githubAuthProvider.addScope('public_repo');
+      githubAuthProvider.setCustomParameters({'allow_signup': 'false'});
 
       final userCredential =
           await FirebaseAuth.instance.signInWithProvider(githubAuthProvider);
@@ -59,6 +60,7 @@ class AuthProvider extends ChangeNotifier {
     if (isAuthenticated && currentPath == '/') {
       return '/home'; // Redirect to home if logged in and on login page
     }
+
 
     return null; // No redirect needed
   }

@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
-import '../../../models/jobs_model.dart';
+import '../models/jobs_model.dart';
 import 'job_filter_provider.dart';
 
 class JobNotifier extends StateNotifier<List<Job>> {

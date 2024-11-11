@@ -1,9 +1,13 @@
 import 'dart:convert';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:provider/provider.dart';
+import 'package:resume_builder_app/shared_preferences.dart';
 import 'package:resume_builder_app/views/jobs/models/jobissue_model.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class DetailIssueScreen extends StatefulWidget {
   final GitHubIssue issue;
@@ -17,12 +21,14 @@ class _DetailIssueScreenState extends State<DetailIssueScreen> {
   final TextEditingController _commentController = TextEditingController();
   final TextEditingController _tokenController = TextEditingController();
 
-  Future<void> postComment(String comment, String YOUR_PERSONAL_ACCESS_TOKEN) async {
+  Future<void> postComment(String comment) async {
+    String? acessToken= await getAccessToken();
+    print("token is ${acessToken}");
     final response = await http.post(
       Uri.parse(widget.issue.comments_url),
       headers: {
         'Accept': 'application/vnd.github+json',
-        'Authorization': '$YOUR_PERSONAL_ACCESS_TOKEN',  // Add token here
+        'Authorization': 'Bearer $acessToken',  // Add token here
       },
       body: json.encode({'body': comment}),
     );
@@ -123,7 +129,7 @@ class _DetailIssueScreenState extends State<DetailIssueScreen> {
                         builder: (BuildContext context) {
                           return Dialog(
                             child: Container(
-                              height: 350,
+                              height: 220,
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -134,24 +140,6 @@ class _DetailIssueScreenState extends State<DetailIssueScreen> {
                                               fontSize: 20,
                                               fontWeight: FontWeight.bold)
                                       )),
-                                  SizedBox(height: 20),
-                                 Padding(
-                                   padding: const EdgeInsets.only(left:20,),
-                                   child:  Text("Your Github Token (clickMe?)",style: TextStyle(
-                                       fontSize: 15,
-                                       fontWeight: FontWeight.w700)
-                                   ),
-                                 ),
-                                  Padding(
-                                    padding: const EdgeInsets.only(left: 16.0),
-                                    child: TextField(
-                                      controller: _tokenController,
-                                      decoration: InputDecoration(
-                                        hintText: 'Enter Github Token' ,
-
-                                      ),
-                                    ),
-                                  ),
                                   SizedBox(height: 15),
                                   Padding(
                                     padding: const EdgeInsets.only(left:16,),
@@ -161,7 +149,7 @@ class _DetailIssueScreenState extends State<DetailIssueScreen> {
                                     ),
                                   ),
                                   Padding(
-                                    padding: const EdgeInsets.only(left: 16.0),
+                                    padding: const EdgeInsets.only(left: 16.0,top: 10),
                                     child: TextField(
                                       controller: _commentController,
                                       decoration: InputDecoration(
@@ -173,11 +161,9 @@ class _DetailIssueScreenState extends State<DetailIssueScreen> {
 
                                     child: ElevatedButton(
                                       onPressed: () {
-                                        if (_commentController.text.isNotEmpty &&
-                                            _tokenController.text.isNotEmpty) {
+                                        if (_commentController.text.isNotEmpty) {
                                           setState(() {
-                                            postComment(_commentController.text,
-                                                _tokenController.text);
+                                            postComment(_commentController.text);
                                           });
                                         }
                                         else{

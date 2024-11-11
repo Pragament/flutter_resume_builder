@@ -1,9 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:resume_builder_app/views/jobs/ui/job_filter_provider.dart';
-import '../../../../models/bottomsheetmodel.dart';
-import '../job_provider.dart';
+import 'package:resume_builder_app/views/jobs/providers/job_filter_provider.dart';
+import '../../models/bottomsheetmodel.dart';
+import '../../providers/job_provider.dart';
 import '../widgets/jobcontainer.dart';
 import '../widgets/mybottomsheet.dart';
 import 'details.dart';

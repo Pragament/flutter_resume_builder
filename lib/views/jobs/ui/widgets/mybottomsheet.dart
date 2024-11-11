@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:resume_builder_app/models/bottomsheetmodel.dart';
-import 'package:resume_builder_app/views/jobs/ui/job_filter_provider.dart';
-import 'package:resume_builder_app/views/jobs/ui/job_provider.dart';
+import 'package:resume_builder_app/views/jobs/models/bottomsheetmodel.dart';
+import 'package:resume_builder_app/views/jobs/providers/job_filter_provider.dart';
+import 'package:resume_builder_app/views/jobs/providers/job_provider.dart';
 class MyBottomSheet extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
