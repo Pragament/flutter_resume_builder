@@ -40,6 +40,33 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       },
       child: Scaffold(
         appBar: CustomAppBar().build(context, 'Home', firstPage: true),
+        drawer: Drawer(
+          child: ListView(
+            padding: EdgeInsets.zero,
+            children:<Widget> [
+              DrawerHeader(
+                  decoration: BoxDecoration(
+                    color: Colors.blue,
+                  ),
+                  child: Text("Menu",style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
+                  ),)
+              ),
+              InkWell(
+                onTap:(){
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) =>JobScreen()),
+                );
+              }, child: ListTile(
+                title: Text('Job Portal'),
+                trailing: Icon(Icons.work)
+              ),)
+
+            ],
+          ),
+        ),
         body: Consumer(
           builder: (context, ref, child) {
             final userResumes = ref.watch(cvStateNotifierProvider);

@@ -47,6 +47,8 @@ dependencies:
   shared_preferences: ^2.3.2
   visibility_detector: ^0.4.0+2
   percent_indicator: ^4.2.3
+  provider: ^6.1.2
+  flutter_markdown: ^0.7.4+1
 
 dev_dependencies:
   flutter_lints: ^3.0.0
