@@ -3,12 +3,14 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_resume_template/flutter_resume_template.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:resume_builder_app/data/data.dart';
 import 'package:resume_builder_app/local_database/local_db.dart';
 import 'package:resume_builder_app/models/TemplateDataModel.dart';
 import 'package:resume_builder_app/utils/routes/app_colors.dart';
 import 'package:resume_builder_app/views/create_resume/create_resume.dart';
 import 'package:resume_builder_app/views/create_resume/state/create_resume_state.dart';
+import 'package:resume_builder_app/views/repo_list_screen.dart';
 import 'package:resume_builder_app/views/view_cv/view_cv.dart';
 import 'package:resume_builder_app/views/widgets/app_bar.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -64,6 +66,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               }, child: ListTile(
                 title: Text('Job Portal'),
                 trailing: Icon(Icons.work)
+              ),),
+              InkWell(
+                onTap:(){
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) =>RepoListScreen()),
+                  );
+                }, child: ListTile(
+                  title: Text('GitHub Code Editor'),
+                  trailing: Icon(FontAwesomeIcons.github)
               ),)
 
             ],
