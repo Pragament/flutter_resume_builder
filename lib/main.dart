@@ -39,9 +39,11 @@ Future<void> main() async {
     }
     return true;
   };
-  runApp(const  ProviderScope(child:MainApp(),));
-
+  runApp(const ProviderScope(
+    child: MainApp(),
+  ));
 }
+
 class MainApp extends ConsumerWidget {
   const MainApp({super.key});
 
@@ -52,7 +54,8 @@ class MainApp extends ConsumerWidget {
 
     // Initialize ScreenUtil
     return ScreenUtilInit(
-      designSize: const Size(360, 690), // Set the base design size (width, height)
+      designSize:
+          const Size(360, 690), // Set the base design size (width, height)
       minTextAdapt: true,
       builder: (context, child) {
         return MaterialApp.router(
