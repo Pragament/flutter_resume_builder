@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:resume_builder_app/auth_provider.dart';
-
+import 'package:resume_builder_app/route_names.dart';
+import 'package:resume_builder_app/router.dart';
 
 class WelcomeScreen extends ConsumerWidget {
   const WelcomeScreen({super.key});
@@ -52,9 +54,23 @@ class WelcomeScreen extends ConsumerWidget {
                               ],
                             ),
                           ),
+                    ElevatedButton(
+                      onPressed: () async {
+                        auth.continueWithoutLogin(context);
+                      },
+                      child: const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 8.0),
+                            child: Icon(Icons.login),
+                          ),
+                          Text('Continue without login'),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
-                
               ),
             ),
           ),

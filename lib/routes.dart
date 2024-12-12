@@ -4,7 +4,7 @@
 import 'package:go_router/go_router.dart';
 import 'package:resume_builder_app/route_names.dart';
 import 'package:resume_builder_app/views/home_screen.dart';
-import 'package:resume_builder_app/welome_screen.dart';
+import 'package:resume_builder_app/welcome_screen.dart';
 
 
 

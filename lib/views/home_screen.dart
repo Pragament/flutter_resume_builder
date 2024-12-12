@@ -3,21 +3,20 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_resume_template/flutter_resume_template.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:resume_builder_app/auth_provider.dart';
 import 'package:resume_builder_app/data/data.dart';
 import 'package:resume_builder_app/local_database/local_db.dart';
 import 'package:resume_builder_app/models/TemplateDataModel.dart';
 import 'package:resume_builder_app/utils/routes/app_colors.dart';
 import 'package:resume_builder_app/views/create_resume/create_resume.dart';
 import 'package:resume_builder_app/views/create_resume/state/create_resume_state.dart';
-import 'package:resume_builder_app/views/repo_list_screen.dart';
+import 'package:resume_builder_app/views/github_search.dart';
 import 'package:resume_builder_app/views/view_cv/view_cv.dart';
 import 'package:resume_builder_app/views/widgets/app_bar.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
 import 'jobs/ui/screens/home.dart';
-
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -35,6 +34,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final auth = ref.watch(authProvider);
     return VisibilityDetector(
       key: const Key('MyWidget'),
       onVisibilityChanged: (info) {
@@ -46,38 +46,61 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         appBar: CustomAppBar().build(context, 'Home', firstPage: true),
         drawer: Drawer(
           child: ListView(
+            primary: true,
             padding: EdgeInsets.zero,
-            children:<Widget> [
-              DrawerHeader(
+            children: <Widget>[
+              const DrawerHeader(
                   decoration: BoxDecoration(
                     color: Colors.blue,
                   ),
-                  child: Text("Menu",style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 24,
-                  ),)
-              ),
+                  child: Text(
+                    "Menu",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                    ),
+                  )),
               InkWell(
-                onTap:(){
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) =>JobScreen()),
-                );
-              }, child: ListTile(
-                title: Text('Job Portal'),
-                trailing: Icon(Icons.work)
-              ),),
-              InkWell(
-                onTap:(){
+                onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) =>RepoListScreen()),
+                    MaterialPageRoute(builder: (context) => JobScreen()),
                   );
-                }, child: ListTile(
-                  title: Text('GitHub Code Editor'),
-                  trailing: Icon(FontAwesomeIcons.github)
-              ),)
-
+                },
+                child: const ListTile(
+                    title: Text('Job Portal'), trailing: Icon(Icons.work)),
+              ),
+              const Spacer(),
+              InkWell(
+                onTap: () {
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => const GitHubSearch()));
+                },
+                child: const ListTile(
+                    title: Text('GitHub Repo search tool'),
+                    trailing: Icon(Icons.search)),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  auth.authStatus == AuthStatus.authenticated
+                      ? auth.logOut()
+                      : auth.signInWithGitHub();
+                },
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      child: Icon(auth.authStatus == AuthStatus.authenticated
+                          ? Icons.logout
+                          : Icons.login),
+                    ),
+                    Text(auth.authStatus == AuthStatus.authenticated
+                        ? 'Logout'
+                        : 'Login with GitHub'),
+                  ],
+                ),
+              )
             ],
           ),
         ),
@@ -250,7 +273,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         color: Colors.white,
                         size: 20.sp,
                       ),
-                      "View Cv", () {
+                      "View CV", () {
                     TemplateData templateData =
                         convertToTemplateData(userResume);
                     print(templateData.image);
@@ -358,7 +381,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
 void main() {
   runApp(
-    ProviderScope(
+    const ProviderScope(
       child: MaterialApp(
         home: HomeScreen(),
       ),

@@ -4,14 +4,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:resume_builder_app/shared_preferences.dart';
 
-
-enum AuthStatus { initial, authenticated, unauthenticated, loading }
+enum AuthStatus {
+  initial,
+  authenticated,
+  unauthenticated,
+  continueWithoutLogin,
+  loading
+}
 
 final authProvider = ChangeNotifierProvider<AuthProvider>((ref) {
   return AuthProvider();
 });
-
-
 
 class AuthProvider extends ChangeNotifier {
   AuthStatus _authStatus = AuthStatus.initial;
@@ -19,9 +22,17 @@ class AuthProvider extends ChangeNotifier {
 
   void checkAuthStatus() async {
     final auth = FirebaseAuth.instance;
-    _authStatus = auth.currentUser != null
-        ? AuthStatus.authenticated
-        : AuthStatus.unauthenticated;
+    if (auth.currentUser != null) {
+      _authStatus = AuthStatus.authenticated;
+    } else if (_authStatus != AuthStatus.continueWithoutLogin &&
+        _authStatus != AuthStatus.loading) {
+      _authStatus = AuthStatus.unauthenticated;
+    }
+  }
+
+  void continueWithoutLogin(BuildContext context) {
+    _authStatus = AuthStatus.continueWithoutLogin;
+    notifyListeners();
   }
 
   Future<void> signInWithGitHub() async {
@@ -51,17 +62,18 @@ class AuthProvider extends ChangeNotifier {
 
   String? redirect({required GoRouterState state}) {
     final bool isAuthenticated = _authStatus == AuthStatus.authenticated;
+    final bool isUnauthenticated = _authStatus == AuthStatus.unauthenticated;
     final currentPath = state.fullPath;
 
-    if (!isAuthenticated && currentPath != '/') {
+    if (isUnauthenticated && currentPath != '/') {
       return '/'; // Redirect to login if not logged in and not on login page
     }
-
     if (isAuthenticated && currentPath == '/') {
       return '/home'; // Redirect to home if logged in and on login page
     }
-
-
+    if (_authStatus == AuthStatus.continueWithoutLogin && currentPath == '/') {
+      return '/home'; // Redirect to home if logged in and on login page
+    }
     return null; // No redirect needed
   }
 
