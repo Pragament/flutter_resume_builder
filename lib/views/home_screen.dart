@@ -1,5 +1,6 @@
 import 'dart:io';
-
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:resume_builder_app/views/repo_list_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_resume_template/flutter_resume_template.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -69,6 +70,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 },
                 child: const ListTile(
                     title: Text('Job Portal'), trailing: Icon(Icons.work)),
+              ),
+              InkWell(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => RepoListScreen()),
+                  );
+                },
+                child: ListTile(
+                    title: Text('GitHub Code Editor'),
+                    trailing: Icon(FontAwesomeIcons.github)),
               ),
               const Spacer(),
               InkWell(
