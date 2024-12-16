@@ -18,10 +18,18 @@ class GitHubSearch extends ConsumerStatefulWidget {
 }
 
 class _GitHubSearchConsumerState extends ConsumerState<GitHubSearch> {
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final TextEditingController _searchController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
+  final StreamController _refreshController = StreamController();
+  bool _loadingRepos = true;
+  bool _gettingMoreRepos = false;
+  bool _moreReposAvailable = true;
+  final int _perPage = 10;
+  DocumentSnapshot? _lastDocument;
+  List<DocumentSnapshot> _repos = [];
   List<dynamic> searchResults = [];
   bool isLoading = false;
-  String? _currentUsername;
   String? selectedLicense;
   DateTime? updatedFromDate;
   DateTime? updatedToDate;
@@ -35,12 +43,19 @@ class _GitHubSearchConsumerState extends ConsumerState<GitHubSearch> {
   int? maxWatchers;
   int? maxForks;
   int? maxIssues;
-  final StreamController<void> _refreshController = StreamController<void>();
 
   @override
   void initState() {
     super.initState();
-    _getCurrentUser();
+    _getRepos();
+    _scrollController.addListener(() {
+      double maxScroll = _scrollController.position.maxScrollExtent;
+      double currentScroll = _scrollController.position.pixels;
+      double delta = MediaQuery.sizeOf(context).height * 0.25;
+      if (maxScroll - currentScroll <= delta) {
+        _getMoreRepos();
+      }
+    });
   }
 
   @override
@@ -49,8 +64,47 @@ class _GitHubSearchConsumerState extends ConsumerState<GitHubSearch> {
     super.dispose();
   }
 
-  List<QueryDocumentSnapshot> filterRepositories(
-      List<QueryDocumentSnapshot> docs) {
+  _getRepos() async {
+    Query q = _firestore
+        .collection('Repositories')
+        .orderBy('lastUpdated')
+        .limit(_perPage);
+    setState(() {
+      _loadingRepos = true;
+    });
+    QuerySnapshot querySnapshot = await q.get();
+    _lastDocument = querySnapshot.docs[querySnapshot.docs.length - 1];
+    _repos = querySnapshot.docs;
+    setState(() {
+      _loadingRepos = false;
+    });
+  }
+
+  _getMoreRepos() async {
+    if (_moreReposAvailable == false || _gettingMoreRepos == true) {
+      return;
+    }
+
+    Query q = _firestore
+        .collection('Repositories')
+        .orderBy('lastUpdated')
+        .startAfterDocument(_lastDocument!)
+        .limit(_perPage);
+    setState(() {
+      _gettingMoreRepos = true;
+    });
+    QuerySnapshot querySnapshot = await q.get();
+    if (querySnapshot.docs.length < _perPage) {
+      _moreReposAvailable = false;
+    }
+    _lastDocument = querySnapshot.docs[querySnapshot.docs.length - 1];
+    _repos.addAll(querySnapshot.docs);
+    setState(() {
+      _gettingMoreRepos = false;
+    });
+  }
+
+  List<DocumentSnapshot> filterRepositories(List<DocumentSnapshot> docs) {
     return docs.where((doc) {
       final repo = doc.data() as Map<String, dynamic>;
       final searchText = _searchController.text.toLowerCase();
@@ -111,63 +165,6 @@ class _GitHubSearchConsumerState extends ConsumerState<GitHubSearch> {
     }).toList();
   }
 
-  Widget _buildNumericFilter(String label, int? minValue, int? maxValue,
-      Function(int?) onMinChanged, Function(int?) onMaxChanged) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: TextStyle(fontSize: 16.sp, color: Colors.grey[600]),
-        ),
-        SizedBox(height: 8.h),
-        Row(
-          children: [
-            Expanded(
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.grey[300]!),
-                ),
-                child: TextFormField(
-                  decoration: InputDecoration(
-                    labelText: 'Min',
-                    border: InputBorder.none,
-                    contentPadding:
-                        EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-                  ),
-                  keyboardType: TextInputType.number,
-                  initialValue: minValue?.toString(),
-                  onChanged: (value) => onMinChanged(int.tryParse(value)),
-                ),
-              ),
-            ),
-            SizedBox(width: 16.w),
-            Expanded(
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.grey[300]!),
-                ),
-                child: TextFormField(
-                  decoration: InputDecoration(
-                    labelText: 'Max',
-                    border: InputBorder.none,
-                    contentPadding:
-                        EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-                  ),
-                  keyboardType: TextInputType.number,
-                  initialValue: maxValue?.toString(),
-                  onChanged: (value) => onMaxChanged(int.tryParse(value)),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
   Future<void> _performSearch(String query) async {
     if (query.isEmpty) {
       setState(() {
@@ -182,10 +179,10 @@ class _GitHubSearchConsumerState extends ConsumerState<GitHubSearch> {
 
     try {
       final token = await getAccessToken();
-
+      debugPrint('token: $token');
       final response = await http.get(
         Uri.parse(
-            'https://api.github.com/search/repositories?q=user:$_currentUsername+$query&order=desc'),
+            'https://api.github.com/search/repositories?q=$query&order=desc'),
         headers: {
           'Authorization': 'Bearer $token',
           'Accept': 'application/vnd.github.v3+json',
@@ -198,13 +195,11 @@ class _GitHubSearchConsumerState extends ConsumerState<GitHubSearch> {
         debugPrint('Search Response: ${response.body}');
         setState(() {
           searchResults = data['items'] ?? [];
+          _repos.addAll(data['items']);
         });
         for (int index = 0; index < searchResults.length; index++) {
           final repo = data['items'][index];
-          await FirebaseFirestore.instance
-              .collection('Repositories')
-              .doc(repo['name'])
-              .set({
+          await _firestore.collection('Repositories').doc(repo['name']).set({
             'license': repo['license']?['name'] ?? 'No License',
             'owner': repo['owner']?['login'] ?? 'Unknown',
             'name': repo['name'] ?? '',
@@ -226,7 +221,7 @@ class _GitHubSearchConsumerState extends ConsumerState<GitHubSearch> {
         }
       } else {
         debugPrint('Failed to load repositories: ${response.statusCode}');
-        debugPrint('Error response: ${response.body}'); // Debug log
+        debugPrint('Error response: ${response.body}');
       }
     } catch (e) {
       debugPrint('Error fetching repositories: $e');
@@ -234,25 +229,6 @@ class _GitHubSearchConsumerState extends ConsumerState<GitHubSearch> {
       setState(() {
         isLoading = false;
       });
-    }
-  }
-
-  Future<void> _getCurrentUser() async {
-    try {
-      final token = await getAccessToken();
-      final response = await http.get(
-        Uri.parse('https://api.github.com/user'),
-        headers: {'Authorization': 'Bearer $token'},
-      );
-
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        setState(() {
-          _currentUsername = data['login'];
-        });
-      }
-    } catch (e) {
-      debugPrint('Error getting current user: $e');
     }
   }
 
@@ -474,6 +450,63 @@ class _GitHubSearchConsumerState extends ConsumerState<GitHubSearch> {
     );
   }
 
+  Widget _buildNumericFilter(String label, int? minValue, int? maxValue,
+      Function(int?) onMinChanged, Function(int?) onMaxChanged) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: TextStyle(fontSize: 16.sp, color: Colors.grey[600]),
+        ),
+        SizedBox(height: 8.h),
+        Row(
+          children: [
+            Expanded(
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.grey[300]!),
+                ),
+                child: TextFormField(
+                  decoration: InputDecoration(
+                    labelText: 'Min',
+                    border: InputBorder.none,
+                    contentPadding:
+                        EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+                  ),
+                  keyboardType: TextInputType.number,
+                  initialValue: minValue?.toString(),
+                  onChanged: (value) => onMinChanged(int.tryParse(value)),
+                ),
+              ),
+            ),
+            SizedBox(width: 16.w),
+            Expanded(
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.grey[300]!),
+                ),
+                child: TextFormField(
+                  decoration: InputDecoration(
+                    labelText: 'Max',
+                    border: InputBorder.none,
+                    contentPadding:
+                        EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+                  ),
+                  keyboardType: TextInputType.number,
+                  initialValue: maxValue?.toString(),
+                  onChanged: (value) => onMaxChanged(int.tryParse(value)),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
   Widget _buildDatePicker(
       String label, DateTime? value, Function(DateTime?) onChanged) {
     return Container(
@@ -507,127 +540,109 @@ class _GitHubSearchConsumerState extends ConsumerState<GitHubSearch> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: Size(1.sw, 60.h),
-        child: BgGradientColor(
-          child: AppBar(
-            leading: BackButton(
-                color: Colors.white,
-                style: ButtonStyle(
-                    iconSize: WidgetStatePropertyAll(
-                  20.sp,
-                ))),
-            actions: [
-              IconButton(
-                onPressed: () {
-                  _showFilterBottomSheet();
-                },
-                icon: const Icon(Icons.filter_alt),
-                color: Colors.white,
-              ),
-            ],
-            title: SearchBar(
-              autoFocus: false,
-              controller: _searchController,
-              hintText: 'Search for repositories',
-              onSubmitted: (value) => _performSearch(value),
-              onChanged: (value) => setState(() {}),
-              onTapOutside: (_) => FocusScope.of(context).unfocus(),
-              trailing: [
-                _searchController.text.isEmpty
-                    ? const Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: Icon(Icons.search),
-                      )
-                    : IconButton(
-                        onPressed: () {
-                          _searchController.clear();
-                          setState(() {});
-                        },
-                        icon: const Icon(Icons.clear)),
+        appBar: PreferredSize(
+          preferredSize: Size(1.sw, 60.h),
+          child: BgGradientColor(
+            child: AppBar(
+              leading: BackButton(
+                  color: Colors.white,
+                  style: ButtonStyle(
+                      iconSize: WidgetStatePropertyAll(
+                    20.sp,
+                  ))),
+              actions: [
+                IconButton(
+                  onPressed: () {
+                    _showFilterBottomSheet();
+                  },
+                  icon: const Icon(Icons.filter_alt),
+                  color: Colors.white,
+                ),
               ],
+              title: SearchBar(
+                autoFocus: false,
+                controller: _searchController,
+                hintText: 'Search for repositories',
+                onSubmitted: (value) => _performSearch(value),
+                onChanged: (value) => setState(() {}),
+                onTapOutside: (_) => FocusScope.of(context).unfocus(),
+                trailing: [
+                  _searchController.text.isEmpty
+                      ? const Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: Icon(Icons.search),
+                        )
+                      : IconButton(
+                          onPressed: () {
+                            _searchController.clear();
+                            setState(() {});
+                          },
+                          icon: const Icon(Icons.clear)),
+                ],
+              ),
+              backgroundColor: Colors.transparent,
             ),
-            backgroundColor: Colors.transparent,
           ),
         ),
-      ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection('Repositories')
-            .where('owner', isEqualTo: _currentUsername)
-            .snapshots(),
-        builder: (context, snapshot) {
-          if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          }
+        body: ListView.builder(
+          controller: _scrollController,
+          itemCount: filterRepositories(_repos).length,
+          itemBuilder: (context, index) {
+            final repo = filterRepositories(_repos)[index].data()
+                as Map<String, dynamic>;
 
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          final docs = snapshot.data?.docs ?? [];
-
-          final filteredDocs = filterRepositories(docs);
-
-          return ListView.builder(
-            itemCount: filteredDocs.length,
-            itemBuilder: (context, index) {
-              final repo = filteredDocs[index].data() as Map<String, dynamic>;
-              return Padding(
-                padding: const EdgeInsets.all(5.0),
-                child: ListTile(
-                  onTap: () {
-                    launchUrl(
-                      Uri.parse(repo['url']),
-                      mode: LaunchMode.inAppWebView,
-                    );
-                  },
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      side: const BorderSide(width: 0.75)),
-                  title: Text(repo['name'] ?? ''),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(repo['description'] ?? ''),
-                      SizedBox(height: 4.h),
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.star_border,
-                            size: 16.sp,
-                            color: Colors.amber,
-                          ),
-                          SizedBox(width: 4.w),
-                          Text('${repo['stargazers_count'] ?? 0}'),
-                          SizedBox(width: 16.w),
-                          Icon(
-                            Icons.fork_right,
-                            size: 16.sp,
-                            color: Colors.blue,
-                          ),
-                          SizedBox(width: 4.w),
-                          Text('${repo['forks_count'] ?? 0}'),
-                          SizedBox(width: 16.w),
-                          Icon(Icons.remove_red_eye_outlined,
-                              size: 16.sp, color: AppColors.primaryColor),
-                          SizedBox(width: 4.w),
-                          Text('${repo['watchers_count'] ?? 0}'),
-                        ],
-                      ),
-                      if (repo['updated_at'] != null)
-                        Text(
-                          'Updated: ${(repo['updated_at'] as Timestamp).toDate().toString().split('.').first}',
-                          style: TextStyle(fontSize: 12.sp),
+            return Padding(
+              padding: const EdgeInsets.all(5.0),
+              child: ListTile(
+                onTap: () {
+                  launchUrl(
+                    Uri.parse(repo['url']),
+                    mode: LaunchMode.inAppWebView,
+                  );
+                },
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    side: const BorderSide(width: 0.75)),
+                title: Text(repo['name'] ?? ''),
+                subtitle: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(repo['description'] ?? ''),
+                    SizedBox(height: 4.h),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.star_border,
+                          size: 16.sp,
+                          color: Colors.amber,
                         ),
-                    ],
-                  ),
+                        SizedBox(width: 4.w),
+                        Text('${repo['stargazers_count'] ?? 0}'),
+                        SizedBox(width: 16.w),
+                        Icon(
+                          Icons.fork_right,
+                          size: 16.sp,
+                          color: Colors.blue,
+                        ),
+                        SizedBox(width: 4.w),
+                        Text('${repo['forks_count'] ?? 0}'),
+                        SizedBox(width: 16.w),
+                        Icon(Icons.remove_red_eye_outlined,
+                            size: 16.sp, color: AppColors.primaryColor),
+                        SizedBox(width: 4.w),
+                        Text('${repo['watchers_count'] ?? 0}'),
+                      ],
+                    ),
+                    if (repo['updated_at'] != null)
+                      Text(
+                        'Updated: ${(repo['updated_at'] as Timestamp).toDate().toString().split('.').first}',
+                        style: TextStyle(fontSize: 12.sp),
+                      ),
+                  ],
                 ),
-              );
-            },
-          );
-        },
-      ),
-    );
+              ),
+            );
+          },
+        ));
   }
 }
