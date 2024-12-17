@@ -193,9 +193,14 @@ class _GitHubSearchConsumerState extends ConsumerState<GitHubSearch> {
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         debugPrint('Search Response: ${response.body}');
+        QuerySnapshot querySnapshot = await _firestore
+            .collection('Repositories')
+            .where('name', isGreaterThanOrEqualTo: query)
+            .where('name', isLessThan: '$query\uF7FF')
+            .get();
         setState(() {
           searchResults = data['items'] ?? [];
-          _repos.addAll(data['items']);
+          _repos.addAll(querySnapshot.docs);
         });
         for (int index = 0; index < searchResults.length; index++) {
           final repo = data['items'][index];
@@ -564,7 +569,20 @@ class _GitHubSearchConsumerState extends ConsumerState<GitHubSearch> {
                 controller: _searchController,
                 hintText: 'Search for repositories',
                 onSubmitted: (value) => _performSearch(value),
-                onChanged: (value) => setState(() {}),
+                onChanged: (value) async {
+                  QuerySnapshot querySnapshot = await _firestore
+                      .collection('Repositories')
+                      .where('name', isGreaterThanOrEqualTo: value)
+                      .where('name', isLessThan: '$value\uF7FF')
+                      .get();
+                  setState(() {
+                    for (var repo in querySnapshot.docs) {
+                      if (!_repos.contains(repo)) {
+                        _repos.add(repo);
+                      }
+                    }
+                  });
+                },
                 onTapOutside: (_) => FocusScope.of(context).unfocus(),
                 trailing: [
                   _searchController.text.isEmpty
@@ -584,65 +602,136 @@ class _GitHubSearchConsumerState extends ConsumerState<GitHubSearch> {
             ),
           ),
         ),
-        body: ListView.builder(
-          controller: _scrollController,
-          itemCount: filterRepositories(_repos).length,
-          itemBuilder: (context, index) {
-            final repo = filterRepositories(_repos)[index].data()
-                as Map<String, dynamic>;
+        body: _searchController.text.isEmpty
+            ? ListView.builder(
+                controller: _scrollController,
+                itemCount: filterRepositories(_repos).length,
+                itemBuilder: (context, index) {
+                  final repo = filterRepositories(_repos)[index].data()
+                      as Map<String, dynamic>;
 
-            return Padding(
-              padding: const EdgeInsets.all(5.0),
-              child: ListTile(
-                onTap: () {
-                  launchUrl(
-                    Uri.parse(repo['url']),
-                    mode: LaunchMode.inAppWebView,
+                  return Padding(
+                    padding: const EdgeInsets.all(5.0),
+                    child: ListTile(
+                      onTap: () {
+                        launchUrl(
+                          Uri.parse(repo['url']),
+                          mode: LaunchMode.inAppWebView,
+                        );
+                      },
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          side: const BorderSide(width: 0.75)),
+                      title: Text(repo['name'] ?? ''),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(repo['description'] ?? ''),
+                          SizedBox(height: 4.h),
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.star_border,
+                                size: 16.sp,
+                                color: Colors.amber,
+                              ),
+                              SizedBox(width: 4.w),
+                              Text('${repo['stargazers_count'] ?? 0}'),
+                              SizedBox(width: 16.w),
+                              Icon(
+                                Icons.fork_right,
+                                size: 16.sp,
+                                color: Colors.blue,
+                              ),
+                              SizedBox(width: 4.w),
+                              Text('${repo['forks_count'] ?? 0}'),
+                              SizedBox(width: 16.w),
+                              Icon(Icons.remove_red_eye_outlined,
+                                  size: 16.sp, color: AppColors.primaryColor),
+                              SizedBox(width: 4.w),
+                              Text('${repo['watchers_count'] ?? 0}'),
+                            ],
+                          ),
+                          if (repo['updated_at'] != null)
+                            Text(
+                              'Updated: ${(repo['updated_at'] as Timestamp).toDate().toString().split('.').first}',
+                              style: TextStyle(fontSize: 12.sp),
+                            ),
+                        ],
+                      ),
+                    ),
                   );
                 },
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    side: const BorderSide(width: 0.75)),
-                title: Text(repo['name'] ?? ''),
-                subtitle: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(repo['description'] ?? ''),
-                    SizedBox(height: 4.h),
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.star_border,
-                          size: 16.sp,
-                          color: Colors.amber,
+              )
+            : StreamBuilder(
+                stream: _firestore
+                    .collection('Repositories')
+                    .where('name',
+                        isGreaterThanOrEqualTo: _searchController.text)
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  final docs = snapshot.data?.docs ?? [];
+
+                  return ListView.builder(
+                    itemCount: docs.length,
+                    itemBuilder: (context, index) {
+                      final repo = docs[index].data();
+
+                      return Padding(
+                        padding: const EdgeInsets.all(5.0),
+                        child: ListTile(
+                          onTap: () {
+                            launchUrl(
+                              Uri.parse(repo['url']),
+                              mode: LaunchMode.inAppWebView,
+                            );
+                          },
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              side: const BorderSide(width: 0.75)),
+                          title: Text(repo['name'] ?? ''),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(repo['description'] ?? ''),
+                              SizedBox(height: 4.h),
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.star_border,
+                                    size: 16.sp,
+                                    color: Colors.amber,
+                                  ),
+                                  SizedBox(width: 4.w),
+                                  Text('${repo['stargazers_count'] ?? 0}'),
+                                  SizedBox(width: 16.w),
+                                  Icon(
+                                    Icons.fork_right,
+                                    size: 16.sp,
+                                    color: Colors.blue,
+                                  ),
+                                  SizedBox(width: 4.w),
+                                  Text('${repo['forks_count'] ?? 0}'),
+                                  SizedBox(width: 16.w),
+                                  Icon(Icons.remove_red_eye_outlined,
+                                      size: 16.sp,
+                                      color: AppColors.primaryColor),
+                                  SizedBox(width: 4.w),
+                                  Text('${repo['watchers_count'] ?? 0}'),
+                                ],
+                              ),
+                              if (repo['updated_at'] != null)
+                                Text(
+                                  'Updated: ${(repo['updated_at'] as Timestamp).toDate().toString().split('.').first}',
+                                  style: TextStyle(fontSize: 12.sp),
+                                ),
+                            ],
+                          ),
                         ),
-                        SizedBox(width: 4.w),
-                        Text('${repo['stargazers_count'] ?? 0}'),
-                        SizedBox(width: 16.w),
-                        Icon(
-                          Icons.fork_right,
-                          size: 16.sp,
-                          color: Colors.blue,
-                        ),
-                        SizedBox(width: 4.w),
-                        Text('${repo['forks_count'] ?? 0}'),
-                        SizedBox(width: 16.w),
-                        Icon(Icons.remove_red_eye_outlined,
-                            size: 16.sp, color: AppColors.primaryColor),
-                        SizedBox(width: 4.w),
-                        Text('${repo['watchers_count'] ?? 0}'),
-                      ],
-                    ),
-                    if (repo['updated_at'] != null)
-                      Text(
-                        'Updated: ${(repo['updated_at'] as Timestamp).toDate().toString().split('.').first}',
-                        style: TextStyle(fontSize: 12.sp),
-                      ),
-                  ],
-                ),
-              ),
-            );
-          },
-        ));
+                      );
+                    },
+                  );
+                },
+              ));
   }
 }
