@@ -34,7 +34,10 @@ dependencies:
   firebase_crashlytics: any
   flutter:
     sdk: flutter
-  flutter_resume_template: ^1.2.1
+  flutter_resume_template:
+    git:
+      url: https://github.com/Pragament/flutter_resume_template.git
+      ref: dev  # Change this if needed
   flutter_riverpod: ^2.5.1
   flutter_screenutil: ^5.9.3
   go_router: ^14.2.7
