@@ -39,6 +39,7 @@ class AuthProvider extends ChangeNotifier {
     try {
       _authStatus = AuthStatus.loading;
       notifyListeners();
+      print("listening");
 
       GithubAuthProvider githubAuthProvider = GithubAuthProvider();
       githubAuthProvider.addScope('repo');
