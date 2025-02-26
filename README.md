@@ -27,5 +27,11 @@ SHA error - send your SHA key in whatsapp to repo author. ![image](https://githu
 <img src="https://github.com/user-attachments/assets/97de7cdb-2367-425e-bd2c-ed0fd892fc7d" width="300" alt="App Screenshot 2" />
 <img src="https://github.com/user-attachments/assets/4639e28b-f4eb-4989-97d6-04c381b69e7b" width="300" alt="App Screenshot 3" />
 <img src="https://github.com/user-attachments/assets/6062ec05-199d-4887-9db5-5047b0837360" width="300" alt="Choose templates for the Resume" />
+<img src="https://github.com/user-attachments/assets/01a984d5-9959-4381-9933-96ebf027ae29" width="300" alt="App Screenshot 5" />
+<img src="https://github.com/user-attachments/assets/e622e3cb-d47b-4abf-a85c-31c28953372c" width="300" alt="App Screenshot 6" />
+<img src="https://github.com/user-attachments/assets/4c10abd2-4291-4ac5-b6c9-560522954274" width="300" alt="App Screenshot 7" />
+<img src="https://github.com/user-attachments/assets/0505c5e7-4fbe-402c-ac5d-3f60e5bfc77e" width="300" alt="App Screenshot 8" />
+
+
 
 
