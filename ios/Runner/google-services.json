@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "765269707700",
+    "project_id": "githublogindev",
+    "storage_bucket": "githublogindev.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:765269707700:android:e3e61fbcce761df47200e1",
+        "android_client_info": {
+          "package_name": "com.pragament.githubinsights"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB7wAF9jms4mnSOrTTh_nWqWHP4Lq-Yfto"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:765269707700:android:ab44781b2dadbee17200e1",
+        "android_client_info": {
+          "package_name": "com.pragament.resumebuilder"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB7wAF9jms4mnSOrTTh_nWqWHP4Lq-Yfto"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
