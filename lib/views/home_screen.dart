@@ -16,6 +16,7 @@ import 'package:resume_builder_app/views/view_cv/view_cv.dart';
 import 'package:resume_builder_app/views/widgets/app_bar.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:visibility_detector/visibility_detector.dart';
+import 'package:resume_builder_app/utils/routes/route_names.dart';
 
 import 'jobs/ui/screens/home.dart';
 
@@ -75,12 +76,20 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => RepoListScreen()),
+                    MaterialPageRoute(builder: (context) => const RepoListScreen()),
                   );
                 },
-                child: ListTile(
+                child: const ListTile(
                     title: Text('GitHub Code Editor'),
                     trailing: Icon(FontAwesomeIcons.github)),
+              ),
+              InkWell(
+                onTap: () {
+                  Navigator.pushNamed(
+                      context, RouteNames.settings); // Navigate to Settings
+                },
+                child: const ListTile(
+                    title: Text('Settings'), trailing: Icon(Icons.settings)),
               ),
               const Spacer(),
               InkWell(

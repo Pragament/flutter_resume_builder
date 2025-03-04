@@ -1,10 +1,8 @@
-import 'dart:ui';
-
 import 'package:flutter_resume_template/flutter_resume_template.dart';
 
 class TemplateDataModel {
   TemplateDataModel({
-    String fullName='',
+    String fullName = '',
     String? currentPosition,
     String? street,
     String? address,
@@ -12,11 +10,11 @@ class TemplateDataModel {
     String? email,
     String? phoneNumber,
     String? bio,
-    List<ExperienceData> experience=const [],
-    List<Education> educationDetails=const [],
-    List<Language> languages=const[],
-    List<String> hobbies=const[],
-    String?  image,
+    List<ExperienceData> experience = const [],
+    List<Education> educationDetails = const [],
+    List<Language> languages = const [],
+    List<String> hobbies = const [],
+    String? image,
     String? backgroundImage,
   }) {
     _fullName = fullName;
@@ -35,7 +33,7 @@ class TemplateDataModel {
     _backgroundImage = backgroundImage;
   }
 
-  String _fullName='';
+  String _fullName = '';
   String? _currentPosition;
   String? _street;
   String? _address;
@@ -43,14 +41,15 @@ class TemplateDataModel {
   String? _email;
   String? _phoneNumber;
   String? _bio;
-  List<ExperienceData> _experience=[];
-  List<Education> _educationDetails=[];
-  List<Language> _languages=[];
-  List<String> _hobbies=[];
+  List<ExperienceData> _experience = [];
+  List<Education> _educationDetails = [];
+  List<Language> _languages = [];
+  List<String> _hobbies = [];
   String? _image;
   String? _backgroundImage;
 
-  TemplateDataModel copyWith({String? fullName,
+  TemplateDataModel copyWith({
+    String? fullName,
     String? currentPosition,
     String? street,
     String? address,
@@ -64,21 +63,23 @@ class TemplateDataModel {
     List<String>? hobbies,
     String? image,
     String? backgroundImage,
-  }) => TemplateDataModel(  fullName: fullName ?? _fullName,
-    currentPosition: currentPosition ?? _currentPosition,
-    street: street ?? _street,
-    address: address ?? _address,
-    country: country ?? _country,
-    email: email ?? _email,
-    phoneNumber: phoneNumber ?? _phoneNumber,
-    bio: bio ?? _bio,
-    experience: experience ?? _experience,
-    educationDetails: educationDetails ?? _educationDetails,
-    languages: languages ?? _languages,
-    hobbies: hobbies ?? _hobbies,
-    image: image ?? _image,
-    backgroundImage: backgroundImage ?? _backgroundImage,
-  );
+  }) =>
+      TemplateDataModel(
+        fullName: fullName ?? _fullName,
+        currentPosition: currentPosition ?? _currentPosition,
+        street: street ?? _street,
+        address: address ?? _address,
+        country: country ?? _country,
+        email: email ?? _email,
+        phoneNumber: phoneNumber ?? _phoneNumber,
+        bio: bio ?? _bio,
+        experience: experience ?? _experience,
+        educationDetails: educationDetails ?? _educationDetails,
+        languages: languages ?? _languages,
+        hobbies: hobbies ?? _hobbies,
+        image: image ?? _image,
+        backgroundImage: backgroundImage ?? _backgroundImage,
+      );
 
   String get fullName => _fullName;
   String? get currentPosition => _currentPosition;
@@ -106,17 +107,22 @@ class TemplateDataModel {
       phoneNumber: json['phoneNumber'],
       bio: json['bio'],
       experience: (json['experience'] as List<dynamic>?)
-          ?.map((item) => experienceDataFromJson(item as Map<String, dynamic>))
-          .toList() ?? [],
+              ?.map((item) =>
+                  experienceDataFromJson(item as Map<String, dynamic>))
+              .toList() ??
+          [],
       educationDetails: (json['educationDetails'] as List<dynamic>?)
-          ?.map((item) => educationFromJson(item as Map<String, dynamic>))
-          .toList() ?? [],
+              ?.map((item) => educationFromJson(item as Map<String, dynamic>))
+              .toList() ??
+          [],
       languages: (json['languages'] as List<dynamic>?)
-          ?.map((item) => languageFromJson(item as Map<String, dynamic>))
-          .toList() ?? [],
+              ?.map((item) => languageFromJson(item as Map<String, dynamic>))
+              .toList() ??
+          [],
       hobbies: (json['hobbies'] as List<dynamic>?)
-          ?.map((item) => item as String)
-          .toList() ?? [],
+              ?.map((item) => item as String)
+              .toList() ??
+          [],
       image: json['image'],
       backgroundImage: json['backgroundImage'],
     );
@@ -133,21 +139,22 @@ class TemplateDataModel {
       'phoneNumber': _phoneNumber,
       'bio': _bio,
       'experience': _experience.map((item) => experienceToJson(item)).toList(),
-      'educationDetails': _educationDetails.map((item) => educationToJson(item)).toList(),
+      'educationDetails':
+          _educationDetails.map((item) => educationToJson(item)).toList(),
       'languages': _languages.map((item) => languagesToJson(item)).toList(),
       'hobbies': _hobbies,
       'image': _image,
       'backgroundImage': _backgroundImage,
     };
   }
-  
-   Map<String,dynamic> experienceToJson(ExperienceData experience){
-    Map<String,dynamic> data={
-      'experienceTitle':experience.experienceTitle,
-      'experiencePlace':experience.experiencePlace,
-      'experiencePeriod':experience.experiencePeriod,
-      'experienceLocation':experience.experienceLocation,
-      'experienceDescription':experience.experienceDescription,
+
+  Map<String, dynamic> experienceToJson(ExperienceData experience) {
+    Map<String, dynamic> data = {
+      'experienceTitle': experience.experienceTitle,
+      'experiencePlace': experience.experiencePlace,
+      'experiencePeriod': experience.experiencePeriod,
+      'experienceLocation': experience.experienceLocation,
+      'experienceDescription': experience.experienceDescription,
     };
     return data;
   }
@@ -162,14 +169,13 @@ class TemplateDataModel {
     );
   }
 
-  Map<String,dynamic> educationToJson(Education educationDetails){
-    Map<String,dynamic> data={
-      'schoolName':educationDetails.schoolName ,
-      'schoolLevel':educationDetails.schoolLevel,
+  Map<String, dynamic> educationToJson(Education educationDetails) {
+    Map<String, dynamic> data = {
+      'schoolName': educationDetails.schoolName,
+      'schoolLevel': educationDetails.schoolLevel,
     };
     return data;
   }
-
 
   static Education educationFromJson(Map<String, dynamic> json) {
     return Education(
@@ -178,10 +184,10 @@ class TemplateDataModel {
     );
   }
 
-  Map<String,dynamic> languagesToJson(Language language){
-    Map<String,dynamic> data={
-      'language':language.language ,
-      'level':language.level,
+  Map<String, dynamic> languagesToJson(Language language) {
+    Map<String, dynamic> data = {
+      'language': language.language,
+      'level': language.level,
     };
     return data;
   }
