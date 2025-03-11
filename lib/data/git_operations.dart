@@ -21,6 +21,32 @@ class GitOperations {
       throw Exception('Failed to load repositories');
     }
   }
+  
+    Future<List<String>> fetchGitHubImages(String owner,
+        String repos,
+        ) async {
+    final url = Uri.parse(
+        'https://api.github.com/repos/$owner/$repos/contents'); // Adjust folder path
+  
+    final response = await http.get(
+      url,
+      headers: {'Authorization': 'token $token'},
+    );
+  
+    if (response.statusCode == 200) {
+      final List<dynamic> files = jsonDecode(response.body);
+      return files
+          .where((file) =>
+              file['name'].endsWith('.png') ||
+              file['name'].endsWith('.jpg') ||
+              file['name'].endsWith('.jpeg') ||
+              file['name'].endsWith('.gif'))
+          .map<String>((file) => file['download_url'])
+          .toList();
+    } else {
+      throw Exception("Failed to load images from GitHub");
+    }
+   }
 
   Future<void> createRepository(String repoName, bool isPrivate) async {
     final response = await http.post(
