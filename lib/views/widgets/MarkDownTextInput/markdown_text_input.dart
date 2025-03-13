@@ -1,6 +1,8 @@
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'format_markdown.dart';
+import 'package:resume_builder_app/data/git_operations.dart';
+import 'package:resume_builder_app/models/git_repo_model.dart';
 
 class MarkdownTextInput extends StatefulWidget {
   final Function onTextChanged;
@@ -13,8 +15,10 @@ class MarkdownTextInput extends StatefulWidget {
   final TextEditingController? controller;
   final TextStyle? textStyle;
   final bool insertLinksByDialog;
+  GitRepo repo;
+  GitOperations ops;
 
-  const MarkdownTextInput(
+  MarkdownTextInput(
       this.onTextChanged,
       this.initialValue, {
         super.key,
@@ -37,6 +41,8 @@ class MarkdownTextInput extends StatefulWidget {
         this.textStyle,
         this.controller,
         this.insertLinksByDialog = true,
+        required this.ops,
+        required this.repo,
       });
 
   @override
@@ -247,6 +253,129 @@ class _MarkdownTextInputState extends State<MarkdownTextInput> {
             );
           },
         );
+
+        case MarkdownType.image:
+          return _basicInkwell(
+            type,
+            customOnTap: () async {
+              List<String> imageUrls = [];
+              print("getting urls");
+              try {
+               
+                imageUrls = await widget.ops.fetchGitHubImages(widget.repo.owner.toString(),widget.repo.name);
+        
+                //imageUrls = await GitOperations.fetchGitHubImages();
+              } catch (e) {
+                print("Error fetching images: $e");
+              }
+        
+              if (imageUrls.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text("No images found in the repository.")),
+                );
+                return;
+              }
+        
+        
+                  await showDialog<void>(
+          context: context,
+          builder: (context) {
+            Set<int> selectedImageIndexes = {}; // Stores selected image indexes
+        
+                 return StatefulBuilder(
+           builder: (context, setState) {
+             return AlertDialog(
+               title: Text("Select Images"),
+               content: SizedBox(
+                 width: double.maxFinite,
+                 height: 500, // Adjust height if needed
+                 child: Column(
+                   mainAxisSize: MainAxisSize.min,
+                   children: [
+                     Expanded(
+                       child: GridView.builder(
+                         shrinkWrap: true,
+                         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                           crossAxisCount: 3,
+                           crossAxisSpacing: 10,
+                           mainAxisSpacing: 10,
+                         ),
+                         itemCount: imageUrls.length,
+                         itemBuilder: (context, index) {
+                           bool isSelected = selectedImageIndexes.contains(index);
+                           String imageName = imageUrls[index].split('/').last; // Extract filename
+     
+                           return GestureDetector(
+                             onTap: () {
+                               setState(() {
+                                 if (isSelected) {
+                                   selectedImageIndexes.remove(index);
+                                 } else {
+                                   selectedImageIndexes.add(index);
+                                 }
+                               });
+                             },
+                             child: Column(
+                               children: [
+                                 Stack(
+                                   alignment: Alignment.center,
+                                   children: [
+                                     Image.network(imageUrls[index], height: 80, width: 80, fit: BoxFit.cover),
+                                     if (isSelected)
+                                       Container(
+                                         height: 80,
+                                         width: 80,
+                                         color: Colors.black.withOpacity(0.5),
+                                         child: Icon(Icons.check, color: Colors.white, size: 40),
+                                       ),
+                                   ],
+                                 ),
+                                 SizedBox(height: 5),
+                                 Text(imageName, style: TextStyle(fontSize: 12), overflow: TextOverflow.ellipsis),
+                               ],
+                             ),
+                           );
+                         },
+                       ),
+                     ),
+                     SizedBox(height: 10),
+                     ElevatedButton(
+                       onPressed: selectedImageIndexes.isNotEmpty
+                           ? () {
+                               List<String> selectedImagesMarkdown = selectedImageIndexes
+                                   .map((index) {
+                                     String url = imageUrls[index];
+                                     String imageName = url.split('/').last;
+                                     return "![${imageName}](${url})"; // Markdown format
+                                   })
+                                   .toList();
+     
+                               String markdownText = selectedImagesMarkdown.join("\n"); // Join all selected images
+     
+                               onTap(
+                                 type,
+                                 selectedText: markdownText, // Markdown content
+                                 link: selectedImagesMarkdown.join(", "), // Just in case
+                               );
+     
+                               //print(markdownText);
+                               _controller.text += "\n" + markdownText;
+                               Navigator.pop(context,markdownText);
+                             }
+                           : null, // Disable button if no images are selected
+                       child: Text("Choose Selected"),
+                     ),
+                   ],
+                 ),
+               ),
+             );
+           },
+         );
+       },
+     );
+    },
+  );
+
       default:
         return _basicInkwell(type);
     }
