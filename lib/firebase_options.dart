@@ -17,6 +17,8 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
+      print("early");
+      return windows;
       throw UnsupportedError(
         'DefaultFirebaseOptions have not been configured for web - '
         'you can reconfigure this by running the FlutterFire CLI again.',
@@ -33,6 +35,8 @@ class DefaultFirebaseOptions {
           'you can reconfigure this by running the FlutterFire CLI again.',
         );
       case TargetPlatform.windows:
+        print("printing in the windows");
+        return windows;
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for windows - '
           'you can reconfigure this by running the FlutterFire CLI again.',
@@ -65,5 +69,11 @@ class DefaultFirebaseOptions {
     storageBucket: 'portfolio-a46a6.appspot.com',
     iosBundleId: 'app.resumebuilder.com.resumeBuilderApp',
   );
-
+  static const FirebaseOptions windows = FirebaseOptions(
+    apiKey: 'AIzaSyCzQc4wQZoiToj9MtvMqxaSTAChph-BAjk',
+    appId: 'githublogindev',
+    messagingSenderId: '765269707700',
+    projectId: 'githublogindev',
+    // Optionally add other parameters as needed
+  );
 }

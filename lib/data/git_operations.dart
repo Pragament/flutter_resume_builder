@@ -21,6 +21,32 @@ class GitOperations {
       throw Exception('Failed to load repositories');
     }
   }
+  
+    Future<List<String>> fetchGitHubImages(String owner,
+        String repos,
+        ) async {
+    final url = Uri.parse(
+        'https://api.github.com/repos/$owner/$repos/contents'); // Adjust folder path
+  
+    final response = await http.get(
+      url,
+      headers: {'Authorization': 'token $token'},
+    );
+  
+    if (response.statusCode == 200) {
+      final List<dynamic> files = jsonDecode(response.body);
+      return files
+          .where((file) =>
+              file['name'].endsWith('.png') ||
+              file['name'].endsWith('.jpg') ||
+              file['name'].endsWith('.jpeg') ||
+              file['name'].endsWith('.gif'))
+          .map<String>((file) => file['download_url'])
+          .toList();
+    } else {
+      throw Exception("Failed to load images from GitHub");
+    }
+   }
 
   Future<void> createRepository(String repoName, bool isPrivate) async {
     final response = await http.post(
@@ -39,25 +65,55 @@ class GitOperations {
     }
   }
 
-  Future<void> addFileToRepo(String owner, String repo, String path, File file,
+  Future<void> addFileToRepo(
+      String owner,
+      String repo,
+      //String path,
+      Map<String, File> files, //File file,
       String commitMessage) async {
-    List<int> fileBytes = await file.readAsBytes();
-    String base64Content = base64Encode(fileBytes);
+    int count = 0;
+    for (var entry in files.entries) {
+      String path = entry.key;
+      File file = entry.value;
+      List<int> fileBytes = await file.readAsBytes();
+      String base64Content = base64Encode(fileBytes);
 
-    final response = await http.put(
-      Uri.parse('https://api.github.com/repos/$owner/$repo/contents/$path'),
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
-      body: json.encode({
-        'message': commitMessage,
-        'content': base64Content,
-      }),
-    );
-    if (response.statusCode != 201) {
-      throw Exception('Failed to add file to repository: ${response.body}');
+      final response = await http.put(
+        Uri.parse('https://api.github.com/repos/$owner/$repo/contents/$path'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: json.encode({
+          'message': commitMessage,
+          'content': base64Content,
+        }),
+      );
+      if (response.statusCode != 201) {
+        count += 1;
+        throw Exception('Failed to add file to repository: ${response.body}');
+      }
     }
+    if (count > 0) {
+      throw Exception('failed to add ${count} files');
+    }
+    // List<int> fileBytes = await file.readAsBytes();
+    // String base64Content = base64Encode(fileBytes);
+
+    // final response = await http.put(
+    //   Uri.parse('https://api.github.com/repos/$owner/$repo/contents/$path'),
+    //   headers: {
+    //     'Authorization': 'Bearer $token',
+    //     'Content-Type': 'application/json',
+    //   },
+    //   body: json.encode({
+    //     'message': commitMessage,
+    //     'content': base64Content,
+    //   }),
+    // );
+    // if (response.statusCode != 201) {
+    //   throw Exception('Failed to add file to repository: ${response.body}');
+    // }
   }
 
   Future<dynamic> getRepoContents(

@@ -12,12 +12,8 @@ import '../models/git_repo_model.dart';
 import '../models/repo_content_model.dart';
 
 class RepoContentScreen extends ConsumerStatefulWidget {
-  const RepoContentScreen({
-    super.key,
-    required this.repo,
-    required this.ops,
-    required this.path
-  });
+  const RepoContentScreen(
+      {super.key, required this.repo, required this.ops, required this.path});
 
   final GitRepo repo;
   final GitOperations ops;
@@ -36,8 +32,8 @@ class _RepoContentScreenState extends ConsumerState<RepoContentScreen> {
         title: Text(widget.repo.name),
       ),
       body: FutureBuilder(
-        future: widget.ops
-            .getRepoContents(widget.repo.owner.login, widget.repo.name, widget.path),
+        future: widget.ops.getRepoContents(
+            widget.repo.owner.login, widget.repo.name, widget.path),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             final data = snapshot.data as List;
@@ -54,17 +50,19 @@ class _RepoContentScreenState extends ConsumerState<RepoContentScreen> {
                   child: ListTile(
                     leading: Icon(isDir ? Icons.folder : Icons.text_snippet),
                     title: Text(content.name),
-                    trailing: content.name.endsWith(".md")?TextButton(
-                      style: TextButton.styleFrom(
+                    trailing: content.name.endsWith(".md")
+                        ? TextButton(
+                            style: TextButton.styleFrom(
                               shape: BeveledRectangleBorder(
                                   borderRadius: BorderRadius.zero,
                                   side: BorderSide(
                                       width: 0.5, color: Colors.white)),
                             ),
-                        onPressed: ()async{
-                         final fileData=await widget.ops.getRepoContents(
-                             widget.repo.owner.login, widget.repo.name, content.path
-                         );
+                            onPressed: () async {
+                              final fileData = await widget.ops.getRepoContents(
+                                  widget.repo.owner.login,
+                                  widget.repo.name,
+                                  content.path);
                               //log(fileData.toString());
                               final fileContent = base64Decode(
                                   fileData['content']
@@ -82,13 +80,20 @@ class _RepoContentScreenState extends ConsumerState<RepoContentScreen> {
                                             repo: widget.repo,
                                             path: content.path,
                                           )));
-                            }, child: Text("Edit")):null,
-                    onTap:isDir? (){
-                      Navigator.push(context, MaterialPageRoute(builder: (context)=>RepoContentScreen(
-                          repo: widget.repo,
-                          ops: widget.ops,
-                          path: content.path)));
-                    }:null,
+                            },
+                            child: Text("Edit"))
+                        : null,
+                    onTap: isDir
+                        ? () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => RepoContentScreen(
+                                        repo: widget.repo,
+                                        ops: widget.ops,
+                                        path: content.path)));
+                          }
+                        : null,
                   ),
                 );
               },
@@ -138,6 +143,7 @@ class _AddFileDialogContentState extends State<AddFileDialogContent> {
   String? fileName;
 
   final GlobalKey _formKey = GlobalKey<FormState>();
+  Map<String, File> files = {}; // Map to store multiple files
 
   @override
   Widget build(BuildContext context) {
@@ -148,7 +154,7 @@ class _AddFileDialogContentState extends State<AddFileDialogContent> {
         child: Column(
           children: [
             const Text(
-              'Upload a File:',
+              'Upload Files:',
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
             ),
             const SizedBox(height: 15),
@@ -156,7 +162,7 @@ class _AddFileDialogContentState extends State<AddFileDialogContent> {
               elevation: 0,
               child: Row(
                 children: [
-                  const Text(' File: '),
+                  const Text(' Files: '),
                   TextButton(
                     child: Text(fileName ?? 'Tap to pick (Max 100 MB)'),
                     onPressed: () async {
@@ -175,12 +181,17 @@ class _AddFileDialogContentState extends State<AddFileDialogContent> {
                         ],
                       );
 
-                      final XFile? pickedFile = await openFile(
-                          acceptedTypeGroups: <XTypeGroup>[typeGroup]);
+                      final List<XFile>? pickedFiles = await openFiles(
+                        acceptedTypeGroups: <XTypeGroup>[typeGroup],
+                      );
 
-                      if (pickedFile != null) {
-                        file = File(pickedFile.path);
-                        fileName = pickedFile.name;
+                      if (pickedFiles != null && pickedFiles.isNotEmpty) {
+                        files.clear(); // Clear previous selections
+                        for (XFile pickedFile in pickedFiles) {
+                          files[pickedFile.name] = File(pickedFile.path);
+                        }
+                        // file = File(pickedFile.path);
+                        // fileName = pickedFile.name;
 
                         setState(() {});
                       }
@@ -226,11 +237,12 @@ class _AddFileDialogContentState extends State<AddFileDialogContent> {
                       try {
                         await widget.ops
                             .addFileToRepo(
-                            widget.repo.owner.login,
-                            widget.repo.name,
-                            fileName!,
-                            file!,
-                            commitMessageC.text)
+                                widget.repo.owner.login,
+                                widget.repo.name,
+                                files,
+                                // fileName!,
+                                // file!,
+                                commitMessageC.text)
                             .then((_) => context.pop());
                       } on Exception catch (e) {
                         log(e.toString());
