@@ -82,7 +82,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     title: Text('GitHub Code Editor'),
                     trailing: Icon(FontAwesomeIcons.github)),
               ),
-              const Spacer(),
+              // const Spacer(),
               InkWell(
                 onTap: () {
                   Navigator.of(context).push(MaterialPageRoute(

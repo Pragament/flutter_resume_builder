@@ -62,6 +62,8 @@ dependencies:
   expandable: ^5.0.1
   
   html: ^0.15.5
+  cached_network_image: ^3.4.1
+  flutter_svg: ^2.0.17
 
 
 
