@@ -9,17 +9,33 @@ class GitOperations {
   GitOperations({required this.token});
 
   Future<List<dynamic>> listRepositories(bool showPrivateRepos) async {
+  const int perPage = 100;
+  int page = 1;
+  List<dynamic> allRepos = [];
+
+  while (true) {
     final response = await http.get(
       Uri.parse(showPrivateRepos
-          ? 'https://api.github.com/user/repos?visibility=all'
-          : 'https://api.github.com/user/repos'),
+          ? 'https://api.github.com/user/repos?visibility=all&per_page=$perPage&page=$page'
+          : 'https://api.github.com/user/repos?per_page=$perPage&page=$page'),
       headers: {'Authorization': 'Bearer $token'},
     );
-    if (response.statusCode == 200) {
-      return json.decode(response.body);
-    } else {
+
+    if (response.statusCode != 200) {
       throw Exception('Failed to load repositories');
     }
+
+    final List<dynamic> repos = json.decode(response.body);
+    allRepos.addAll(repos);
+
+    // If fewer results than perPage, we're done
+    if (repos.length < perPage) {
+      break;
+    }
+
+    page++;
+  }
+  return allRepos;
   }
   
     Future<List<String>> fetchGitHubImages(String owner,
