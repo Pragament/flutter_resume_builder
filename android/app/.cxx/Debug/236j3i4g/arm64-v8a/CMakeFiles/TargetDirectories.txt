@@ -1,0 +1,2 @@
+/home/naresh/folder1/project3/flutter_resume_builder/android/app/.cxx/Debug/236j3i4g/arm64-v8a/CMakeFiles/edit_cache.dir
+/home/naresh/folder1/project3/flutter_resume_builder/android/app/.cxx/Debug/236j3i4g/arm64-v8a/CMakeFiles/rebuild_cache.dir
