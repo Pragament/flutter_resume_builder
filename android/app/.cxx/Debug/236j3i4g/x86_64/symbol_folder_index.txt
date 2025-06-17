@@ -1,0 +1,1 @@
+/home/naresh/folder1/project3/flutter_resume_builder/build/app/intermediates/cxx/Debug/236j3i4g/obj/x86_64

@@ -233,7 +233,7 @@ class _AddFileDialogContentState extends State<AddFileDialogContent> {
                         Theme.of(context).colorScheme.secondaryContainer)),
                 onPressed: () async {
                   if ((_formKey.currentState! as FormState).validate()) {
-                    if (file != null && fileName != null) {
+                    if (files.isNotEmpty){
                       try {
                         await widget.ops
                             .addFileToRepo(
