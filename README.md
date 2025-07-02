@@ -3,6 +3,16 @@
 ## Screenshots
 
 Below are screenshots demonstrating key features and UI flows of the app.
+| App Login Screen | Repository List | Resume Template Selection | Resume Preview |
+|:----------------:|:--------------:|:------------------------:|:--------------:|
+| **Login with GitHub** | **View Repositories** | **Choose Resume Template** | **Preview Resume** |
+| <img src="https://github.com/user-attachments/assets/61eec3c3-1b11-4880-87d5-d3f999076e09" width="250" alt="App Screenshot 1" /> | <img src="https://github.com/user-attachments/assets/53dd1a3d-0e46-4a48-abee-660682083793" width="250" alt="App Screenshot 2" /> | <img src="https://github.com/user-attachments/assets/6062ec05-199d-4887-9db5-5047b0837360" width="250" alt="Choose templates for the Resume" /> | <img src="https://github.com/user-attachments/assets/01a984d5-9959-4381-9933-96ebf027ae29" width="250" alt="App Screenshot 5" /> |
+
+| Resume Edit | Export Options | Settings | Error Example |
+|:-----------:|:--------------:|:--------:|:-------------:|
+| **Edit Resume** | **Export/Download** | **App Settings** | **Error Message** |
+| <img src="https://github.com/user-attachments/assets/e622e3cb-d47b-4abf-a85c-31c28953372c" width="250" alt="App Screenshot 6" /> | <img src="https://github.com/user-attachments/assets/4c10abd2-4291-4ac5-b6c9-560522954274" width="250" alt="App Screenshot 7" /> | <img src="https://github.com/user-attachments/assets/0505c5e7-4fbe-402c-ac5d-3f60e5bfc77e" width="250" alt="App Screenshot 8" /> | <img src="https://github.com/user-attachments/assets/4639e28b-f4eb-4989-97d6-04c381b69e7b" width="250" alt="App Screenshot 3" /> |
+
 
 | App Login Screen | Repository List | Resume Template Selection | Resume Preview |
 |:----------------:|:--------------:|:------------------------:|:--------------:|
