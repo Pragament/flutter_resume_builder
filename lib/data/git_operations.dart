@@ -9,48 +9,51 @@ class GitOperations {
   GitOperations({required this.token});
 
   Future<List<dynamic>> listRepositories(bool showPrivateRepos) async {
-  const int perPage = 100;
-  int page = 1;
-  List<dynamic> allRepos = [];
+    const int perPage = 100;
+    int page = 1;
+    List<dynamic> allRepos = [];
 
-  while (true) {
-    final response = await http.get(
-      Uri.parse(showPrivateRepos
-          ? 'https://api.github.com/user/repos?visibility=all&per_page=$perPage&page=$page'
-          : 'https://api.github.com/user/repos?per_page=$perPage&page=$page'),
-      headers: {'Authorization': 'Bearer $token'},
-    );
+    while (true) {
+      final response = await http.get(
+        Uri.parse(showPrivateRepos
+            ? 'https://api.github.com/user/repos?visibility=all&per_page=$perPage&page=$page'
+            : 'https://api.github.com/user/repos?per_page=$perPage&page=$page'),
+        headers: {'Authorization': 'Bearer $token'},
+      );
 
-    if (response.statusCode != 200) {
-      throw Exception('Failed to load repositories');
+      if (response.statusCode != 200) {
+        throw Exception('Failed to load repositories');
+      }
+
+      final List<dynamic> repos = json.decode(response.body);
+      allRepos.addAll(repos);
+
+      // If fewer results than perPage, we're done
+      if (repos.length < perPage) {
+        break;
+      }
+
+      page++;
     }
-
-    final List<dynamic> repos = json.decode(response.body);
-    allRepos.addAll(repos);
-
-    // If fewer results than perPage, we're done
-    if (repos.length < perPage) {
-      break;
-    }
-
-    page++;
+    return allRepos;
   }
-  return allRepos;
-  }
-  
-    Future<List<String>> fetchGitHubImages(String owner,
-        String repos,
-        ) async {
+
+  Future<List<String>> fetchGitHubImages(
+    String owner,
+    String repos,
+  ) async {
     final url = Uri.parse(
         'https://api.github.com/repos/$owner/$repos/contents'); // Adjust folder path
-  
+
+    //log("fetchGitHubImages url ${url.toString()}");
     final response = await http.get(
       url,
       headers: {'Authorization': 'token $token'},
     );
-  
+
     if (response.statusCode == 200) {
       final List<dynamic> files = jsonDecode(response.body);
+      //log("fetchGitHubImages ${files.toString()}");
       return files
           .where((file) =>
               file['name'].endsWith('.png') ||
@@ -60,9 +63,9 @@ class GitOperations {
           .map<String>((file) => file['download_url'])
           .toList();
     } else {
-      throw Exception("Failed to load images from GitHub");
+      throw Exception("Failed to load images from GitHub: ${response.body}");
     }
-   }
+  }
 
   Future<void> createRepository(String repoName, bool isPrivate) async {
     final response = await http.post(
