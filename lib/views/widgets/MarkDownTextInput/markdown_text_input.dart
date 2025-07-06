@@ -19,31 +19,31 @@ class MarkdownTextInput extends StatefulWidget {
   GitOperations ops;
 
   MarkdownTextInput(
-    this.onTextChanged,
-    this.initialValue, {
-    super.key,
-    this.label = '',
-    this.validators,
-    this.textDirection = TextDirection.ltr,
-    this.maxLines,
-    this.actions = const [
-      MarkdownType.bold,
-      MarkdownType.italic,
-      MarkdownType.title,
-      MarkdownType.link,
-      MarkdownType.list,
-      MarkdownType.strikethrough,
-      MarkdownType.code,
-      MarkdownType.blockquote,
-      MarkdownType.separator,
-      MarkdownType.image
-    ],
-    this.textStyle,
-    this.controller,
-    this.insertLinksByDialog = true,
-    required this.ops,
-    required this.repo,
-  });
+      this.onTextChanged,
+      this.initialValue, {
+        super.key,
+        this.label = '',
+        this.validators,
+        this.textDirection = TextDirection.ltr,
+        this.maxLines,
+        this.actions = const [
+          MarkdownType.bold,
+          MarkdownType.italic,
+          MarkdownType.title,
+          MarkdownType.link,
+          MarkdownType.list,
+          MarkdownType.strikethrough,
+          MarkdownType.code,
+          MarkdownType.blockquote,
+          MarkdownType.separator,
+          MarkdownType.image
+        ],
+        this.textStyle,
+        this.controller,
+        this.insertLinksByDialog = true,
+        required this.ops,
+        required this.repo,
+      });
 
   @override
   State<MarkdownTextInput> createState() => _MarkdownTextInputState();
@@ -52,7 +52,7 @@ class MarkdownTextInput extends StatefulWidget {
 class _MarkdownTextInputState extends State<MarkdownTextInput> {
   late final TextEditingController _controller;
   TextSelection textSelection =
-      const TextSelection(baseOffset: 0, extentOffset: 0);
+  const TextSelection(baseOffset: 0, extentOffset: 0);
   FocusNode focusNode = FocusNode();
 
   void onTap(MarkdownType type,
@@ -69,12 +69,12 @@ class _MarkdownTextInputState extends State<MarkdownTextInput> {
         titleSize: titleSize,
         link: link,
         selectedText:
-            selectedText ?? _controller.text.substring(fromIndex, toIndex));
+        selectedText ?? _controller.text.substring(fromIndex, toIndex));
 
     _controller.value = _controller.value.copyWith(
         text: result.data,
         selection:
-            TextSelection.collapsed(offset: basePosition + result.cursorIndex));
+        TextSelection.collapsed(offset: basePosition + result.cursorIndex));
 
     if (noTextSelected) {
       _controller.selection = TextSelection.collapsed(
@@ -168,92 +168,92 @@ class _MarkdownTextInputState extends State<MarkdownTextInput> {
           customOnTap: !widget.insertLinksByDialog
               ? null
               : () async {
-                  var text = _controller.text.substring(
-                      textSelection.baseOffset, textSelection.extentOffset);
+            var text = _controller.text.substring(
+                textSelection.baseOffset, textSelection.extentOffset);
 
-                  var textController = TextEditingController()..text = text;
-                  var linkController = TextEditingController();
-                  var textFocus = FocusNode();
-                  var linkFocus = FocusNode();
+            var textController = TextEditingController()..text = text;
+            var linkController = TextEditingController();
+            var textFocus = FocusNode();
+            var linkFocus = FocusNode();
 
-                  var color = Theme.of(context).colorScheme.secondary;
+            var color = Theme.of(context).colorScheme.secondary;
 
-                  await showDialog<void>(
-                    context: context,
-                    builder: (context) {
-                      return AlertDialog(
-                        title: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            GestureDetector(
-                                child: const Icon(Icons.close),
-                                onTap: () => Navigator.pop(context))
-                          ],
+            await showDialog<void>(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  title: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      GestureDetector(
+                          child: const Icon(Icons.close),
+                          onTap: () => Navigator.pop(context))
+                    ],
+                  ),
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      TextField(
+                        controller: textController,
+                        decoration: InputDecoration(
+                          hintText: 'example',
+                          label: Text(
+                              'AppLocalizations.of(context)!.linkDialogTextTitle'),
+                          labelStyle: TextStyle(color: color),
+                          focusedBorder: OutlineInputBorder(
+                              borderSide:
+                              BorderSide(color: color, width: 2)),
+                          enabledBorder: OutlineInputBorder(
+                              borderSide:
+                              BorderSide(color: color, width: 2)),
                         ),
-                        content: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            TextField(
-                              controller: textController,
-                              decoration: InputDecoration(
-                                hintText: 'example',
-                                label: Text(
-                                    'AppLocalizations.of(context)!.linkDialogTextTitle'),
-                                labelStyle: TextStyle(color: color),
-                                focusedBorder: OutlineInputBorder(
-                                    borderSide:
-                                        BorderSide(color: color, width: 2)),
-                                enabledBorder: OutlineInputBorder(
-                                    borderSide:
-                                        BorderSide(color: color, width: 2)),
-                              ),
-                              autofocus: text.isEmpty,
-                              focusNode: textFocus,
-                              textInputAction: TextInputAction.next,
-                              onSubmitted: (value) {
-                                textFocus.unfocus();
-                                FocusScope.of(context).requestFocus(linkFocus);
-                              },
-                            ),
-                            const SizedBox(height: 10),
-                            TextField(
-                              controller: linkController,
-                              decoration: InputDecoration(
-                                hintText: 'https://www.example.com',
-                                label: Text(
-                                    'AppLocalizations.of(context)!.linkDialogLinkTitle'),
-                                labelStyle: TextStyle(color: color),
-                                focusedBorder: OutlineInputBorder(
-                                  borderSide:
-                                      BorderSide(color: color, width: 2),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderSide:
-                                      BorderSide(color: color, width: 2),
-                                ),
-                              ),
-                              autofocus: text.isNotEmpty,
-                              focusNode: linkFocus,
-                            ),
-                          ],
-                        ),
-                        contentPadding:
-                            const EdgeInsets.fromLTRB(24.0, 20.0, 24.0, 0),
-                        actions: [
-                          TextButton(
-                            onPressed: () {
-                              onTap(type,
-                                  link: linkController.text,
-                                  selectedText: textController.text);
-                              Navigator.pop(context);
-                            },
-                            child: Text('AppLocalizations.of(context)!.ok'),
+                        autofocus: text.isEmpty,
+                        focusNode: textFocus,
+                        textInputAction: TextInputAction.next,
+                        onSubmitted: (value) {
+                          textFocus.unfocus();
+                          FocusScope.of(context).requestFocus(linkFocus);
+                        },
+                      ),
+                      const SizedBox(height: 10),
+                      TextField(
+                        controller: linkController,
+                        decoration: InputDecoration(
+                          hintText: 'https://www.example.com',
+                          label: Text(
+                              'AppLocalizations.of(context)!.linkDialogLinkTitle'),
+                          labelStyle: TextStyle(color: color),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide:
+                            BorderSide(color: color, width: 2),
                           ),
-                        ],
-                      );
-                    },
-                  );
-                },
+                          enabledBorder: OutlineInputBorder(
+                            borderSide:
+                            BorderSide(color: color, width: 2),
+                          ),
+                        ),
+                        autofocus: text.isNotEmpty,
+                        focusNode: linkFocus,
+                      ),
+                    ],
+                  ),
+                  contentPadding:
+                  const EdgeInsets.fromLTRB(24.0, 20.0, 24.0, 0),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        onTap(type,
+                            link: linkController.text,
+                            selectedText: textController.text);
+                        Navigator.pop(context);
+                      },
+                      child: Text('AppLocalizations.of(context)!.ok'),
+                    ),
+                  ],
+                );
+              },
+            );
+          },
         );
 
       case MarkdownType.image:
@@ -282,7 +282,7 @@ class _MarkdownTextInputState extends State<MarkdownTextInput> {
               context: context,
               builder: (context) {
                 Set<int> selectedImageIndexes =
-                    {}; // Stores selected image indexes
+                {}; // Stores selected image indexes
 
                 return StatefulBuilder(
                   builder: (context, setState) {
@@ -298,7 +298,7 @@ class _MarkdownTextInputState extends State<MarkdownTextInput> {
                               child: GridView.builder(
                                 shrinkWrap: true,
                                 gridDelegate:
-                                    const SliverGridDelegateWithFixedCrossAxisCount(
+                                const SliverGridDelegateWithFixedCrossAxisCount(
                                   crossAxisCount: 3,
                                   crossAxisSpacing: 10,
                                   mainAxisSpacing: 10,
@@ -306,7 +306,7 @@ class _MarkdownTextInputState extends State<MarkdownTextInput> {
                                 itemCount: imageUrls.length,
                                 itemBuilder: (context, index) {
                                   bool isSelected =
-                                      selectedImageIndexes.contains(index);
+                                  selectedImageIndexes.contains(index);
                                   String imageName = imageUrls[index]
                                       .split('/')
                                       .last; // Extract filename
@@ -356,29 +356,29 @@ class _MarkdownTextInputState extends State<MarkdownTextInput> {
                             ElevatedButton(
                               onPressed: selectedImageIndexes.isNotEmpty
                                   ? () {
-                                      List<String> selectedImagesMarkdown =
-                                          selectedImageIndexes.map((index) {
-                                        String url = imageUrls[index];
-                                        String imageName = url.split('/').last;
-                                        return "![${imageName}](${url})"; // Markdown format
-                                      }).toList();
+                                List<String> selectedImagesMarkdown =
+                                selectedImageIndexes.map((index) {
+                                  String url = imageUrls[index];
+                                  String imageName = url.split('/').last;
+                                  return "![${imageName}](${url})"; // Markdown format
+                                }).toList();
 
-                                      String markdownText =
-                                          selectedImagesMarkdown.join(
-                                              "\n"); // Join all selected images
+                                String markdownText =
+                                selectedImagesMarkdown.join(
+                                    "\n"); // Join all selected images
 
-                                      onTap(
-                                        type,
-                                        selectedText:
-                                            markdownText, // Markdown content
-                                        link: selectedImagesMarkdown
-                                            .join(", "), // Just in case
-                                      );
+                                onTap(
+                                  type,
+                                  selectedText:
+                                  markdownText, // Markdown content
+                                  link: selectedImagesMarkdown
+                                      .join(", "), // Just in case
+                                );
 
-                                      //print(markdownText);
-                                      _controller.text += "\n" + markdownText;
-                                      Navigator.pop(context, markdownText);
-                                    }
+                                //print(markdownText);
+                                _controller.text += "\n" + markdownText;
+                                Navigator.pop(context, markdownText);
+                              }
                                   : null, // Disable button if no images are selected
                               child: Text("Choose Selected"),
                             ),
@@ -409,55 +409,57 @@ class _MarkdownTextInputState extends State<MarkdownTextInput> {
         ),
         borderRadius: const BorderRadius.all(Radius.circular(10)),
       ),
-      child: SingleChildScrollView(
-        child: Column(
-          children: [
-            SizedBox(
-              height: 44,
-              child: Material(
-                color: Theme.of(context).cardColor,
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(10),
-                  topRight: Radius.circular(10),
-                ),
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  children:
-                      widget.actions.map((type) => actionWidget(type)).toList(),
+      child: Column(
+        children: [
+          SizedBox(
+            height: 44,
+            child: Material(
+              color: Theme.of(context).cardColor,
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(10),
+                topRight: Radius.circular(10),
+              ),
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                children:
+                widget.actions.map((type) => actionWidget(type)).toList(),
+              ),
+            ),
+          ),
+          const Divider(height: 0),
+          Expanded(
+            child: SingleChildScrollView(
+              child: TextFormField(
+                focusNode: focusNode,
+                textInputAction: TextInputAction.newline,
+                maxLines: widget.maxLines,
+                controller: _controller,
+                textCapitalization: TextCapitalization.sentences,
+                validator: widget.validators != null
+                    ? (value) => widget.validators!(value)
+                    : null,
+                style: widget.textStyle ?? Theme.of(context).textTheme.bodyLarge,
+                cursorColor: Theme.of(context).colorScheme.primary,
+                textDirection: widget.textDirection,
+                decoration: InputDecoration(
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.secondary),
+                  ),
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.secondary),
+                  ),
+                  hintText: widget.label,
+                  hintStyle:
+                  const TextStyle(color: Color.fromRGBO(63, 61, 86, 0.5)),
+                  contentPadding:
+                  const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
                 ),
               ),
             ),
-            const Divider(height: 0),
-            TextFormField(
-              focusNode: focusNode,
-              textInputAction: TextInputAction.newline,
-              maxLines: widget.maxLines,
-              controller: _controller,
-              textCapitalization: TextCapitalization.sentences,
-              validator: widget.validators != null
-                  ? (value) => widget.validators!(value)
-                  : null,
-              style: widget.textStyle ?? Theme.of(context).textTheme.bodyLarge,
-              cursorColor: Theme.of(context).colorScheme.primary,
-              textDirection: widget.textDirection,
-              decoration: InputDecoration(
-                enabledBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(
-                      color: Theme.of(context).colorScheme.secondary),
-                ),
-                focusedBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(
-                      color: Theme.of(context).colorScheme.secondary),
-                ),
-                hintText: widget.label,
-                hintStyle:
-                    const TextStyle(color: Color.fromRGBO(63, 61, 86, 0.5)),
-                contentPadding:
-                    const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
