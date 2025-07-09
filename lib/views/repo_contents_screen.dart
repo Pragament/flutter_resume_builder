@@ -233,17 +233,37 @@ class _AddFileDialogContentState extends State<AddFileDialogContent> {
                         Theme.of(context).colorScheme.secondaryContainer)),
                 onPressed: () async {
                   if ((_formKey.currentState! as FormState).validate()) {
-                    if (files.isNotEmpty){
+                    if (files.isNotEmpty) {
                       try {
-                        await widget.ops
-                            .addFileToRepo(
-                                widget.repo.owner.login,
-                                widget.repo.name,
-                                files,
-                                // fileName!,
-                                // file!,
-                                commitMessageC.text)
-                            .then((_) => context.pop());
+                        if (files.length == 1) {
+                          await widget.ops
+                              .addFileToRepo(
+                                  widget.repo.owner.login,
+                                  widget.repo.name,
+                                  files,
+                                  // fileName!,
+                                  // file!,
+                                  commitMessageC.text)
+                              .then((_) {
+                            if (context.mounted) {
+                              context.pop();
+                            }
+                          });
+                        } else {
+                          await widget.ops
+                              .commitMultipleFiles(
+                            owner: widget.repo.owner.login,
+                            repo: widget.repo.name,
+                            branch: 'main',
+                            files: files,
+                            commitMessage: commitMessageC.text,
+                          )
+                              .then((_) {
+                            if (context.mounted) {
+                              context.pop();
+                            }
+                          });
+                        }
                       } on Exception catch (e) {
                         log(e.toString());
                       }
