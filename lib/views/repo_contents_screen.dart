@@ -158,6 +158,35 @@ class _AddFileDialogContentState extends State<AddFileDialogContent> {
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
             ),
             const SizedBox(height: 15),
+            if (files.isNotEmpty)
+              SizedBox(
+                width: double.infinity,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Selected Files:',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 5),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 4,
+                      children: files.keys.map((fileName) {
+                        return Chip(
+                          label: Text(fileName),
+                          onDeleted: () {
+                            setState(() {
+                              files.remove(fileName);
+                            });
+                          },
+                        );
+                      }).toList(),
+                    ),
+                  ],
+                ),
+              ),
+            const SizedBox(height: 15),
             Card(
               elevation: 0,
               child: Row(
