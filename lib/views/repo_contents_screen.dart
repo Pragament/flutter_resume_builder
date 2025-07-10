@@ -53,7 +53,7 @@ class _RepoContentScreenState extends ConsumerState<RepoContentScreen> {
                     trailing: content.name.endsWith(".md")
                         ? TextButton(
                             style: TextButton.styleFrom(
-                              shape: BeveledRectangleBorder(
+                              shape: const BeveledRectangleBorder(
                                   borderRadius: BorderRadius.zero,
                                   side: BorderSide(
                                       width: 0.5, color: Colors.white)),
@@ -81,7 +81,7 @@ class _RepoContentScreenState extends ConsumerState<RepoContentScreen> {
                                             path: content.path,
                                           )));
                             },
-                            child: Text("Edit"))
+                            child: const Text("Edit"))
                         : null,
                     onTap: isDir
                         ? () {
@@ -171,15 +171,58 @@ class _AddFileDialogContentState extends State<AddFileDialogContent> {
                     const SizedBox(height: 5),
                     Wrap(
                       spacing: 8,
-                      runSpacing: 4,
-                      children: files.keys.map((fileName) {
-                        return Chip(
-                          label: Text(fileName),
-                          onDeleted: () {
-                            setState(() {
-                              files.remove(fileName);
-                            });
-                          },
+                      runSpacing: 8,
+                      children: files.entries.map((entry) {
+                        final fileName = entry.key;
+                        final file = entry.value; // assuming File or XFile
+                        final isImage =
+                            fileName.toLowerCase().endsWith('.jpg') ||
+                                fileName.toLowerCase().endsWith('.jpeg') ||
+                                fileName.toLowerCase().endsWith('.png');
+
+                        return Stack(
+                          alignment: Alignment.topRight,
+                          children: [
+                            isImage
+                                ? ClipRRect(
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: Image.file(
+                                      File(file.path),
+                                      width: 100,
+                                      height: 100,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  )
+                                : Chip(
+                                    label: Text(fileName),
+                                    onDeleted: () {
+                                      setState(() {
+                                        files.remove(fileName);
+                                      });
+                                    }),
+                            isImage
+                                ? Positioned(
+                                    right: 8,
+                                    top: 8,
+                                    child: InkWell(
+                                      onTap: () {
+                                        setState(() {
+                                          files.remove(fileName);
+                                        });
+                                      },
+                                      child: const CircleAvatar(
+                                        radius: 8,
+                                        backgroundColor: Colors.black,
+                                        child: Icon(
+                                          Icons.close_rounded,
+                                          size: 14,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                                : const SizedBox.shrink(),
+                          ],
                         );
                       }).toList(),
                     ),
