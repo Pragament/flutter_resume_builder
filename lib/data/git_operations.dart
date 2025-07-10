@@ -114,7 +114,7 @@ class GitOperations {
       }
     }
     if (count > 0) {
-      throw Exception('failed to add ${count} files');
+      throw Exception('failed to add $count files');
     }
     // List<int> fileBytes = await file.readAsBytes();
     // String base64Content = base64Encode(fileBytes);
@@ -133,6 +133,116 @@ class GitOperations {
     // if (response.statusCode != 201) {
     //   throw Exception('Failed to add file to repository: ${response.body}');
     // }
+  }
+
+  Future<void> commitMultipleFiles({
+    required String owner,
+    required String repo,
+    required String branch,
+    required Map<String, File> files,
+    required String commitMessage,
+  }) async {
+    final headers = {
+      'Authorization': 'Bearer $token',
+      'Accept': 'application/vnd.github+json',
+      'Content-Type': 'application/json',
+    };
+
+    final refResp = await http.get(
+      Uri.parse('https://api.github.com/repos/$owner/$repo/git/ref/heads/$branch'),
+      headers: headers,
+    );
+    if (refResp.statusCode != 200) {
+      throw Exception('Failed to fetch branch ref: ${refResp.body}');
+    }
+    final latestCommitSha = json.decode(refResp.body)['object']['sha'];
+
+    final commitResp = await http.get(
+      Uri.parse('https://api.github.com/repos/$owner/$repo/git/commits/$latestCommitSha'),
+      headers: headers,
+    );
+    if (commitResp.statusCode != 200) {
+      throw Exception('Failed to fetch commit: ${commitResp.body}');
+    }
+    final baseTreeSha = json.decode(commitResp.body)['tree']['sha'];
+
+    List<Map<String, dynamic>> treeEntries = [];
+    for (var entry in files.entries) {
+      final path = entry.key;
+      final file = entry.value;
+      final bytes = await file.readAsBytes();
+      final isBinary = _isBinary(bytes);
+      final encoded = isBinary
+          ? base64Encode(bytes)
+          : utf8.decode(bytes);
+      final encoding = isBinary ? 'base64' : 'utf-8';
+
+      final blobResp = await http.post(
+        Uri.parse('https://api.github.com/repos/$owner/$repo/git/blobs'),
+        headers: headers,
+        body: json.encode({
+          'content': encoded,
+          'encoding': encoding,
+        }),
+      );
+      if (blobResp.statusCode != 201) {
+        throw Exception('Failed to create blob for $path: ${blobResp.body}');
+      }
+      final blobSha = json.decode(blobResp.body)['sha'];
+
+      treeEntries.add({
+        'path': path,
+        'mode': '100644', // file permissions
+        'type': 'blob',
+        'sha': blobSha,
+      });
+    }
+
+    final treeResp = await http.post(
+      Uri.parse('https://api.github.com/repos/$owner/$repo/git/trees'),
+      headers: headers,
+      body: json.encode({
+        'base_tree': baseTreeSha,
+        'tree': treeEntries,
+      }),
+    );
+    if (treeResp.statusCode != 201) {
+      throw Exception('Failed to create tree: ${treeResp.body}');
+    }
+    final newTreeSha = json.decode(treeResp.body)['sha'];
+
+    final commitResp2 = await http.post(
+      Uri.parse('https://api.github.com/repos/$owner/$repo/git/commits'),
+      headers: headers,
+      body: json.encode({
+        'message': commitMessage,
+        'tree': newTreeSha,
+        'parents': [latestCommitSha],
+      }),
+    );
+    if (commitResp2.statusCode != 201) {
+      throw Exception('Failed to create commit: ${commitResp2.body}');
+    }
+    final newCommitSha = json.decode(commitResp2.body)['sha'];
+
+    final updateResp = await http.patch(
+      Uri.parse('https://api.github.com/repos/$owner/$repo/git/refs/heads/$branch'),
+      headers: headers,
+      body: json.encode({'sha': newCommitSha}),
+    );
+    if (updateResp.statusCode != 200) {
+      throw Exception('Failed to update branch ref: ${updateResp.body}');
+    }
+
+    log('🎉 Successfully committed ${files.length} file(s) in one single commit!');
+  }
+
+  bool _isBinary(List<int> bytes) {
+    const textBytes = [9, 10, 13];
+    for (var b in bytes) {
+      if (b < 32 && !textBytes.contains(b)) return true;
+    }
+    return false;
   }
 
   Future<dynamic> getRepoContents(
