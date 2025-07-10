@@ -105,7 +105,6 @@ class _MarkdownTextInputState extends State<MarkdownTextInput> {
     focusNode.dispose();
     super.dispose();
   }
-
   Widget _basicInkwell(MarkdownType type, {Function? customOnTap}) {
     return InkWell(
       key: Key(type.key),
@@ -267,11 +266,14 @@ class _MarkdownTextInputState extends State<MarkdownTextInput> {
             bool showUpload = false;
             String? mediaFolder;
             try {
-              if (await widget.ops.repoFileExists(
+              print('Checking for admin/config.yml in repo: ${widget.repo.owner.login}/${widget.repo.name}');
+              bool configExists = await widget.ops.repoFileExists(
                 'admin/config.yml',
                 owner: widget.repo.owner.login,
                 repo: widget.repo.name,
-              )) {
+              );
+              print('admin/config.yml exists: $configExists');
+              if (configExists) {
                 String configContent = await widget.ops.readRepoFile(
                   'admin/config.yml',
                   owner: widget.repo.owner.login,
@@ -403,10 +405,34 @@ class _MarkdownTextInputState extends State<MarkdownTextInput> {
                               child: FloatingActionButton(
                                 heroTag: 'upload_image_fab',
                                 onPressed: () async {
+                                  print('--- IMAGE UPLOAD DEBUG START ---');
                                   print('Upload button pressed');
+                                  // Check config before upload
+                                  print('Checking for admin/config.yml in repo: ${widget.repo.owner.login}/${widget.repo.name}');
+                                  bool configExists = await widget.ops.repoFileExists(
+                                    'admin/config.yml',
+                                    owner: widget.repo.owner.login,
+                                    repo: widget.repo.name,
+                                  );
+                                  print('admin/config.yml exists: $configExists');
+                                  String? mediaFolder;
+                                  if (configExists) {
+                                    String configContent = await widget.ops.readRepoFile(
+                                      'admin/config.yml',
+                                      owner: widget.repo.owner.login,
+                                      repo: widget.repo.name,
+                                    );
+                                    print('Raw config content:');
+                                    print(configContent);
+                                    var yamlMap = loadYaml(configContent);
+                                    print('Parsed yamlMap:');
+                                    print(yamlMap);
+                                    mediaFolder = yamlMap['media_folder'];
+                                    print('mediaFolder set to: $mediaFolder');
+                                  }
                                   final picker = ImagePicker();
                                   final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-                                  print('Picked file: 4{pickedFile?.path}');
+                                  print('Picked file: ${pickedFile?.path}');
                                   print('mediaFolder value: $mediaFolder');
                                   if (mediaFolder == null) {
                                     print('mediaFolder is null! Cannot upload.');
