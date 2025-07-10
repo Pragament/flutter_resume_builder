@@ -267,13 +267,7 @@ class _MarkdownTextInputState extends State<MarkdownTextInput> {
             bool showUpload = false;
             String? mediaFolder;
             try {
-              // Check for decapcms-config.yml in repo root
-              showUpload = await widget.ops.repoFileExists(
-                'decapcms-config.yml',
-                owner: widget.repo.owner.login,
-                repo: widget.repo.name,
-              );
-              if (showUpload && await widget.ops.repoFileExists(
+              if (await widget.ops.repoFileExists(
                 'admin/config.yml',
                 owner: widget.repo.owner.login,
                 repo: widget.repo.name,
@@ -283,9 +277,14 @@ class _MarkdownTextInputState extends State<MarkdownTextInput> {
                   owner: widget.repo.owner.login,
                   repo: widget.repo.name,
                 );
+                print('Raw config content:');
+                print(configContent);
                 var yamlMap = loadYaml(configContent);
+                print('Parsed yamlMap:');
+                print(yamlMap);
                 mediaFolder = yamlMap['media_folder'];
                 if (mediaFolder == null) showUpload = false;
+                else showUpload = true;
               } else {
                 showUpload = false;
               }
