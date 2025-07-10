@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'format_markdown.dart';
 import 'package:resume_builder_app/data/git_operations.dart';
 import 'package:resume_builder_app/models/git_repo_model.dart';
+import 'package:yaml/yaml.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:convert';
 
 class MarkdownTextInput extends StatefulWidget {
   final Function onTextChanged;
@@ -197,7 +200,7 @@ class _MarkdownTextInputState extends State<MarkdownTextInput> {
                         controller: textController,
                         decoration: InputDecoration(
                           hintText: 'example',
-                          label: Text(
+                          label: const Text(
                               'AppLocalizations.of(context)!.linkDialogTextTitle'),
                           labelStyle: TextStyle(color: color),
                           focusedBorder: OutlineInputBorder(
@@ -220,7 +223,7 @@ class _MarkdownTextInputState extends State<MarkdownTextInput> {
                         controller: linkController,
                         decoration: InputDecoration(
                           hintText: 'https://www.example.com',
-                          label: Text(
+                          label: const Text(
                               'AppLocalizations.of(context)!.linkDialogLinkTitle'),
                           labelStyle: TextStyle(color: color),
                           focusedBorder: OutlineInputBorder(
@@ -247,7 +250,7 @@ class _MarkdownTextInputState extends State<MarkdownTextInput> {
                             selectedText: textController.text);
                         Navigator.pop(context);
                       },
-                      child: Text('AppLocalizations.of(context)!.ok'),
+                      child: const Text('AppLocalizations.of(context)!.ok'),
                     ),
                   ],
                 );
@@ -261,19 +264,40 @@ class _MarkdownTextInputState extends State<MarkdownTextInput> {
           type,
           customOnTap: () async {
             List<String> imageUrls = [];
-            //print("getting urls" + widget.repo.owner.login.toString());
+            bool showUpload = false;
+            String? mediaFolder;
             try {
+              // Check for decapcms-config.yml in repo root
+              showUpload = await widget.ops.repoFileExists(
+                'decapcms-config.yml',
+                owner: widget.repo.owner.login,
+                repo: widget.repo.name,
+              );
+              if (showUpload && await widget.ops.repoFileExists(
+                'admin/config.yml',
+                owner: widget.repo.owner.login,
+                repo: widget.repo.name,
+              )) {
+                String configContent = await widget.ops.readRepoFile(
+                  'admin/config.yml',
+                  owner: widget.repo.owner.login,
+                  repo: widget.repo.name,
+                );
+                var yamlMap = loadYaml(configContent);
+                mediaFolder = yamlMap['media_folder'];
+                if (mediaFolder == null) showUpload = false;
+              } else {
+                showUpload = false;
+              }
               imageUrls = await widget.ops
                   .fetchGitHubImages(widget.repo.owner.login, widget.repo.name);
-
-              //imageUrls = await GitOperations.fetchGitHubImages();
             } catch (e) {
               print("Error fetching images: $e");
             }
 
-            if (imageUrls.isEmpty) {
+            if (imageUrls.isEmpty && !showUpload) {
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text("No images found in the repository.")),
+                const SnackBar(content: Text("No images found in the repository.")),
               );
               return;
             }
@@ -281,106 +305,138 @@ class _MarkdownTextInputState extends State<MarkdownTextInput> {
             await showDialog<void>(
               context: context,
               builder: (context) {
-                Set<int> selectedImageIndexes =
-                {}; // Stores selected image indexes
-
+                Set<int> selectedImageIndexes = {};
                 return StatefulBuilder(
                   builder: (context, setState) {
                     return AlertDialog(
-                      title: Text("Select Images"),
+                      title: const Text("Select Images"),
                       content: SizedBox(
-                        width: double.maxFinite,
-                        height: 500, // Adjust height if needed
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
+                        width: 350,
+                        height: 500,
+                        child: Stack(
                           children: [
-                            Expanded(
-                              child: GridView.builder(
-                                shrinkWrap: true,
-                                gridDelegate:
-                                const SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 3,
-                                  crossAxisSpacing: 10,
-                                  mainAxisSpacing: 10,
-                                ),
-                                itemCount: imageUrls.length,
-                                itemBuilder: (context, index) {
-                                  bool isSelected =
-                                  selectedImageIndexes.contains(index);
-                                  String imageName = imageUrls[index]
-                                      .split('/')
-                                      .last; // Extract filename
-
-                                  return GestureDetector(
-                                    onTap: () {
-                                      setState(() {
-                                        if (isSelected) {
-                                          selectedImageIndexes.remove(index);
-                                        } else {
-                                          selectedImageIndexes.add(index);
-                                        }
-                                      });
-                                    },
-                                    child: Column(
-                                      children: [
-                                        Stack(
-                                          alignment: Alignment.center,
+                            Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Expanded(
+                                  child: GridView.builder(
+                                    shrinkWrap: true,
+                                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: 3,
+                                      crossAxisSpacing: 10,
+                                      mainAxisSpacing: 10,
+                                    ),
+                                    itemCount: imageUrls.length,
+                                    itemBuilder: (context, index) {
+                                      bool isSelected = selectedImageIndexes.contains(index);
+                                      String imageName = imageUrls[index].split('/').last;
+                                      return GestureDetector(
+                                        onTap: () {
+                                          setState(() {
+                                            if (isSelected) {
+                                              selectedImageIndexes.remove(index);
+                                            } else {
+                                              selectedImageIndexes.add(index);
+                                            }
+                                          });
+                                        },
+                                        child: Column(
                                           children: [
-                                            Image.network(imageUrls[index],
-                                                height: 80,
-                                                width: 80,
-                                                fit: BoxFit.cover),
-                                            if (isSelected)
-                                              Container(
-                                                height: 80,
-                                                width: 80,
-                                                color: Colors.black
-                                                    .withOpacity(0.5),
-                                                child: Icon(Icons.check,
-                                                    color: Colors.white,
-                                                    size: 40),
-                                              ),
+                                            Stack(
+                                              alignment: Alignment.center,
+                                              children: [
+                                                Image.network(
+                                                  imageUrls[index],
+                                                  height: 80,
+                                                  width: 80,
+                                                  fit: BoxFit.cover,
+                                                ),
+                                                if (isSelected)
+                                                  Container(
+                                                    height: 80,
+                                                    width: 80,
+                                                    color: Colors.black.withOpacity(0.5),
+                                                    child: const Icon(Icons.check, color: Colors.white, size: 40),
+                                                  ),
+                                              ],
+                                            ),
+                                            const SizedBox(height: 5),
+                                            Text(
+                                              imageName,
+                                              style: const TextStyle(fontSize: 12),
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
                                           ],
                                         ),
-                                        SizedBox(height: 5),
-                                        Text(imageName,
-                                            style: TextStyle(fontSize: 12),
-                                            overflow: TextOverflow.ellipsis),
-                                      ],
-                                    ),
-                                  );
-                                },
-                              ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                                const SizedBox(height: 10),
+                                ElevatedButton(
+                                  onPressed: selectedImageIndexes.isNotEmpty
+                                      ? () {
+                                          List<String> selectedImagesMarkdown = selectedImageIndexes.map((index) {
+                                            String url = imageUrls[index];
+                                            String imageName = url.split('/').last;
+                                            return "![$imageName]($url)";
+                                          }).toList();
+
+                                          String markdownText = selectedImagesMarkdown.join("\n");
+
+                                          onTap(
+                                            type,
+                                            selectedText: markdownText,
+                                            link: selectedImagesMarkdown.join(", "),
+                                          );
+
+                                          _controller.text += "\n$markdownText";
+                                          Navigator.pop(context, markdownText);
+                                        }
+                                      : null,
+                                  child: const Text("Choose Selected"),
+                                ),
+                              ],
                             ),
-                            SizedBox(height: 10),
-                            ElevatedButton(
-                              onPressed: selectedImageIndexes.isNotEmpty
-                                  ? () {
-                                List<String> selectedImagesMarkdown =
-                                selectedImageIndexes.map((index) {
-                                  String url = imageUrls[index];
-                                  String imageName = url.split('/').last;
-                                  return "![${imageName}](${url})"; // Markdown format
-                                }).toList();
-
-                                String markdownText =
-                                selectedImagesMarkdown.join(
-                                    "\n"); // Join all selected images
-
-                                onTap(
-                                  type,
-                                  selectedText:
-                                  markdownText, // Markdown content
-                                  link: selectedImagesMarkdown
-                                      .join(", "), // Just in case
-                                );
-
-                                //print(markdownText);
-                                _controller.text += "\n" + markdownText;
-                                Navigator.pop(context, markdownText);
-                              }
-                                  : null, // Disable button if no images are selected
-                              child: Text("Choose Selected"),
+                            Positioned(
+                              bottom: 16,
+                              right: 16,
+                              child: FloatingActionButton(
+                                heroTag: 'upload_image_fab',
+                                onPressed: () async {
+                                  print('Upload button pressed');
+                                  final picker = ImagePicker();
+                                  final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+                                  print('Picked file: 4{pickedFile?.path}');
+                                  print('mediaFolder value: $mediaFolder');
+                                  if (mediaFolder == null) {
+                                    print('mediaFolder is null! Cannot upload.');
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text("Upload not configured: media folder missing.")),
+                                    );
+                                    return;
+                                  }
+                                  if (pickedFile != null) {
+                                    final bytes = await pickedFile.readAsBytes();
+                                    final content = base64Encode(bytes);
+                                    print('Uploading to: $mediaFolder/${pickedFile.name}');
+                                    try {
+                                      await widget.ops.uploadFileToRepo(
+                                        path: '$mediaFolder/${pickedFile.name}',
+                                        content: content,
+                                        commitMessage: 'Upload image ${pickedFile.name}',
+                                        owner: widget.repo.owner.login,
+                                        repo: widget.repo.name,
+                                      );
+                                      print('Upload complete');
+                                    } catch (e) {
+                                      print('Upload failed: $e');
+                                    }
+                                    setState(() {});
+                                  }
+                                },
+                                child: const Icon(Icons.upload),
+                              ),
                             ),
                           ],
                         ),

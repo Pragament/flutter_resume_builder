@@ -15,7 +15,7 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 
 class PersonalDetails extends ConsumerStatefulWidget {
-  PersonalDetails({super.key, required this.cvId});
+  const PersonalDetails({super.key, required this.cvId});
   final int cvId;
   @override
   ConsumerState<PersonalDetails> createState() => _PersonalDetailsState();
@@ -135,7 +135,7 @@ class _PersonalDetailsState extends ConsumerState<PersonalDetails> {
                           onPressed: () => _pickImage(ImageSource.gallery),
                           style: ButtonStyle(
                               backgroundColor:
-                                  WidgetStatePropertyAll<Color>(Colors.orange),
+                                  const WidgetStatePropertyAll<Color>(Colors.orange),
                               shape: WidgetStatePropertyAll<
                                       RoundedRectangleBorder>(
                                   RoundedRectangleBorder(

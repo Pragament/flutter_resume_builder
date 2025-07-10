@@ -1,32 +1,13 @@
 {
   "project_info": {
-    "project_number": "765269707700",
-    "project_id": "githublogindev",
-    "storage_bucket": "githublogindev.appspot.com"
+    "project_number": "405971035352",
+    "project_id": "flutter-resume-builder-48d17",
+    "storage_bucket": "flutter-resume-builder-48d17.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:765269707700:android:e3e61fbcce761df47200e1",
-        "android_client_info": {
-          "package_name": "com.pragament.githubinsights"
-        }
-      },
-      "oauth_client": [],
-      "api_key": [
-        {
-          "current_key": "AIzaSyB7wAF9jms4mnSOrTTh_nWqWHP4Lq-Yfto"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": []
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:765269707700:android:ab44781b2dadbee17200e1",
+        "mobilesdk_app_id": "1:405971035352:android:6d1f8b037df344cf0ce3ad",
         "android_client_info": {
           "package_name": "com.pragament.resumebuilder"
         }
@@ -34,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyB7wAF9jms4mnSOrTTh_nWqWHP4Lq-Yfto"
+          "current_key": "AIzaSyDZK-T_UmxTceil-d1Ve7-ODK3XXn4tqiI"
         }
       ],
       "services": {

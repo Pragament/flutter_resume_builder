@@ -26,7 +26,7 @@ class JobContainer extends StatelessWidget {
             BoxShadow(
                 color: Colors.grey.shade300,
                 blurRadius: 5.0,
-                offset: Offset(0, 3))
+                offset: const Offset(0, 3))
           ],
         ),
         child: Column(
@@ -39,11 +39,11 @@ class JobContainer extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       Text(
-                        "$title",
+                        title,
                         style: Theme.of(context).textTheme.titleLarge,
                       ),
                       Text(
-                        "$location",
+                        location,
                         style: Theme.of(context).textTheme.titleSmall?.apply(
                               color: Colors.grey,
                             ),
@@ -53,9 +53,9 @@ class JobContainer extends StatelessWidget {
                 )
               ],
             ),
-            SizedBox(height: 5),
+            const SizedBox(height: 5),
             Text(
-              "$description",
+              description,
               style: Theme.of(context)
                   .textTheme
                   .bodyMedium
@@ -63,7 +63,7 @@ class JobContainer extends StatelessWidget {
               maxLines: 3,
               overflow: TextOverflow.ellipsis,
             ),
-            SizedBox(height: 9),
+            const SizedBox(height: 9),
            Row(
              children: [
                Text(
@@ -73,7 +73,7 @@ class JobContainer extends StatelessWidget {
                      .titleMedium
                      ?.apply(fontWeightDelta: 2),
                ),
-               SizedBox(width: 20,
+               const SizedBox(width: 20,
                child: Text(" to ",style: TextStyle(fontWeight: FontWeight.bold,),),
                ),
                Text(

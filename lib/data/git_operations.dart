@@ -394,6 +394,72 @@ class GitOperations {
     //printInDebug("commit map$commitsMap");
     return commitsMap;
   }
+  
+  Future<bool> repoFileExists(String path, {required String owner, required String repo}) async {
+    final url = 'https://api.github.com/repos/$owner/$repo/contents/$path';
+    final response = await http.get(
+      Uri.parse(url),
+      headers: {'Authorization': 'Bearer $token'},
+    );
+    return response.statusCode == 200;
+  }
+
+  /// Reads the content of a file from the repo.
+  Future<String> readRepoFile(String path, {required String owner, required String repo}) async {
+    final url = 'https://api.github.com/repos/$owner/$repo/contents/$path';
+    final response = await http.get(
+      Uri.parse(url),
+      headers: {'Authorization': 'Bearer $token'},
+    );
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      return utf8.decode(base64.decode(data['content']));
+    } else {
+      throw Exception('Failed to read file: ${response.body}');
+    }
+  }
+
+  ///  or updates a file in the repo.
+  Future<void> uploadFileToRepo({
+    required String path,
+    required String content,
+    required String commitMessage,
+    required String owner,
+    required String repo,
+  }) async {
+    final url = 'https://api.github.com/repos/$owner/$repo/contents/$path';
+
+    // Check if file exists to get its SHA
+    String? sha;
+    final getResponse = await http.get(
+      Uri.parse(url),
+      headers: {'Authorization': 'Bearer $token'},
+    );
+    if (getResponse.statusCode == 200) {
+      final data = json.decode(getResponse.body);
+      sha = data['sha'];
+    }
+
+    final body = {
+      'message': commitMessage,
+      'content': base64Encode(utf8.encode(content)),
+      if (sha != null) 'sha': sha,
+    };
+
+    final putResponse = await http.put(
+      Uri.parse(url),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      body: json.encode(body),
+    );
+
+    if (putResponse.statusCode != 201 && putResponse.statusCode != 200) {
+      throw Exception('Failed to upload file: ${putResponse.body}');
+    }
+  }
+ 
 
   Future<Map<String, dynamic>> getCommitDetails({
     required String owner,

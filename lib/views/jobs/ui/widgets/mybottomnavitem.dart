@@ -43,13 +43,13 @@ class MyBottomNavItem extends StatelessWidget {
         Flexible(
           child: active == id
               ? Container(
-                  margin: EdgeInsets.only(top: 9.0),
+                  margin: const EdgeInsets.only(top: 9.0),
                   height: 5,
                   width: 5,
                   decoration:
-                      BoxDecoration(shape: BoxShape.circle, color: Colors.red),
+                      const BoxDecoration(shape: BoxShape.circle, color: Colors.red),
                 )
-              : Container(
+              : SizedBox(
                   height: 5,
                   width: 5,
                 ),

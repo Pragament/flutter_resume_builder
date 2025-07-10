@@ -19,14 +19,25 @@ final authProvider = ChangeNotifierProvider<AuthProvider>((ref) {
 class AuthProvider extends ChangeNotifier {
   AuthStatus _authStatus = AuthStatus.initial;
   AuthStatus get authStatus => _authStatus;
+  bool _isInitialized = false;
 
   void checkAuthStatus() async {
-    final auth = FirebaseAuth.instance;
-    if (auth.currentUser != null) {
-      _authStatus = AuthStatus.authenticated;
-    } else if (_authStatus != AuthStatus.continueWithoutLogin &&
-        _authStatus != AuthStatus.loading) {
+    if (_isInitialized) return; // Prevent multiple calls
+    
+    try {
+      final auth = FirebaseAuth.instance;
+      if (auth.currentUser != null) {
+        _authStatus = AuthStatus.authenticated;
+      } else {
+        _authStatus = AuthStatus.unauthenticated;
+      }
+      _isInitialized = true;
+      notifyListeners();
+    } catch (e) {
+      print('Error checking auth status: $e');
       _authStatus = AuthStatus.unauthenticated;
+      _isInitialized = true;
+      notifyListeners();
     }
   }
 
@@ -55,7 +66,7 @@ class AuthProvider extends ChangeNotifier {
       notifyListeners();
     } catch (e) {
       print(e.toString());
-      _authStatus = AuthStatus.initial;
+      _authStatus = AuthStatus.unauthenticated;
 
       notifyListeners();
     }
@@ -82,6 +93,7 @@ class AuthProvider extends ChangeNotifier {
     await FirebaseAuth.instance.signOut();
 
     _authStatus = AuthStatus.initial;
+    _isInitialized = false;
 
     notifyListeners();
   }

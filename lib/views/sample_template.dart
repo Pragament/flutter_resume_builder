@@ -87,7 +87,7 @@ class _SampleTemplateState extends State<SampleTemplate> {
                   onEmpty: (context){
                     return Container(
                         color: Colors.blue,
-                        child: Text(" Resume"));
+                        child: const Text(" Resume"));
                   },
                   onSaveResume: (key)async{
                     return await PdfHandler().createPDF(key);
@@ -133,7 +133,7 @@ class _SampleTemplateState extends State<SampleTemplate> {
           print('Error generating PDF: $e');
           }
         },
-        child: Icon(Icons.add),
+        child: const Icon(Icons.add),
       ),
     );
   }

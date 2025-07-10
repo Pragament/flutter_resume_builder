@@ -53,7 +53,7 @@ class _RepoContentScreenState extends ConsumerState<RepoContentScreen> {
                     trailing: content.name.endsWith(".md")
                         ? TextButton(
                             style: TextButton.styleFrom(
-                              shape: BeveledRectangleBorder(
+                              shape: const BeveledRectangleBorder(
                                   borderRadius: BorderRadius.zero,
                                   side: BorderSide(
                                       width: 0.5, color: Colors.white)),
@@ -81,7 +81,7 @@ class _RepoContentScreenState extends ConsumerState<RepoContentScreen> {
                                             path: content.path,
                                           )));
                             },
-                            child: Text("Edit"))
+                            child: const Text("Edit"))
                         : null,
                     onTap: isDir
                         ? () {
@@ -210,7 +210,7 @@ class _AddFileDialogContentState extends State<AddFileDialogContent> {
                         ],
                       );
 
-                      final List<XFile>? pickedFiles = await openFiles(
+                      final List<XFile> pickedFiles = await openFiles(
                         acceptedTypeGroups: <XTypeGroup>[typeGroup],
                       );
 

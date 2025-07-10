@@ -50,7 +50,7 @@ class _repoListScreenState extends State<repoListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Available Issues", style: TextStyle(fontWeight: FontWeight.bold),),
+        title: const Text("Available Issues", style: TextStyle(fontWeight: FontWeight.bold),),
       ),
       body:Column(
         children:[

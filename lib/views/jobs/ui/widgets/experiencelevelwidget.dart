@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class ExperienceLevelWidget extends StatefulWidget {
+  const ExperienceLevelWidget({super.key});
+
   @override
   _ExperienceLevelWidgetState createState() => _ExperienceLevelWidgetState();
 }
@@ -10,7 +12,7 @@ class _ExperienceLevelWidgetState extends State<ExperienceLevelWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       height: 50,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,

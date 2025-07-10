@@ -11,6 +11,8 @@ class JobScreen extends ConsumerWidget {
   // Create a TextEditingController for the search field
   final TextEditingController _searchController = TextEditingController();
 
+  JobScreen({super.key});
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // Trigger job fetching when widget is built
@@ -33,7 +35,7 @@ class JobScreen extends ConsumerWidget {
                   children: <Widget>[
                     const SizedBox(height: 7.0),
                     const SizedBox(height: 15),
-                    Container(
+                    SizedBox(
                       height: 51,
                       child: Row(
                         children: <Widget>[
@@ -58,7 +60,7 @@ class JobScreen extends ConsumerWidget {
                                 ref.read(jobFilterProvider.notifier).updateSearch(_searchController.text);
                                 ref.read(jobProvider.notifier).fetchJobs();
                               },
-                              child:Icon(Icons.search)
+                              child:const Icon(Icons.search)
                           ),
                           const SizedBox(width: 15),
                           Container(
@@ -79,7 +81,7 @@ class JobScreen extends ConsumerWidget {
                     const SizedBox(height: 11),
                     Expanded(
                       child: jobList.isEmpty
-                          ? Center(child: Text("No jobs found"))
+                          ? const Center(child: Text("No jobs found"))
                           : ListView.builder(
                         itemCount: jobList.length,
                         itemBuilder: (ctx, i) {

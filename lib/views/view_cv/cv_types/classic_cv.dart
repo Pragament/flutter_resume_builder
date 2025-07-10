@@ -236,7 +236,7 @@ Widget _buildSkillMeter(String skill, double level) {
             ),
             Text(
               '${(level * 100).round()}%', // Display percentage
-              style: TextStyle(fontWeight: FontWeight.bold),
+              style: const TextStyle(fontWeight: FontWeight.bold),
             ),
           ],
         ),
@@ -351,7 +351,7 @@ Future<Uint8List> generateResume(
           contentLeft.add(_Category(title: 'Work Experience'));
           contentLeft.addAll(data.experience!.map((experience) => _Block(
                 title: experience.experienceTitle,
-                desc: experience.experienceDescription!,
+                desc: experience.experienceDescription,
               )));
         }
 
@@ -445,11 +445,10 @@ Future<pw.PageTheme> _myPageTheme(PdfPageFormat format) async {
 }
 
 class _Block extends pw.StatelessWidget {
-  _Block({required this.title, this.icon, required this.desc});
+  _Block({required this.title, required this.desc, this.icon});
 
   final String title;
   final String desc;
-
   final pw.IconData? icon;
 
   @override

@@ -23,7 +23,7 @@ class _DetailIssueScreenState extends State<DetailIssueScreen> {
 
   Future<void> postComment(String comment) async {
     String? acessToken= await getAccessToken();
-    print("token is ${acessToken}");
+    print("token is $acessToken");
     final response = await http.post(
       Uri.parse(widget.issue.comments_url),
       headers: {
@@ -39,12 +39,12 @@ class _DetailIssueScreenState extends State<DetailIssueScreen> {
         _tokenController.clear();
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Comment posted successfully!')),
+        const SnackBar(content: Text('Comment posted successfully!')),
       );
     } else {
       print('Error: ${response.body}');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to post comment')),
+        const SnackBar(content: Text('Failed to post comment')),
       );
     }
   }
@@ -53,14 +53,14 @@ class _DetailIssueScreenState extends State<DetailIssueScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text("Detail Issue"),
+          title: const Text("Detail Issue"),
         ),
         body: Stack(
           children: [
             SingleChildScrollView(
               child: Column(
                 children: <Widget>[
-                  Container(
+                  SizedBox(
                     height: 200,
                     width: MediaQuery.of(context).size.width,
                     child: Image.network(
@@ -72,7 +72,7 @@ class _DetailIssueScreenState extends State<DetailIssueScreen> {
                   ),
                   Container(
                     padding: const EdgeInsets.all(15.0),
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.only(
                         topLeft: Radius.circular(25),
@@ -83,7 +83,7 @@ class _DetailIssueScreenState extends State<DetailIssueScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
                         Text(
-                          "${widget.issue.title}",
+                          widget.issue.title,
                           style: Theme.of(context).textTheme.headlineSmall,
                         ),
                         Text(
@@ -93,12 +93,12 @@ class _DetailIssueScreenState extends State<DetailIssueScreen> {
                               .bodyLarge
                               ?.apply(color: Colors.grey),
                         ),
-                        SizedBox(height: 15.0),
+                        const SizedBox(height: 15.0),
                         Text(
                           "Description",
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
-                        SizedBox(height: 10),
+                        const SizedBox(height: 10),
                         MarkdownBody(
                           data: widget.issue.body, // Render body as Markdown
                           styleSheet: MarkdownStyleSheet(
@@ -108,7 +108,7 @@ class _DetailIssueScreenState extends State<DetailIssueScreen> {
                                 ?.apply(color: Colors.black87),
                           ),
                         ),
-                        SizedBox(height: 15.0),
+                        const SizedBox(height: 15.0),
                       ],
                     ),
                   ),
@@ -119,7 +119,7 @@ class _DetailIssueScreenState extends State<DetailIssueScreen> {
               left: 10,
               right: 10,
               bottom: 10,
-              child: Container(
+              child: SizedBox(
                 width: MediaQuery.of(context).size.height * .7,
                 height: 45,
                 child: ElevatedButton(
@@ -128,21 +128,21 @@ class _DetailIssueScreenState extends State<DetailIssueScreen> {
                         context: context,
                         builder: (BuildContext context) {
                           return Dialog(
-                            child: Container(
+                            child: SizedBox(
                               height: 220,
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Padding(
-                                      padding: const EdgeInsets.only(left: 100,top: 20,),
+                                  const Padding(
+                                      padding: EdgeInsets.only(left: 100,top: 20,),
                                       child: Text("Your Comment",
                                           style: TextStyle(
                                               fontSize: 20,
                                               fontWeight: FontWeight.bold)
                                       )),
-                                  SizedBox(height: 15),
-                                  Padding(
-                                    padding: const EdgeInsets.only(left:16,),
+                                  const SizedBox(height: 15),
+                                  const Padding(
+                                    padding: EdgeInsets.only(left:16,),
                                     child:  Text("Add Comment",style: TextStyle(
                                         fontSize: 15,
                                         fontWeight: FontWeight.w700)
@@ -152,11 +152,11 @@ class _DetailIssueScreenState extends State<DetailIssueScreen> {
                                     padding: const EdgeInsets.only(left: 16.0,top: 10),
                                     child: TextField(
                                       controller: _commentController,
-                                      decoration: InputDecoration(
+                                      decoration: const InputDecoration(
                                           hintText: 'Your comment'),
                                     ),
                                   ),
-                                  SizedBox(height: 10),
+                                  const SizedBox(height: 10),
                                   Center(
 
                                     child: ElevatedButton(
@@ -168,12 +168,12 @@ class _DetailIssueScreenState extends State<DetailIssueScreen> {
                                         }
                                         else{
                                           ScaffoldMessenger.of(context).showSnackBar(
-                                            SnackBar(content: Text('Enter The Comment And Github Token')),
+                                            const SnackBar(content: Text('Enter The Comment And Github Token')),
                                           );
                                         }
                                         Navigator.pop(context);
                                       },
-                                      child: Text('Post Comment'),
+                                      child: const Text('Post Comment'),
                                     ),
                                   ),
                                 ],

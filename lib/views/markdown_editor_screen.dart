@@ -14,7 +14,7 @@ class MarkdownEditorScreen extends StatefulWidget {
   GitRepo repo;
   GitOperations ops;
 
-  MarkdownEditorScreen({
+  MarkdownEditorScreen({super.key, 
     required this.initialText,
     required this.ops,
     required this.repo,
@@ -43,13 +43,13 @@ class _MarkdownEditorScreenState extends State<MarkdownEditorScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text("Commit Message"),
+          title: const Text("Commit Message"),
           content: SingleChildScrollView(
             child: Center(
               child: TextField(
                 maxLines: 5,
                 controller: commitMsg,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   label: Text("Enter Message"),
                   constraints: BoxConstraints(maxHeight: 200),
                   border: OutlineInputBorder(borderSide: BorderSide(width: 1)),
@@ -62,7 +62,7 @@ class _MarkdownEditorScreenState extends State<MarkdownEditorScreen> {
               onPressed: () {
                 Navigator.pop(context);
               },
-              child: Text("Cancel"),
+              child: const Text("Cancel"),
             ),
             TextButton(
               onPressed: () async {
@@ -75,16 +75,16 @@ class _MarkdownEditorScreenState extends State<MarkdownEditorScreen> {
                     commitMsg.text,
                   );
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text("Committed Successfully...")),
+                    const SnackBar(content: Text("Committed Successfully...")),
                   );
                 } catch (e) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text("Failed to Commit")),
+                    const SnackBar(content: Text("Failed to Commit")),
                   );
                 }
                 Navigator.pop(context);
               },
-              child: Text("Commit"),
+              child: const Text("Commit"),
             ),
           ],
         );
@@ -110,16 +110,16 @@ class _MarkdownEditorScreenState extends State<MarkdownEditorScreen> {
         title: Text('Edit ${widget.fileName}'),
         actions: [
           ElevatedButton(
-            child: Text("Commit"),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.purple,
-              textStyle: TextStyle(color: Colors.white),
+              textStyle: const TextStyle(color: Colors.white),
             ),
             onPressed: () async {
               final content = _controller.text;
               await showCommitDialog(context, content);
               Navigator.pop(context);
             },
+            child: Text("Commit"),
           ),
           IconButton(
             icon: Icon(_isVerticalView ? Icons.swap_vert : Icons.swap_horiz),
@@ -196,7 +196,7 @@ class _MarkdownEditorScreenState extends State<MarkdownEditorScreen> {
 class HtmlMarkdownBody extends StatelessWidget {
   final String data;
 
-  HtmlMarkdownBody({required this.data});
+  const HtmlMarkdownBody({super.key, required this.data});
 
   @override
   Widget build(BuildContext context) {

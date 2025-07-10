@@ -2,6 +2,7 @@
 /// name : "Rehaman Shaik"
 /// email : "vdvddvkj"
 /// created_at : "bsbjdbb"
+library;
 
 class UserResume {
   UserResume({
