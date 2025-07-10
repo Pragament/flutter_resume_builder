@@ -187,7 +187,7 @@ class GitOperations {
 
       final repoData = json.decode(repoInfoResp.body);
       branchToUse = repoData['default_branch'];
-      print('✅ Using default branch: $branchToUse');
+      log('Using default branch: $branchToUse');
 
       // Try getting ref for default branch
       final defaultRefResp = await http.get(
