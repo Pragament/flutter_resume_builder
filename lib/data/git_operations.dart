@@ -84,78 +84,79 @@ class GitOperations {
     }
   }
 
-  Future<void> addFileToRepo(
-      String owner,
-      String repo,
-      //String path,
-      Map<String, File> files, //File file,
-      String commitMessage) async {
-    int count = 0;
+  // Future<void> addFileToRepo(
+  //     String owner,
+  //     String repo,
+  //     //String path,
+  //     Map<String, File> files, //File file,
+  //     String commitMessage) async {
+  //   int count = 0;
+  //   log(files.keys.first);
+  //
+  //   for (var entry in files.entries) {
+  //     String path = entry.key;
+  //     File file = entry.value;
+  //     List<int> fileBytes = await file.readAsBytes();
+  //     String base64Content = base64Encode(fileBytes);
+  //
+  //     // Check if the file already exists
+  //     final checkResponse = await http.get(
+  //       Uri.parse('https://api.github.com/repos/$owner/$repo/contents/$path'),
+  //       headers: {
+  //         'Authorization': 'Bearer $token',
+  //         'Accept': 'application/vnd.github.v3+json',
+  //       },
+  //     );
+  //
+  //     String? sha;
+  //     if (checkResponse.statusCode == 200) {
+  //       final data = json.decode(checkResponse.body);
+  //       sha = data['sha'];
+  //     }
+  //
+  //     // Create or update the file
+  //     final response = await http.put(
+  //       Uri.parse('https://api.github.com/repos/$owner/$repo/contents/$path'),
+  //       headers: {
+  //         'Authorization': 'Bearer $token',
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: json.encode({
+  //         'message': commitMessage,
+  //         'content': base64Content,
+  //         if (sha != null) 'sha': sha,
+  //       }),
+  //     );
+  //
+  //     if (response.statusCode != 201 && response.statusCode != 200) {
+  //       count += 1;
+  //       throw Exception('Failed to add file to repository: ${response.body}');
+  //     }
+  //   }
+  //
+  //   if (count > 0) {
+  //     throw Exception('Failed to add $count file(s)');
+  //   }
+  //   // List<int> fileBytes = await file.readAsBytes();
+  //   // String base64Content = base64Encode(fileBytes);
+  //
+  //   // final response = await http.put(
+  //   //   Uri.parse('https://api.github.com/repos/$owner/$repo/contents/$path'),
+  //   //   headers: {
+  //   //     'Authorization': 'Bearer $token',
+  //   //     'Content-Type': 'application/json',
+  //   //   },
+  //   //   body: json.encode({
+  //   //     'message': commitMessage,
+  //   //     'content': base64Content,
+  //   //   }),
+  //   // );
+  //   // if (response.statusCode != 201) {
+  //   //   throw Exception('Failed to add file to repository: ${response.body}');
+  //   // }
+  // }
 
-    for (var entry in files.entries) {
-      String path = entry.key;
-      File file = entry.value;
-      List<int> fileBytes = await file.readAsBytes();
-      String base64Content = base64Encode(fileBytes);
-
-      // Check if the file already exists
-      final checkResponse = await http.get(
-        Uri.parse('https://api.github.com/repos/$owner/$repo/contents/$path'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Accept': 'application/vnd.github.v3+json',
-        },
-      );
-
-      String? sha;
-      if (checkResponse.statusCode == 200) {
-        final data = json.decode(checkResponse.body);
-        sha = data['sha'];
-      }
-
-      // Create or update the file
-      final response = await http.put(
-        Uri.parse('https://api.github.com/repos/$owner/$repo/contents/$path'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-        body: json.encode({
-          'message': commitMessage,
-          'content': base64Content,
-          if (sha != null) 'sha': sha,
-        }),
-      );
-
-      if (response.statusCode != 201 && response.statusCode != 200) {
-        count += 1;
-        throw Exception('Failed to add file to repository: ${response.body}');
-      }
-    }
-
-    if (count > 0) {
-      throw Exception('Failed to add $count file(s)');
-    }
-    // List<int> fileBytes = await file.readAsBytes();
-    // String base64Content = base64Encode(fileBytes);
-
-    // final response = await http.put(
-    //   Uri.parse('https://api.github.com/repos/$owner/$repo/contents/$path'),
-    //   headers: {
-    //     'Authorization': 'Bearer $token',
-    //     'Content-Type': 'application/json',
-    //   },
-    //   body: json.encode({
-    //     'message': commitMessage,
-    //     'content': base64Content,
-    //   }),
-    // );
-    // if (response.statusCode != 201) {
-    //   throw Exception('Failed to add file to repository: ${response.body}');
-    // }
-  }
-
-  Future<void> commitMultipleFiles({
+  Future<void> addFilesToRepo({
     required String owner,
     required String repo,
     required Map<String, File> files,
@@ -235,17 +236,25 @@ class GitOperations {
       Uri.parse('https://api.github.com/repos/$owner/$repo/git/commits/$latestCommitSha'),
       headers: headers,
     );
+
     if (commitResp.statusCode != 200) {
       throw Exception('Failed to fetch commit: ${commitResp.body}');
     }
-    final baseTreeSha = json.decode(commitResp.body)['tree']['sha'];
 
+    final baseTreeSha = json.decode(commitResp.body)['tree']['sha'];
     List<Map<String, dynamic>> treeEntries = [];
 
     for (var entry in files.entries) {
-      final path = entry.key;
+      String rawPath = entry.key;
+      final path = rawPath.replaceFirst(RegExp(r'^/+'), ''); // Sanitize path
       final file = entry.value;
+
       final bytes = await file.readAsBytes();
+      if (bytes.isEmpty) {
+        log("⚠️ Skipping empty file: $path");
+        continue;
+      }
+
       final isBinary = _isBinary(bytes);
       final encoded = isBinary ? base64Encode(bytes) : utf8.decode(bytes);
       final encoding = isBinary ? 'base64' : 'utf-8';
@@ -280,6 +289,7 @@ class GitOperations {
         'tree': treeEntries,
       }),
     );
+
     if (treeResp.statusCode != 201) {
       throw Exception('Failed to create tree: ${treeResp.body}');
     }
@@ -295,6 +305,7 @@ class GitOperations {
         'parents': [latestCommitSha],
       }),
     );
+
     if (commitResp2.statusCode != 201) {
       throw Exception('Failed to create commit: ${commitResp2.body}');
     }
@@ -306,13 +317,13 @@ class GitOperations {
       headers: headers,
       body: json.encode({'sha': newCommitSha}),
     );
+
     if (updateResp.statusCode != 200) {
       throw Exception('Failed to update branch ref: ${updateResp.body}');
     }
 
-    log('Successfully committed ${files.length} file(s) to branch "$branch"');
+    log('✅ Successfully committed ${files.length} file(s) to branch "$branch"');
   }
-
 
   bool _isBinary(List<int> bytes) {
     const textBytes = [9, 10, 13];
