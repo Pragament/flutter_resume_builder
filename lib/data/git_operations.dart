@@ -41,9 +41,10 @@ class GitOperations {
   Future<List<String>> fetchGitHubImages(
     String owner,
     String repos,
+    [String folder = '']
   ) async {
     final url = Uri.parse(
-        'https://api.github.com/repos/$owner/$repos/contents'); // Adjust folder path
+        'https://api.github.com/repos/$owner/$repos/contents${folder.isNotEmpty ? '/$folder' : ''}'); // Adjust folder path
 
     //log("fetchGitHubImages url ${url.toString()}");
     final response = await http.get(
@@ -413,7 +414,13 @@ class GitOperations {
     );
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
-      return utf8.decode(base64.decode(data['content']));
+      String base64Content = data['content'];
+      print('readRepoFile: base64 content (first 100 chars): ${base64Content.substring(0, base64Content.length > 100 ? 100 : base64Content.length)}');
+      // Remove all line breaks before decoding
+      String cleanedBase64 = base64Content.replaceAll('\n', '').replaceAll('\r', '');
+      String decoded = utf8.decode(base64.decode(cleanedBase64));
+      print('readRepoFile: decoded YAML (first 100 chars): ${decoded.substring(0, decoded.length > 100 ? 100 : decoded.length)}');
+      return decoded;
     } else {
       throw Exception('Failed to read file: ${response.body}');
     }

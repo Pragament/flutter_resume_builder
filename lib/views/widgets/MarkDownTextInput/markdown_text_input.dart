@@ -6,6 +6,7 @@ import 'package:resume_builder_app/models/git_repo_model.dart';
 import 'package:yaml/yaml.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:convert';
+import 'package:resume_builder_app/views/add_file_dialog_content.dart';
 
 class MarkdownTextInput extends StatefulWidget {
   final Function onTextChanged;
@@ -265,44 +266,45 @@ class _MarkdownTextInputState extends State<MarkdownTextInput> {
             List<String> imageUrls = [];
             bool showUpload = false;
             String? mediaFolder;
-            try {
-              print('Checking for admin/config.yml in repo: ${widget.repo.owner.login}/${widget.repo.name}');
-              bool configExists = await widget.ops.repoFileExists(
-                'admin/config.yml',
-                owner: widget.repo.owner.login,
-                repo: widget.repo.name,
-              );
-              print('admin/config.yml exists: $configExists');
-              if (configExists) {
-                String configContent = await widget.ops.readRepoFile(
+            Future<void> fetchImages() async {
+              print('--- ENTERED fetchImages ---');
+              try {
+                print('Checking for admin/config.yml in repo: ${widget.repo.owner.login}/${widget.repo.name}');
+                bool configExists = await widget.ops.repoFileExists(
                   'admin/config.yml',
                   owner: widget.repo.owner.login,
                   repo: widget.repo.name,
                 );
-                print('Raw config content:');
-                print(configContent);
-                var yamlMap = loadYaml(configContent);
-                print('Parsed yamlMap:');
-                print(yamlMap);
-                mediaFolder = yamlMap['media_folder'];
-                if (mediaFolder == null) showUpload = false;
-                else showUpload = true;
-              } else {
-                showUpload = false;
+                print('admin/config.yml exists: $configExists');
+                if (configExists) {
+                  String decodedConfig = await widget.ops.readRepoFile(
+                    'admin/config.yml',
+                    owner: widget.repo.owner.login,
+                    repo: widget.repo.name,
+                  );
+                  print('Decoded config content (YAML):');
+                  print(decodedConfig);
+                  var yamlMap = loadYaml(decodedConfig);
+                  print('Parsed yamlMap:');
+                  print(yamlMap);
+                  mediaFolder = yamlMap['media_folder'];
+                  print('mediaFolder set to: $mediaFolder');
+                  showUpload = mediaFolder != null;
+                } else {
+                  showUpload = false;
+                }
+                imageUrls = await widget.ops.fetchGitHubImages(widget.repo.owner.login, widget.repo.name, mediaFolder ?? 'images');
+              } catch (e) {
+                print("Error fetching images: $e");
               }
-              imageUrls = await widget.ops
-                  .fetchGitHubImages(widget.repo.owner.login, widget.repo.name);
-            } catch (e) {
-              print("Error fetching images: $e");
             }
-
+            await fetchImages();
             if (imageUrls.isEmpty && !showUpload) {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text("No images found in the repository.")),
               );
               return;
             }
-
             await showDialog<void>(
               context: context,
               builder: (context) {
@@ -405,60 +407,16 @@ class _MarkdownTextInputState extends State<MarkdownTextInput> {
                               child: FloatingActionButton(
                                 heroTag: 'upload_image_fab',
                                 onPressed: () async {
-                                  print('--- IMAGE UPLOAD DEBUG START ---');
-                                  print('Upload button pressed');
-                                  // Check config before upload
-                                  print('Checking for admin/config.yml in repo: ${widget.repo.owner.login}/${widget.repo.name}');
-                                  bool configExists = await widget.ops.repoFileExists(
-                                    'admin/config.yml',
-                                    owner: widget.repo.owner.login,
-                                    repo: widget.repo.name,
+                                  await showDialog(
+                                    context: context,
+                                    builder: (context) => SimpleDialog(
+                                      children: [
+                                        AddFileDialogContent(ops: widget.ops, repo: widget.repo, mediaFolder: mediaFolder ?? ''),
+                                      ],
+                                    ),
                                   );
-                                  print('admin/config.yml exists: $configExists');
-                                  String? mediaFolder;
-                                  if (configExists) {
-                                    String configContent = await widget.ops.readRepoFile(
-                                      'admin/config.yml',
-                                      owner: widget.repo.owner.login,
-                                      repo: widget.repo.name,
-                                    );
-                                    print('Raw config content:');
-                                    print(configContent);
-                                    var yamlMap = loadYaml(configContent);
-                                    print('Parsed yamlMap:');
-                                    print(yamlMap);
-                                    mediaFolder = yamlMap['media_folder'];
-                                    print('mediaFolder set to: $mediaFolder');
-                                  }
-                                  final picker = ImagePicker();
-                                  final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-                                  print('Picked file: ${pickedFile?.path}');
-                                  print('mediaFolder value: $mediaFolder');
-                                  if (mediaFolder == null) {
-                                    print('mediaFolder is null! Cannot upload.');
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(content: Text("Upload not configured: media folder missing.")),
-                                    );
-                                    return;
-                                  }
-                                  if (pickedFile != null) {
-                                    final bytes = await pickedFile.readAsBytes();
-                                    final content = base64Encode(bytes);
-                                    print('Uploading to: $mediaFolder/${pickedFile.name}');
-                                    try {
-                                      await widget.ops.uploadFileToRepo(
-                                        path: '$mediaFolder/${pickedFile.name}',
-                                        content: content,
-                                        commitMessage: 'Upload image ${pickedFile.name}',
-                                        owner: widget.repo.owner.login,
-                                        repo: widget.repo.name,
-                                      );
-                                      print('Upload complete');
-                                    } catch (e) {
-                                      print('Upload failed: $e');
-                                    }
-                                    setState(() {});
-                                  }
+                                  await fetchImages(); // re-fetch images after upload
+                                  setState(() {});
                                 },
                                 child: const Icon(Icons.upload),
                               ),
