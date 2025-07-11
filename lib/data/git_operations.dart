@@ -92,12 +92,29 @@ class GitOperations {
       Map<String, File> files, //File file,
       String commitMessage) async {
     int count = 0;
+
     for (var entry in files.entries) {
       String path = entry.key;
       File file = entry.value;
       List<int> fileBytes = await file.readAsBytes();
       String base64Content = base64Encode(fileBytes);
 
+      // Check if the file already exists
+      final checkResponse = await http.get(
+        Uri.parse('https://api.github.com/repos/$owner/$repo/contents/$path'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/vnd.github.v3+json',
+        },
+      );
+
+      String? sha;
+      if (checkResponse.statusCode == 200) {
+        final data = json.decode(checkResponse.body);
+        sha = data['sha'];
+      }
+
+      // Create or update the file
       final response = await http.put(
         Uri.parse('https://api.github.com/repos/$owner/$repo/contents/$path'),
         headers: {
@@ -107,15 +124,18 @@ class GitOperations {
         body: json.encode({
           'message': commitMessage,
           'content': base64Content,
+          if (sha != null) 'sha': sha,
         }),
       );
-      if (response.statusCode != 201) {
+
+      if (response.statusCode != 201 && response.statusCode != 200) {
         count += 1;
         throw Exception('Failed to add file to repository: ${response.body}');
       }
     }
+
     if (count > 0) {
-      throw Exception('failed to add $count files');
+      throw Exception('Failed to add $count file(s)');
     }
     // List<int> fileBytes = await file.readAsBytes();
     // String base64Content = base64Encode(fileBytes);
@@ -139,9 +159,9 @@ class GitOperations {
   Future<void> commitMultipleFiles({
     required String owner,
     required String repo,
-    required String branch,
     required Map<String, File> files,
     required String commitMessage,
+    String branch = 'main',
   }) async {
     final headers = {
       'Authorization': 'Bearer $token',
@@ -149,15 +169,69 @@ class GitOperations {
       'Content-Type': 'application/json',
     };
 
-    final refResp = await http.get(
-      Uri.parse('https://api.github.com/repos/$owner/$repo/git/ref/heads/$branch'),
-      headers: headers,
-    );
-    if (refResp.statusCode != 200) {
-      throw Exception('Failed to fetch branch ref: ${refResp.body}');
-    }
-    final latestCommitSha = json.decode(refResp.body)['object']['sha'];
+    // Step 1: Try to get the specified branch ref
+    String branchToUse = branch;
+    final branchRefUrl = 'https://api.github.com/repos/$owner/$repo/git/ref/heads/$branch';
+    final refResp = await http.get(Uri.parse(branchRefUrl), headers: headers);
 
+    if (refResp.statusCode != 200) {
+      // If the specified branch doesn't exist, fetch default branch
+      print('⚠️ Branch "$branch" not found. Falling back to default branch...');
+      final repoInfoResp = await http.get(
+        Uri.parse('https://api.github.com/repos/$owner/$repo'),
+        headers: headers,
+      );
+
+      if (repoInfoResp.statusCode != 200) {
+        throw Exception('Failed to fetch repository info: ${repoInfoResp.body}');
+      }
+
+      final repoData = json.decode(repoInfoResp.body);
+      branchToUse = repoData['default_branch'];
+      log('Using default branch: $branchToUse');
+
+      // Try getting ref for default branch
+      final defaultRefResp = await http.get(
+        Uri.parse('https://api.github.com/repos/$owner/$repo/git/ref/heads/$branchToUse'),
+        headers: headers,
+      );
+      if (defaultRefResp.statusCode != 200) {
+        throw Exception('Failed to fetch branch ref for default branch: ${defaultRefResp.body}');
+      }
+      final latestCommitSha = json.decode(defaultRefResp.body)['object']['sha'];
+      await _createCommit(
+        owner,
+        repo,
+        branchToUse,
+        latestCommitSha,
+        files,
+        commitMessage,
+        headers,
+      );
+    } else {
+      // If original branch exists, proceed
+      final latestCommitSha = json.decode(refResp.body)['object']['sha'];
+      await _createCommit(
+        owner,
+        repo,
+        branchToUse,
+        latestCommitSha,
+        files,
+        commitMessage,
+        headers,
+      );
+    }
+  }
+
+  Future<void> _createCommit(
+      String owner,
+      String repo,
+      String branch,
+      String latestCommitSha,
+      Map<String, File> files,
+      String commitMessage,
+      Map<String, String> headers,
+      ) async {
     final commitResp = await http.get(
       Uri.parse('https://api.github.com/repos/$owner/$repo/git/commits/$latestCommitSha'),
       headers: headers,
@@ -168,14 +242,13 @@ class GitOperations {
     final baseTreeSha = json.decode(commitResp.body)['tree']['sha'];
 
     List<Map<String, dynamic>> treeEntries = [];
+
     for (var entry in files.entries) {
       final path = entry.key;
       final file = entry.value;
       final bytes = await file.readAsBytes();
       final isBinary = _isBinary(bytes);
-      final encoded = isBinary
-          ? base64Encode(bytes)
-          : utf8.decode(bytes);
+      final encoded = isBinary ? base64Encode(bytes) : utf8.decode(bytes);
       final encoding = isBinary ? 'base64' : 'utf-8';
 
       final blobResp = await http.post(
@@ -186,14 +259,15 @@ class GitOperations {
           'encoding': encoding,
         }),
       );
+
       if (blobResp.statusCode != 201) {
         throw Exception('Failed to create blob for $path: ${blobResp.body}');
       }
-      final blobSha = json.decode(blobResp.body)['sha'];
 
+      final blobSha = json.decode(blobResp.body)['sha'];
       treeEntries.add({
         'path': path,
-        'mode': '100644', // file permissions
+        'mode': '100644',
         'type': 'blob',
         'sha': blobSha,
       });
@@ -210,6 +284,7 @@ class GitOperations {
     if (treeResp.statusCode != 201) {
       throw Exception('Failed to create tree: ${treeResp.body}');
     }
+
     final newTreeSha = json.decode(treeResp.body)['sha'];
 
     final commitResp2 = await http.post(
@@ -224,6 +299,7 @@ class GitOperations {
     if (commitResp2.statusCode != 201) {
       throw Exception('Failed to create commit: ${commitResp2.body}');
     }
+
     final newCommitSha = json.decode(commitResp2.body)['sha'];
 
     final updateResp = await http.patch(
@@ -235,8 +311,9 @@ class GitOperations {
       throw Exception('Failed to update branch ref: ${updateResp.body}');
     }
 
-    log('🎉 Successfully committed ${files.length} file(s) in one single commit!');
+    log('Successfully committed ${files.length} file(s) to branch "$branch"');
   }
+
 
   bool _isBinary(List<int> bytes) {
     const textBytes = [9, 10, 13];
