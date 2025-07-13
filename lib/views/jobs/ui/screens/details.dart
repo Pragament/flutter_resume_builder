@@ -14,8 +14,7 @@ class DetailsScreen extends StatefulWidget {
 class _DetailsScreenState extends State<DetailsScreen> {
   List<Map<String, String>> allRepo = [];
   Set<String> allCompanies = {};
-  String? selectedCompany = null; // Default to an empty string instead of null
-
+  String? selectedCompany; // Default to an empty string instead of null
 
   // Loop through each company and its repositories
   void allRepository() {
@@ -63,22 +62,22 @@ class _DetailsScreenState extends State<DetailsScreen> {
               child: Row(
                 children: <Widget>[
                   IconButton(
-                    icon: Icon(
+                    icon: const Icon(
                       Icons.chevron_left,
                       color: Colors.white,
                     ),
                     onPressed: () => Navigator.pop(context),
                   ),
-                  Spacer(),
+                  const Spacer(),
                   IconButton(
-                    icon: Icon(
+                    icon: const Icon(
                       Icons.favorite,
                       color: Colors.white,
                     ),
                     onPressed: () {},
                   ),
                   IconButton(
-                    icon: Icon(
+                    icon: const Icon(
                       Icons.file_upload,
                       color: Colors.white,
                     ),
@@ -94,7 +93,7 @@ class _DetailsScreenState extends State<DetailsScreen> {
               height: MediaQuery.of(context).size.height / 2,
               child: Container(
                 padding: const EdgeInsets.all(15.0),
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(25),
@@ -106,17 +105,17 @@ class _DetailsScreenState extends State<DetailsScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       Text(
-                        "${widget.job.title}",
+                        widget.job.title,
                         style: Theme.of(context).textTheme.headlineSmall,
                       ),
                       Text(
-                        "${widget.job.location}",
+                        widget.job.location,
                         style: Theme.of(context)
                             .textTheme
                             .bodyLarge
                             ?.apply(color: Colors.grey),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: 15.0,
                       ),
                       Text(
@@ -124,21 +123,21 @@ class _DetailsScreenState extends State<DetailsScreen> {
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
                       Text(
-                        "${widget.job.description}",
+                        widget.job.description,
                         style: Theme.of(context)
                             .textTheme
                             .bodyLarge
                             ?.apply(color: Colors.grey),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: 15.0,
                       ),
                       Text(
                         "Photos",
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
-                      SizedBox(height: 5),
-                      Container(
+                      const SizedBox(height: 5),
+                      SizedBox(
                         height: 80,
                         child: ListView.builder(
                           scrollDirection: Axis.horizontal,
@@ -146,78 +145,97 @@ class _DetailsScreenState extends State<DetailsScreen> {
                           itemBuilder: (ctx, i) {
                             return Padding(
                               padding:
-                              const EdgeInsets.symmetric(horizontal: 9.0),
+                                  const EdgeInsets.symmetric(horizontal: 9.0),
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(15.0),
                                 child: Image.network(
-                                  '${widget.job.companies[i].logo}'
-                                    //"https://www.citypng.com/public/uploads/preview/pubg-gold-silhouette-soldier-with-helmet-logo-733961695143139ogipqdztwz.png"
-                                ),
+                                    widget.job.companies[i].logo
+                                    //"https://www.citypng.com/public//preview/pubg-gold-silhouette-soldier-with-helmet-logo-733961695143139ogipqdztwz.png"
+                                    ),
                               ),
                             );
                           },
                         ),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: 15.0,
                       ),
-                      Container(
+                      SizedBox(
                         width: MediaQuery.of(context).size.height * .7,
                         height: 45,
                         child: ElevatedButton(
-                          child: Text(
-                            "Apply For Job",
-                            style: Theme.of(context)
-                                .textTheme
-                                .labelLarge
-                                ?.apply(color: Colors.white),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blue,
-                          ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.blue,
+                            ),
                             onPressed: () {
-                              selectedCompany= allCompanies.isNotEmpty?allCompanies.first:null;
+                              selectedCompany = allCompanies.isNotEmpty
+                                  ? allCompanies.first
+                                  : null;
                               showDialog(
                                 context: context,
                                 builder: (BuildContext context) {
                                   return Dialog(
-                                    child: Container(
+                                    child: SizedBox(
                                       width: double.maxFinite,
                                       height: 500,
                                       child: StatefulBuilder(
-                                        builder: (BuildContext context, StateSetter setDialogState) {
+                                        builder: (BuildContext context,
+                                            StateSetter setDialogState) {
                                           return Column(
                                             mainAxisSize: MainAxisSize.min,
                                             children: [
                                               Padding(
-                                                padding: const EdgeInsets.all(16.0),
+                                                padding:
+                                                    const EdgeInsets.all(16.0),
                                                 child: Row(
-                                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
                                                   children: [
-                                                    Text(
+                                                    const Text(
                                                       "Work Available",
                                                       style: TextStyle(
                                                           fontSize: 15,
-                                                          fontWeight: FontWeight.bold),
+                                                          fontWeight:
+                                                              FontWeight.bold),
                                                     ),
-                                                    SizedBox(width: 3,),
+                                                    const SizedBox(
+                                                      width: 3,
+                                                    ),
                                                     DropdownButton<String>(
                                                       value: selectedCompany,
-                                                      hint: Text('Company'),
-                                                      onChanged: (String? newValue) {
+                                                      hint:
+                                                          const Text('Company'),
+                                                      onChanged:
+                                                          (String? newValue) {
                                                         setState(() {
-                                                          selectedCompany = newValue;
+                                                          selectedCompany =
+                                                              newValue;
                                                         });
-                                                        setDialogState(() {}); // Update dialog's state
+                                                        setDialogState(
+                                                            () {}); // Update dialog's state
                                                       },
-                                                      items: allCompanies.map<DropdownMenuItem<String>>((String value) {
-                                                        return DropdownMenuItem<String>(
+                                                      items: allCompanies.map<
+                                                              DropdownMenuItem<
+                                                                  String>>(
+                                                          (String value) {
+                                                        return DropdownMenuItem<
+                                                            String>(
                                                           value: value,
                                                           child: Text(
                                                             value,
                                                             style: TextStyle(
-                                                              color: value == selectedCompany ? Colors.blue : Colors.black,
-                                                              fontWeight: value == selectedCompany ? FontWeight.bold : FontWeight.normal,
+                                                              color: value ==
+                                                                      selectedCompany
+                                                                  ? Colors.blue
+                                                                  : Colors
+                                                                      .black,
+                                                              fontWeight: value ==
+                                                                      selectedCompany
+                                                                  ? FontWeight
+                                                                      .bold
+                                                                  : FontWeight
+                                                                      .normal,
                                                             ),
                                                           ),
                                                         );
@@ -226,44 +244,60 @@ class _DetailsScreenState extends State<DetailsScreen> {
                                                   ],
                                                 ),
                                               ),
-                                              Divider(),
+                                              const Divider(),
                                               Expanded(
                                                 child: ListView.builder(
                                                   shrinkWrap: true,
                                                   itemCount: allRepo.length,
-                                                  itemBuilder: (context, index) {
-                                                    if (selectedCompany != null &&
-                                                        selectedCompany!.isNotEmpty &&
-                                                        allRepo[index]["companyName"] == selectedCompany) {
+                                                  itemBuilder:
+                                                      (context, index) {
+                                                    if (selectedCompany !=
+                                                            null &&
+                                                        selectedCompany!
+                                                            .isNotEmpty &&
+                                                        allRepo[index][
+                                                                "companyName"] ==
+                                                            selectedCompany) {
                                                       return InkWell(
                                                         child: ListTile(
                                                           title: Text(
                                                             "Owner: ${allRepo[index]['owner']}",
-                                                            style: TextStyle(fontWeight: FontWeight.w600),
+                                                            style: const TextStyle(
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w600),
                                                           ),
                                                           subtitle: Text(
                                                             "Repo: ${allRepo[index]["repo"]}",
                                                           ),
                                                         ),
-                                                        onTap: ()=> Navigator.push(
+                                                        onTap: () =>
+                                                            Navigator.push(
                                                           context,
                                                           MaterialPageRoute(
-                                                            builder: (ctx) => repoListScreen(owner:allRepo[index]["owner"]! , repo:allRepo[index]["repo"]!),
+                                                            builder: (ctx) => repoListScreen(
+                                                                owner: allRepo[
+                                                                        index]
+                                                                    ["owner"]!,
+                                                                repo: allRepo[
+                                                                        index]
+                                                                    ["repo"]!),
                                                           ),
                                                         ),
                                                       );
                                                     } else {
-                                                      return SizedBox.shrink(); // Hide items that don’t match
+                                                      return const SizedBox
+                                                          .shrink(); // Hide items that don’t match
                                                     }
                                                   },
                                                 ),
                                               ),
-                                              SizedBox(height: 10),
+                                              const SizedBox(height: 10),
                                               TextButton(
                                                 onPressed: () {
                                                   Navigator.of(context).pop();
                                                 },
-                                                child: Text("Close"),
+                                                child: const Text("Close"),
                                               ),
                                             ],
                                           );
@@ -273,8 +307,14 @@ class _DetailsScreenState extends State<DetailsScreen> {
                                   );
                                 },
                               );
-                            }
-                        ),
+                            },
+                            child: Text(
+                              "Apply For Job",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .labelLarge
+                                  ?.apply(color: Colors.white),
+                            )),
                       )
                     ],
                   ),

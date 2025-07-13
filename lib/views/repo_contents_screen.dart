@@ -6,7 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:resume_builder_app/views/markdown_editor_screen.dart';
-
+import 'package:resume_builder_app/views/add_file_dialog_content.dart';
+import 'package:yaml/yaml.dart';
 import '../data/git_operations.dart';
 import '../models/git_repo_model.dart';
 import '../models/repo_content_model.dart';
@@ -107,11 +108,31 @@ class _RepoContentScreenState extends ConsumerState<RepoContentScreen> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () async {
+          // Fetch media_folder from config before opening dialog
+          String mediaFolder = '';
+          try {
+            bool configExists = await widget.ops.repoFileExists(
+              'admin/config.yml',
+              owner: widget.repo.owner.login,
+              repo: widget.repo.name,
+            );
+            if (configExists) {
+              String decodedConfig = await widget.ops.readRepoFile(
+                'admin/config.yml',
+                owner: widget.repo.owner.login,
+                repo: widget.repo.name,
+              );
+              var yamlMap = loadYaml(decodedConfig);
+              mediaFolder = yamlMap['media_folder'] ?? '';
+            }
+          } catch (e) {
+            // ignore, fallback to root
+          }
           await showDialog(
             context: context,
             builder: (context) => SimpleDialog(
               children: [
-                AddFileDialogContent(ops: widget.ops, repo: widget.repo),
+                AddFileDialogContent(ops: widget.ops, repo: widget.repo, mediaFolder: mediaFolder),
               ],
             ),
           );

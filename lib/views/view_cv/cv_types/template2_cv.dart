@@ -24,8 +24,8 @@ class ResumeScreen4 extends StatelessWidget {
 
     final regularFont = pw.Font.helvetica();
     // Color definitions
-    final headerColor = Colors.brown;
-    final lineColor = Colors.grey;
+    const headerColor = Colors.brown;
+    const lineColor = Colors.grey;
 
     return Scaffold(
       floatingActionButton: _buildSideSection(
@@ -48,7 +48,7 @@ class ResumeScreen4 extends StatelessWidget {
                       color: headerColor,
                     ),
                   ),
-                  SizedBox(height: 10),
+                  const SizedBox(height: 10),
                   Text(
                     templateData.currentPosition ?? "",
                     style: TextStyle(
@@ -57,7 +57,7 @@ class ResumeScreen4 extends StatelessWidget {
                       color: headerColor,
                     ),
                   ),
-                  SizedBox(height: 10),
+                  const SizedBox(height: 10),
 
                   // Contact Info in a Box with clickable links
                   Container(
@@ -79,13 +79,13 @@ class ResumeScreen4 extends StatelessWidget {
                   ),
                 ],
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
 
               // Summary
               Text(
                 templateData.bio ?? ""
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
 
               // Experience
               Row(
@@ -156,7 +156,7 @@ class ResumeScreen4 extends StatelessWidget {
                           const SizedBox(height: 4,),
                           // Display the list of skills
                           Container(
-                              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
                               decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(10),
                                   border: Border.all(
@@ -219,12 +219,12 @@ class ResumeScreen4 extends StatelessWidget {
           SizedBox(
             width: 110,
             child: Text(
-              "${language}:",
+              "$language:",
               softWrap: true,
               style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
             ),
           ),
-          SizedBox(width: 8), // Add some space between text and circles
+          const SizedBox(width: 8), // Add some space between text and circles
           ...List.generate(5, (index) {
             return Container(
               margin: const EdgeInsets.symmetric(horizontal: 2),
@@ -261,7 +261,7 @@ Future<Uint8List> generateResume(PdfPageFormat format, TemplateData data) async 
 
   // Fetch profile image dynamically
 
-  final headerColor = PdfColors.brown;
+  const headerColor = PdfColors.brown;
 
   pdf.addPage(
     pw.MultiPage(
@@ -322,7 +322,7 @@ Future<Uint8List> generateResume(PdfPageFormat format, TemplateData data) async 
                 if (data.bio != null && data.bio!.isNotEmpty)
                   pw.Text(
                     data.bio!,
-                    style: pw.TextStyle(fontSize: 14),
+                    style: const pw.TextStyle(fontSize: 14),
                   ),
                 pw.SizedBox(height: 20),
 
@@ -331,7 +331,7 @@ Future<Uint8List> generateResume(PdfPageFormat format, TemplateData data) async 
                   _Category(title: 'Work Experience'),
                   ...data.experience!.map((experience) => _Block(
                     title: experience.experienceTitle,
-                    desc: experience.experienceDescription!,
+                    desc: experience.experienceDescription,
                   )),
                 ],
 
@@ -429,11 +429,10 @@ pw.Widget _buildSkillRow(String language, int level) {
 }
 
 class _Block extends pw.StatelessWidget {
-  _Block({required this.title, this.icon, required this.desc});
+  _Block({required this.title, required this.desc, this.icon});
 
   final String title;
   final String desc;
-
   final pw.IconData? icon;
 
   @override

@@ -47,7 +47,7 @@ dependencies:
   pdf: ^3.11.1
   printing: ^5.13.2
   share_plus: ^10.0.2
-  shared_preferences: ^2.3.2
+  shared_preferences: ^2.2.2
   visibility_detector: ^0.4.0+2
   percent_indicator: ^4.2.3
   provider: ^6.1.2
@@ -64,8 +64,7 @@ dependencies:
   html: ^0.15.5
   cached_network_image: ^3.4.1
   flutter_svg: ^2.0.17
-
-
+  yaml: ^3.1.2 # Add this line (use latest version if available)
 
 dev_dependencies:
   flutter_lints: ^3.0.0

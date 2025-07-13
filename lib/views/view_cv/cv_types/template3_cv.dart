@@ -42,31 +42,31 @@ class ResumeScreen5 extends StatelessWidget {
                 Expanded(
                   flex: 5,
                   child: Container(
-                    padding: EdgeInsets.only(left: 5),
+                    padding: const EdgeInsets.only(left: 5),
                     color: Colors.white,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           templateData.fullName ?? "",
-                          style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                          style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
                         ),
-                        SizedBox(height: 4),
+                        const SizedBox(height: 4),
                         Text(
                           templateData.currentPosition ?? "",
                           style: TextStyle(fontSize: 20, color: Colors.grey[700]),
                         ),
-                        SizedBox(height: 10),
-                        Text(
+                        const SizedBox(height: 10),
+                        const Text(
                           'Professional Summary',
                           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                         ),
-                        SizedBox(height: 8),
+                        const SizedBox(height: 8),
                         Text(
                           templateData.bio ?? "",
-                          style: TextStyle(fontSize: 16),
+                          style: const TextStyle(fontSize: 16),
                         ),
-                        SizedBox(height: 16),
+                        const SizedBox(height: 16),
                         // Experience
                         Row(
                           children: [
@@ -74,7 +74,7 @@ class ResumeScreen5 extends StatelessWidget {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
+                                  const Text(
                                     "Experience",
                                     style: TextStyle(
                                       fontSize: 18,
@@ -95,7 +95,7 @@ class ResumeScreen5 extends StatelessWidget {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
+                                  const Text(
                                     "Education",
                                     style: TextStyle(
                                       fontSize: 18,
@@ -147,12 +147,12 @@ class ResumeScreen5 extends StatelessWidget {
                         const SizedBox(height: 40,),
                         Text(
                           templateData.phoneNumber ?? "",
-                          style: TextStyle(color: Colors.white, fontSize: 13),
+                          style: const TextStyle(color: Colors.white, fontSize: 13),
                         ),
                         const SizedBox(height: 5,),
                         Text(
                           templateData.email ?? "",
-                          style: TextStyle(color: Colors.white, fontSize: 13),
+                          style: const TextStyle(color: Colors.white, fontSize: 13),
                         ),
                         const SizedBox(height: 40,),
 
@@ -230,7 +230,7 @@ class ResumeScreen5 extends StatelessWidget {
           SizedBox(
             width: 70,
             child: Text(
-              "${language}:",
+              "$language:",
               softWrap: true,
               style: const TextStyle(
                   fontSize: 14,
@@ -241,7 +241,7 @@ class ResumeScreen5 extends StatelessWidget {
           ),
           const SizedBox(height: 4,),
           LinearPercentIndicator(
-            barRadius: Radius.circular(2),
+            barRadius: const Radius.circular(2),
             lineHeight: 10.0,
             percent: level/5,
             padding: EdgeInsets.zero,
@@ -332,7 +332,7 @@ Future<Uint8List> generateResume(PdfPageFormat format, TemplateData data) async 
                       pw.SizedBox(height: 4),
                       pw.Text(
                         data.currentPosition ?? "",
-                        style: pw.TextStyle(fontSize: 20, color: PdfColors.grey500),
+                        style: const pw.TextStyle(fontSize: 20, color: PdfColors.grey500),
                       ),
                       pw.SizedBox(height: 10),
                       pw.Text(
@@ -342,7 +342,7 @@ Future<Uint8List> generateResume(PdfPageFormat format, TemplateData data) async 
                       pw.SizedBox(height: 8),
                       pw.Text(
                         data.bio ?? "",
-                        style: pw.TextStyle(fontSize: 16),
+                        style: const pw.TextStyle(fontSize: 16),
                       ),
                       pw.SizedBox(height: 16),
                     ],
@@ -392,7 +392,7 @@ Future<Uint8List> generateResume(PdfPageFormat format, TemplateData data) async 
               pw.Partition(
                 flex: 3, // Make the right side smaller
                 child: pw.Container(
-                  padding: pw.EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                  padding: const pw.EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                   child: pw.Expanded(
                     child: pw.Column(
                       crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -475,7 +475,7 @@ pw.Widget _buildSkillRow(String language, int level) {
         pw.SizedBox(
           width: 70,
           child: pw.Text(
-            "${language}:",
+            "$language:",
             softWrap: true,
             style: pw.TextStyle(
               fontSize: 14,
@@ -511,17 +511,16 @@ pw.Widget _buildSkillRow(String language, int level) {
 }
 
 class _Block extends pw.StatelessWidget {
-  _Block({required this.title, this.icon, required this.desc});
+  _Block({required this.title, required this.desc, this.icon});
 
   final String title;
   final String desc;
-
   final pw.IconData? icon;
 
   @override
   pw.Widget build(pw.Context context) {
     return pw.Padding(
-      padding: pw.EdgeInsets.only(right: 4.0),
+      padding: const pw.EdgeInsets.only(right: 4.0),
       child: pw.Column(
           crossAxisAlignment: pw.CrossAxisAlignment.start,
           children: <pw.Widget>[

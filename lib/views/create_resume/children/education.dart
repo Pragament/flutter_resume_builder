@@ -93,7 +93,7 @@ class _EducationalDetailsState extends ConsumerState<EducationalDetails> {
                       });
                     },
                     style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all<Color>(
+                      backgroundColor: WidgetStateProperty.all<Color>(
                           AppColors.primaryColor),
                     ),
                     label: Text(
@@ -300,7 +300,7 @@ class _EducationalDetailsState extends ConsumerState<EducationalDetails> {
 
 void main() {
   runApp(
-    ProviderScope(
+    const ProviderScope(
       child: MaterialApp(
         home: HomeScreen(),
       ),

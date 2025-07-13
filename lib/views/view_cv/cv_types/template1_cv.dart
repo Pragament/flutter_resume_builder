@@ -83,7 +83,7 @@ class ResumeScreen3 extends StatelessWidget {
                           ),
                           Text(
                             templateData.phoneNumber ?? "",
-                            style: TextStyle(fontSize: 12),
+                            style: const TextStyle(fontSize: 12),
                           ),
                         ],
                       ),
@@ -97,26 +97,26 @@ class ResumeScreen3 extends StatelessWidget {
                         children: [
                           Text(
                             templateData.fullName,
-                            style: TextStyle(
+                            style: const TextStyle(
                                 fontSize: 27, fontWeight: FontWeight.bold),
                           ),
                           Container(
                             decoration: BoxDecoration(
-                              color: Color(0xFF06a2d8),
+                              color: const Color(0xFF06a2d8),
                               borderRadius: BorderRadius.circular(10),
                             ),
                             padding: const EdgeInsets.all(10),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
+                                const Text(
                                   "Profile",
                                   style: TextStyle(
                                       fontSize: 18, fontWeight: FontWeight.bold),
                                 ),
                                 Text(
                                   templateData.bio ?? "",
-                                  style: TextStyle(fontSize: 10),
+                                  style: const TextStyle(fontSize: 10),
                                 )
                               ],
                             ),
@@ -180,10 +180,10 @@ class ResumeScreen3 extends StatelessWidget {
                             const SizedBox(height: 10),
                             // Display the list of skills
                             Container(
-                              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
                               decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(10),
-                                  color: Color(0xFF06a2d8)
+                                  color: const Color(0xFF06a2d8)
                               ),
                                 child: Column(
                                   children: [
@@ -216,12 +216,12 @@ class ResumeScreen3 extends StatelessWidget {
           SizedBox(
             width: 110,
             child: Text(
-              "${language}:",
+              "$language:",
               softWrap: true,
               style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
             ),
           ),
-          SizedBox(width: 8), // Add some space between text and circles
+          const SizedBox(width: 8), // Add some space between text and circles
           ...List.generate(5, (index) {
             return Container(
               margin: const EdgeInsets.symmetric(horizontal: 2),
@@ -303,7 +303,7 @@ Future<Uint8List> generateResume(PdfPageFormat format, TemplateData data) async 
 
         content.add(
             pw.Container(
-              padding: pw.EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+              padding: const pw.EdgeInsets.symmetric(vertical: 15, horizontal: 20),
               decoration: pw.BoxDecoration(
                 image: pw.DecorationImage(
                   image: backgroundProvider,
@@ -357,10 +357,10 @@ Future<Uint8List> generateResume(PdfPageFormat format, TemplateData data) async 
                               ),
                               pw.Container(
                                 decoration: pw.BoxDecoration(
-                                  color: PdfColor.fromInt(0xFF06a2d8),
+                                  color: const PdfColor.fromInt(0xFF06a2d8),
                                   borderRadius: pw.BorderRadius.circular(10),
                                 ),
-                                padding: pw.EdgeInsets.all(10),
+                                padding: const pw.EdgeInsets.all(10),
                                 child: pw.Column(
                                   crossAxisAlignment: pw.CrossAxisAlignment.start,
                                   children: [
@@ -371,7 +371,7 @@ Future<Uint8List> generateResume(PdfPageFormat format, TemplateData data) async 
                                     ),
                                     pw.Text(
                                       data.bio ?? "",
-                                      style: pw.TextStyle(fontSize: 10),
+                                      style: const pw.TextStyle(fontSize: 10),
                                     )
                                   ],
                                 ),
@@ -393,7 +393,7 @@ Future<Uint8List> generateResume(PdfPageFormat format, TemplateData data) async 
                       _Category(title: 'Work Experience'),
                       ...data.experience!.map((experience) => _Block(
                         title: experience.experienceTitle,
-                        desc: experience.experienceDescription!,
+                        desc: experience.experienceDescription,
                       )),
                     ],
                     pw.SizedBox(height: 10),
@@ -439,7 +439,7 @@ pw.Widget _buildSkillsSection(TemplateData templateData) {
         padding: const pw.EdgeInsets.symmetric(horizontal: 10, vertical: 7),
         decoration: pw.BoxDecoration(
             borderRadius: pw.BorderRadius.circular(10),
-            color: PdfColor.fromInt(0xFF06a2d8)
+            color: const PdfColor.fromInt(0xFF06a2d8)
         ),
         child: pw.Column(
           crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -490,11 +490,10 @@ pw.Widget _buildSkillRow(String language, int level) {
 }
 
 class _Block extends pw.StatelessWidget {
-  _Block({required this.title, this.icon, required this.desc});
+  _Block({required this.title, required this.desc, this.icon});
 
   final String title;
   final String desc;
-
   final pw.IconData? icon;
 
   @override

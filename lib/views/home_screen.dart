@@ -75,10 +75,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => RepoListScreen()),
+                    MaterialPageRoute(builder: (context) => const RepoListScreen()),
                   );
                 },
-                child: ListTile(
+                child: const ListTile(
                     title: Text('GitHub Code Editor'),
                     trailing: Icon(FontAwesomeIcons.github)),
               ),
@@ -309,7 +309,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         child: TextButton(
           style: ButtonStyle(
               backgroundColor:
-                  MaterialStateProperty.all<Color>(AppColors.primaryColor)),
+                  WidgetStateProperty.all<Color>(AppColors.primaryColor)),
           onPressed: onPressed,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,

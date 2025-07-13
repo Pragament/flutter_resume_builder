@@ -99,11 +99,11 @@ class _RepoListScreenState extends ConsumerState<RepoListScreen> {
         ),
       ),
       body: !(authStatus == AuthStatus.authenticated)
-          ? Text("Login with GitHub first")
+          ? const Text("Login with GitHub first")
           : repos.isLoading
-              ? Center(child: CircularProgressIndicator())
+              ? const Center(child: CircularProgressIndicator())
               : repos.hasError
-                  ? Center(child: Text('Failed to load repositories'))
+                  ? const Center(child: Text('Failed to load repositories'))
                   : ListView.builder(
                       itemCount: _filteredRepos.length,
                       itemBuilder: (context, index) {

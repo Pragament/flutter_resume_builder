@@ -81,7 +81,7 @@ Future<void> setHobbiesDetails(
 class CVWidget extends ConsumerWidget {
   final int cvId;
 
-  CVWidget({required this.cvId});
+  const CVWidget({super.key, required this.cvId});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -103,7 +103,7 @@ class CVWidget extends ConsumerWidget {
                   .read(cvStateNotifierProvider.notifier)
                   .updateCV(cvId, updatedData!);
             },
-            child: Text('Update Name'),
+            child: const Text('Update Name'),
           ),
         ],
       ),

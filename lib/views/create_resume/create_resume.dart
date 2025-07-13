@@ -17,7 +17,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CreateResume extends ConsumerStatefulWidget {
-  CreateResume(
+  const CreateResume(
       {super.key,
       required this.templateDataModel,
       this.editResume = false,
@@ -191,7 +191,7 @@ class _CreateResumeState extends ConsumerState<CreateResume> {
 
 void main() {
   runApp(
-    ProviderScope(
+    const ProviderScope(
       child: MaterialApp(
         home: HomeScreen(),
       ),

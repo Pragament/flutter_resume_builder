@@ -15,15 +15,15 @@ class CustomButton extends StatelessWidget {
         child: ElevatedButton(
       onPressed: onPressed,
       style: ButtonStyle(
-        backgroundColor: WidgetStatePropertyAll<Color>(Colors.transparent),
-        shadowColor: WidgetStatePropertyAll<Color>(Colors.transparent),
+        backgroundColor: const WidgetStatePropertyAll<Color>(Colors.transparent),
+        shadowColor: const WidgetStatePropertyAll<Color>(Colors.transparent),
         shape:WidgetStatePropertyAll<RoundedRectangleBorder>(
           RoundedRectangleBorder(
             borderRadius: borderRadius
           )
         )
       ),
-      child:isLoading? CircularProgressIndicator(color: Colors.white): Text(title,style: Theme.of(context).textTheme.headlineMedium?.copyWith(color: Colors.white),),
+      child:isLoading? const CircularProgressIndicator(color: Colors.white): Text(title,style: Theme.of(context).textTheme.headlineMedium?.copyWith(color: Colors.white),),
     ));
   }
 }

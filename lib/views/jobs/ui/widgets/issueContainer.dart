@@ -24,7 +24,7 @@ class issueContainer extends StatelessWidget {
             BoxShadow(
                 color: Colors.grey.shade300,
                 blurRadius: 5.0,
-                offset: Offset(0, 3))
+                offset: const Offset(0, 3))
           ],
         ),
         child: Column(
@@ -54,7 +54,7 @@ class issueContainer extends StatelessWidget {
                 )
               ],
             ),
-            SizedBox(height: 5),
+            const SizedBox(height: 5),
             Text(
               issue.body,
               style: Theme.of(context)
@@ -64,7 +64,7 @@ class issueContainer extends StatelessWidget {
               maxLines: 3,
               overflow: TextOverflow.ellipsis,
             ),
-            SizedBox(height: 9),
+            const SizedBox(height: 9),
           ],
         ),
       ),

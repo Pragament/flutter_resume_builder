@@ -40,7 +40,7 @@ class CustomAppBar extends AppBar {
             backgroundColor: Colors.transparent,
           ),
           tabBar ??
-              SizedBox(
+              const SizedBox(
                 height: 0,
               ),
         ],
