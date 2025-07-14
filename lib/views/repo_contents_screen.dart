@@ -111,7 +111,11 @@ class _RepoContentScreenState extends ConsumerState<RepoContentScreen> {
             context: context,
             builder: (context) => SimpleDialog(
               children: [
-                AddFileDialogContent(ops: widget.ops, repo: widget.repo),
+                AddFileDialogContent(
+                  ops: widget.ops,
+                  repo: widget.repo,
+                  path: widget.path,
+                ),
               ],
             ),
           );
@@ -128,10 +132,11 @@ class _RepoContentScreenState extends ConsumerState<RepoContentScreen> {
 
 class AddFileDialogContent extends StatefulWidget {
   const AddFileDialogContent(
-      {super.key, required this.ops, required this.repo});
+      {super.key, required this.ops, required this.repo, required this.path});
 
   final GitOperations ops;
   final GitRepo repo;
+  final String path;
 
   @override
   State<AddFileDialogContent> createState() => _AddFileDialogContentState();
@@ -307,35 +312,37 @@ class _AddFileDialogContentState extends State<AddFileDialogContent> {
                   if ((_formKey.currentState! as FormState).validate()) {
                     if (files.isNotEmpty) {
                       try {
-                        if (files.length == 1) {
+                        // Prefix path to each file key
+                        final Map<String, File> filesToUpload = {};
+                        files.forEach((name, file) {
+                          final fullPath = widget.path.isEmpty ? name : "${widget.path}/$name";
+                          filesToUpload[fullPath] = file;
+                        });
+
+                        // if (filesToUpload.length == 1) {
+                        //   await widget.ops
+                        //       .addFileToRepo(
+                        //     widget.repo.owner.login,
+                        //     widget.repo.name,
+                        //     filesToUpload,
+                        //     commitMessageC.text,
+                        //   )
+                        //       .then((_) {
+                        //     if (context.mounted) context.pop();
+                        //   });
+                        // } else {
                           await widget.ops
-                              .addFileToRepo(
-                                  widget.repo.owner.login,
-                                  widget.repo.name,
-                                  files,
-                                  // fileName!,
-                                  // file!,
-                                  commitMessageC.text)
-                              .then((_) {
-                            if (context.mounted) {
-                              context.pop();
-                            }
-                          });
-                        } else {
-                          await widget.ops
-                              .commitMultipleFiles(
+                              .addFilesToRepo(
                             owner: widget.repo.owner.login,
                             repo: widget.repo.name,
                             branch: 'main',
-                            files: files,
+                            files: filesToUpload,
                             commitMessage: commitMessageC.text,
                           )
                               .then((_) {
-                            if (context.mounted) {
-                              context.pop();
-                            }
+                            if (context.mounted) context.pop();
                           });
-                        }
+                        // }
                       } on Exception catch (e) {
                         log(e.toString());
                       }
