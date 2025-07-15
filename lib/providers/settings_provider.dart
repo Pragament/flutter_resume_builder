@@ -11,7 +11,7 @@ final settingsProvider =
 class SettingsNotifier extends StateNotifier<Settings> {
   SettingsNotifier()
       : super(Settings(
-            quality: 90.0,
+            quality: 80.0,
             selectedOption: CompressionOption.quality)) {
     _loadFromPrefs();
   }
@@ -19,7 +19,7 @@ class SettingsNotifier extends StateNotifier<Settings> {
   Future<void> _loadFromPrefs() async {
     final prefs = await SharedPreferences.getInstance();
     final maxFileSize = prefs.getDouble('maxFileSize');
-    final quality = prefs.getDouble('quality') ?? 90.0;
+    final quality = prefs.getDouble('quality') ?? 80.0;
 
     state = state.copyWith(
       maxFileSize: maxFileSize,
