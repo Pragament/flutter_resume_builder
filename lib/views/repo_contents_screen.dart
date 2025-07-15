@@ -303,36 +303,40 @@ class _AddFileDialogContentState extends State<AddFileDialogContent> {
                   style: TextStyle(color: Theme.of(context).colorScheme.error),
                 ),
               ),
-              ElevatedButton(
-                style: ButtonStyle(
-                    elevation: const WidgetStatePropertyAll(0),
-                    backgroundColor: WidgetStatePropertyAll(
-                        Theme.of(context).colorScheme.secondaryContainer)),
-                onPressed: () async {
-                  if ((_formKey.currentState! as FormState).validate()) {
-                    if (files.isNotEmpty) {
-                      try {
-                        // Prefix path to each file key
-                        final Map<String, File> filesToUpload = {};
-                        files.forEach((name, file) {
-                          final fullPath = widget.path.isEmpty ? name : "${widget.path}/$name";
-                          filesToUpload[fullPath] = file;
-                        });
+              Consumer(builder: (context, ref, child) {
+                return ElevatedButton(
+                  style: ButtonStyle(
+                      elevation: const WidgetStatePropertyAll(0),
+                      backgroundColor: WidgetStatePropertyAll(
+                          Theme.of(context).colorScheme.secondaryContainer)),
+                  onPressed: () async {
+                    if ((_formKey.currentState! as FormState).validate()) {
+                      if (files.isNotEmpty) {
+                        try {
+                          // Prefix path to each file key
+                          final Map<String, File> filesToUpload = {};
+                          files.forEach((name, file) {
+                            final fullPath = widget.path.isEmpty
+                                ? name
+                                : "${widget.path}/$name";
+                            filesToUpload[fullPath] = file;
+                          });
 
-                        // if (filesToUpload.length == 1) {
-                        //   await widget.ops
-                        //       .addFileToRepo(
-                        //     widget.repo.owner.login,
-                        //     widget.repo.name,
-                        //     filesToUpload,
-                        //     commitMessageC.text,
-                        //   )
-                        //       .then((_) {
-                        //     if (context.mounted) context.pop();
-                        //   });
-                        // } else {
+                          // if (filesToUpload.length == 1) {
+                          //   await widget.ops
+                          //       .addFileToRepo(
+                          //     widget.repo.owner.login,
+                          //     widget.repo.name,
+                          //     filesToUpload,
+                          //     commitMessageC.text,
+                          //   )
+                          //       .then((_) {
+                          //     if (context.mounted) context.pop();
+                          //   });
+                          // } else {
                           await widget.ops
                               .addFilesToRepo(
+                            ref: ref,
                             owner: widget.repo.owner.login,
                             repo: widget.repo.name,
                             branch: 'main',
@@ -342,18 +346,20 @@ class _AddFileDialogContentState extends State<AddFileDialogContent> {
                               .then((_) {
                             if (context.mounted) context.pop();
                           });
-                        // }
-                      } on Exception catch (e) {
-                        log(e.toString());
+                          // }
+                        } on Exception catch (e) {
+                          log(e.toString());
+                        }
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text('Please pick a file')));
                       }
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Please pick a file')));
                     }
-                  }
-                },
-                child: const Text('Upload'),
-              ),
+                  },
+                  child: const Text('Upload'),
+                );
+              }),
             ])
           ],
         ),
