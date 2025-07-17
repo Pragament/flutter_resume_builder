@@ -18,6 +18,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
 import 'jobs/ui/screens/home.dart';
+import 'settings_screen.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -75,12 +76,23 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => RepoListScreen()),
+                    MaterialPageRoute(builder: (context) => const RepoListScreen()),
                   );
                 },
-                child: ListTile(
+                child: const ListTile(
                     title: Text('GitHub Code Editor'),
                     trailing: Icon(FontAwesomeIcons.github)),
+              ),
+              InkWell(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const SettingsScreen()),
+                  );
+                },
+                child: const ListTile(
+                    title: Text('Settings'),
+                    trailing: Icon(Icons.settings)),
               ),
               // const Spacer(),
               InkWell(

@@ -1,7 +1,13 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
+import 'dart:typed_data';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
+import 'package:image/image.dart' as img;
+import 'package:path_provider/path_provider.dart';
+
+import '../providers/settings_provider.dart';
 
 class GitOperations {
   final String token;
@@ -157,6 +163,7 @@ class GitOperations {
   // }
 
   Future<void> addFilesToRepo({
+    required WidgetRef ref,
     required String owner,
     required String repo,
     required Map<String, File> files,
@@ -175,8 +182,7 @@ class GitOperations {
     final refResp = await http.get(Uri.parse(branchRefUrl), headers: headers);
 
     if (refResp.statusCode != 200) {
-      // If the specified branch doesn't exist, fetch default branch
-      print('⚠️ Branch "$branch" not found. Falling back to default branch...');
+      // fallback to default branch
       final repoInfoResp = await http.get(
         Uri.parse('https://api.github.com/repos/$owner/$repo'),
         headers: headers,
@@ -190,16 +196,17 @@ class GitOperations {
       branchToUse = repoData['default_branch'];
       log('Using default branch: $branchToUse');
 
-      // Try getting ref for default branch
       final defaultRefResp = await http.get(
         Uri.parse('https://api.github.com/repos/$owner/$repo/git/ref/heads/$branchToUse'),
         headers: headers,
       );
       if (defaultRefResp.statusCode != 200) {
-        throw Exception('Failed to fetch branch ref for default branch: ${defaultRefResp.body}');
+        throw Exception('Failed to fetch branch ref: ${defaultRefResp.body}');
       }
       final latestCommitSha = json.decode(defaultRefResp.body)['object']['sha'];
+
       await _createCommit(
+        ref,
         owner,
         repo,
         branchToUse,
@@ -209,9 +216,9 @@ class GitOperations {
         headers,
       );
     } else {
-      // If original branch exists, proceed
       final latestCommitSha = json.decode(refResp.body)['object']['sha'];
       await _createCommit(
+        ref,
         owner,
         repo,
         branchToUse,
@@ -224,6 +231,7 @@ class GitOperations {
   }
 
   Future<void> _createCommit(
+      WidgetRef ref,
       String owner,
       String repo,
       String branch,
@@ -244,12 +252,33 @@ class GitOperations {
     final baseTreeSha = json.decode(commitResp.body)['tree']['sha'];
     List<Map<String, dynamic>> treeEntries = [];
 
+    final settings = ref.read(settingsProvider);
+
     for (var entry in files.entries) {
       String rawPath = entry.key;
       final path = rawPath.replaceFirst(RegExp(r'^/+'), ''); // Sanitize path
       final file = entry.value;
 
-      final bytes = await file.readAsBytes();
+      // Check if it's an image
+      final lowerName = file.path.toLowerCase();
+      final isImage = lowerName.endsWith('.jpg') ||
+          lowerName.endsWith('.jpeg') ||
+          lowerName.endsWith('.png');
+
+      File? finalFile;
+
+      if (isImage) {
+        finalFile = await compressImageFile(
+          file: file,
+          qualityPercent: settings.quality,
+          maxFileSizeInKB: settings.maxFileSize,
+        );
+
+      } else {
+        finalFile = file;
+      }
+
+      final bytes = await finalFile!.readAsBytes();
       if (bytes.isEmpty) {
         log("⚠️ Skipping empty file: $path");
         continue;
@@ -323,6 +352,53 @@ class GitOperations {
     }
 
     log('✅ Successfully committed ${files.length} file(s) to branch "$branch"');
+  }
+
+  Future<File?> compressImageFile({
+    required File file,
+    double? qualityPercent,
+    double? maxFileSizeInKB,
+    int minQuality = 10,
+  }) async {
+    final originalBytes = await file.readAsBytes();
+    final decoded = img.decodeImage(originalBytes);
+    if (decoded == null) throw Exception('Invalid image file');
+
+    // Infer extension
+    final ext = file.path.toLowerCase().split('.').last;
+    int quality = (qualityPercent?.toInt() ?? 100).clamp(minQuality, 100);
+    late Uint8List compressedBytes;
+
+    while (true) {
+      if (ext == 'png') {
+        // PNG does not support quality, only compression level (0–9)
+        compressedBytes = Uint8List.fromList(img.encodePng(decoded, level: 6));
+      } else {
+        // Default to JPG/JPEG
+        compressedBytes = Uint8List.fromList(img.encodeJpg(decoded, quality: quality));
+      }
+
+      final sizeKB = compressedBytes.lengthInBytes / 1024;
+
+      final meetsSize = maxFileSizeInKB == null || sizeKB <= maxFileSizeInKB;
+      final reachedMinQuality = quality <= minQuality;
+
+      if (meetsSize || reachedMinQuality || ext == 'png') break;
+
+      quality -= 5; // Reduce quality step by step
+    }
+
+    // Check again after loop
+    final finalSizeKB = compressedBytes.lengthInBytes / 1024;
+    if (maxFileSizeInKB != null && finalSizeKB > maxFileSizeInKB && ext != 'png') {
+      log('⚠️ Could not compress under ${maxFileSizeInKB}KB. Final size: ${finalSizeKB.toStringAsFixed(1)}KB');
+    }
+
+    final dir = await getTemporaryDirectory();
+    final tempPath = '${dir.path}/${DateTime.now().millisecondsSinceEpoch}.$ext';
+    final compressedFile = File(tempPath)..writeAsBytesSync(compressedBytes);
+
+    return compressedFile;
   }
 
   bool _isBinary(List<int> bytes) {
