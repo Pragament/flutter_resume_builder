@@ -586,4 +586,158 @@ class GitOperations {
       rethrow;
     }
   }
+
+  Future<Map<String, dynamic>> forkRepository({
+    required String owner,
+    required String repo,
+    String? newName,
+    String? newDescription,
+    String? organization,
+    bool? defaultBranchOnly,
+  }) async {
+    final url = 'https://api.github.com/repos/$owner/$repo/forks';
+
+    final headers = {
+      'Authorization': 'Bearer $token',
+      'Accept': 'application/vnd.github+json',
+      'X-GitHub-Api-Version': '2022-11-28',
+      'Content-Type': 'application/json',
+    };
+
+    final Map<String, dynamic> body = {};
+    if (newName != null) body['name'] = newName;
+    if (organization != null) body['organization'] = organization;
+    if (defaultBranchOnly != null) body['default_branch_only'] = defaultBranchOnly;
+
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: headers,
+        body: body.isNotEmpty ? json.encode(body) : null,
+      );
+
+      if (response.statusCode == 202) {
+        final forkDetails = json.decode(response.body);
+
+        // If newDescription is provided, update the forked repository
+        if (newDescription != null) {
+          await _updateRepositoryDescription(
+            owner: forkDetails['owner']['login'],
+            repo: forkDetails['name'],
+            description: newDescription,
+          );
+
+          // Update the returned fork details with the new description
+          forkDetails['description'] = newDescription;
+        }
+
+        return forkDetails;
+      } else {
+        throw Exception('Failed to fork repository: ${response.body}');
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> _updateRepositoryDescription({
+    required String owner,
+    required String repo,
+    required String description,
+  }) async {
+    final url = 'https://api.github.com/repos/$owner/$repo';
+
+    final headers = {
+      'Authorization': 'Bearer $token',
+      'Accept': 'application/vnd.github+json',
+      'X-GitHub-Api-Version': '2022-11-28',
+      'Content-Type': 'application/json',
+    };
+
+    final body = {
+      'description': description,
+    };
+
+    try {
+      final response = await http.patch(
+        Uri.parse(url),
+        headers: headers,
+        body: json.encode(body),
+      );
+
+      if (response.statusCode != 200) {
+        throw Exception('Failed to update repository description: ${response.body}');
+      }
+    } catch (e) {
+      throw Exception('Failed to update repository description: $e');
+    }
+  }
+
+  Future<String> getCurrentUser() async {
+    try {
+      final response = await http.get(
+        Uri.parse('https://api.github.com/user'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/vnd.github+json',
+          'X-GitHub-Api-Version': '2022-11-28',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final userData = json.decode(response.body);
+        return userData['login']; // GitHub username
+      } else {
+        throw Exception('Failed to get user data');
+      }
+    } catch (e) {
+      throw Exception('Failed to get current user: $e');
+    }
+  }
+
+  Future<Map<String, dynamic>> validateRepositoryName({
+    required String owner,
+    required String repoName,
+  }) async {
+    final url = 'https://api.github.com/repos/$owner/$repoName';
+
+    final headers = {
+      'Authorization': 'Bearer $token',
+      'Accept': 'application/vnd.github+json',
+      'X-GitHub-Api-Version': '2022-11-28',
+    };
+
+    try {
+      final response = await http.get(
+        Uri.parse(url),
+        headers: headers,
+      );
+
+      if (response.statusCode == 200) {
+        // Repository exists - name is not available
+        return {
+          'isAvailable': false,
+          'message': 'Repository name already exists'
+        };
+      } else if (response.statusCode == 404) {
+        // Repository doesn't exist - name is available
+        return {
+          'isAvailable': true,
+          'message': 'Repository name is available'
+        };
+      } else {
+        // Other errors (rate limiting, unauthorized, etc.)
+        final errorData = json.decode(response.body);
+        return {
+          'isAvailable': false,
+          'message': errorData['message'] ?? 'Failed to validate name. Please try again.'
+        };
+      }
+    } catch (e) {
+      return {
+        'isAvailable': false,
+        'message': 'Network error. Please check your connection.'
+      };
+    }
+  }
 }
