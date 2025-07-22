@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -12,7 +10,9 @@ import 'package:resume_builder_app/views/repo_contents_screen.dart';
 import 'widgets/bg_gradient_color.dart';
 
 class RepoListScreen extends ConsumerStatefulWidget {
-  const RepoListScreen({super.key});
+  const RepoListScreen({this.repoName, super.key});
+
+  final String? repoName;
 
   @override
   ConsumerState<RepoListScreen> createState() => _RepoListScreenState();
@@ -26,8 +26,8 @@ class _RepoListScreenState extends ConsumerState<RepoListScreen> {
 
   @override
   void initState() {
-    initialize();
     super.initState();
+    initialize();
   }
 
   Future<void> initialize() async {
@@ -37,7 +37,64 @@ class _RepoListScreenState extends ConsumerState<RepoListScreen> {
 
     _filteredRepos.clear();
     _filteredRepos.addAll(repo.repositories);
-    setState(() {});
+
+    if(widget.repoName != null) _navigateToSpecificRepo();
+  }
+
+  void _navigateToSpecificRepo() {
+    // Find the repository by name
+    final targetRepo = _filteredRepos.firstWhere(
+          (repo) => repo['name'] == widget.repoName,
+      orElse: () => null,
+    );
+
+    if (targetRepo != null) {
+      // Navigate to the specific repository
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => RepoContentScreen(
+                repo: GitRepo(
+                  id: targetRepo["id"] as int? ?? 0,
+                  nodeId: targetRepo["node_id"] as String? ?? "",
+                  name: targetRepo["name"] as String? ?? "",
+                  fullName: targetRepo["full_name"] as String? ?? "",
+                  owner: Owner(
+                    login: targetRepo["owner"]?["login"] as String? ?? "",
+                    id: targetRepo["owner"]?["id"] as int? ?? 0,
+                    avatarUrl: targetRepo["owner"]?["avatar_url"] as String? ?? "",
+                  ),
+                  private: targetRepo["private"] as bool? ?? false,
+                  defaultBranch: targetRepo['default_branch'] as String? ?? "main",
+                  permissions: Permissions(
+                    admin: targetRepo['permissions']?['admin'] as bool? ?? false,
+                    push: targetRepo['permissions']?['push'] as bool? ?? false,
+                    pull: targetRepo['permissions']?['pull'] as bool? ?? false,
+                  ),
+                ),
+                ops: GitOperations(token: ref.read(repoProvider).token),
+                path: "/",
+              ),
+            ),
+          );
+        }
+      });
+    } else {
+      // Repository not found, show error
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Repository "${widget.repoName}" not found'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      });
+    }
+
   }
 
   void _onSearchChanged(String value) {
