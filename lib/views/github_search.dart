@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:ui';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -12,6 +13,9 @@ import 'package:resume_builder_app/utils/routes/app_colors.dart';
 import 'package:resume_builder_app/views/widgets/bg_gradient_color.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:async';
+
+import '../data/git_operations.dart';
+import 'repo_list_screen.dart';
 
 class GitHubSearch extends ConsumerStatefulWidget {
   const GitHubSearch({super.key});
@@ -724,10 +728,28 @@ class _GitHubSearchConsumerState extends ConsumerState<GitHubSearch> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      repo['name'] ?? '',
-                      style: const TextStyle(
-                          fontSize: 15, fontWeight: FontWeight.w500),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            repo['name'] ?? '',
+                            style: const TextStyle(
+                                fontSize: 15, fontWeight: FontWeight.w500),
+                          ),
+                        ),
+                        // Fork button
+                        IconButton(
+                          onPressed: () => _showForkDialog(repo),
+                          icon: const Icon(Icons.fork_right),
+                          iconSize: 18,
+                          padding: const EdgeInsets.all(4),
+                          constraints: const BoxConstraints(),
+                          style: IconButton.styleFrom(
+                            backgroundColor: Colors.blue.shade50,
+                            foregroundColor: Colors.blue.shade700,
+                          ),
+                        ),
+                      ],
                     ),
                     Row(
                       children: [
@@ -776,9 +798,7 @@ class _GitHubSearchConsumerState extends ConsumerState<GitHubSearch> {
                   ],
                 ),
               ),
-              // const SizedBox(
-              //   width: 10,
-              // ),
+              // Image section (existing code)
               GestureDetector(
                 onTap: () {
                   debugPrint(repo['image_links'][0]);
@@ -1195,6 +1215,398 @@ class _GitHubSearchConsumerState extends ConsumerState<GitHubSearch> {
         ),
       ),
     );
+  }
+
+// Fork dialog - shows form to edit repo name for the new fork
+  void _showForkDialog(Map repo) async {
+    final TextEditingController nameController =
+        TextEditingController(text: repo['name']);
+    final TextEditingController descriptionController =
+        TextEditingController(text: repo['description']);
+
+    bool isEnable = true;
+    bool isValidating = false;
+    bool isNameAvailable = true;
+    bool forkDefaultBranchOnly = true;
+    bool hasInitialValidationRun = false; // Add this flag
+    String? validationMessage;
+    Timer? debounceTimer;
+
+    // Get current user for validation
+    String? currentUser;
+    try {
+      final token = await getAccessToken();
+      currentUser = await GitOperations(token: token).getCurrentUser();
+    } catch (e) {
+      log('Failed to get current user: $e');
+    }
+
+    // Function to perform validation
+    Future<void> validateName(String value, Function setState) async {
+      // Cancel any existing timer
+      debounceTimer?.cancel();
+
+      if (value.isEmpty) {
+        setState(() {
+          isValidating = false;
+          isNameAvailable = false;
+          validationMessage = 'Repository name is required';
+        });
+        return;
+      }
+
+      // Basic client-side validation first
+      if (value.contains(' ')) {
+        setState(() {
+          isValidating = false;
+          isNameAvailable = false;
+          validationMessage = 'Repository name cannot contain spaces';
+        });
+        return;
+      }
+
+      if (value.length < 3) {
+        setState(() {
+          isValidating = false;
+          isNameAvailable = false;
+          validationMessage = 'Repository name must be at least 3 characters';
+        });
+        return;
+      }
+
+      // Check for reserved names
+      final reservedNames = ['admin', 'api', 'www', 'mail', 'ftp', 'root'];
+      if (reservedNames.contains(value.toLowerCase())) {
+        setState(() {
+          isValidating = false;
+          isNameAvailable = false;
+          validationMessage = 'Repository name is reserved';
+        });
+        return;
+      }
+
+      // Set loading state
+      setState(() {
+        isValidating = true;
+        validationMessage = null;
+      });
+
+      // Debounce API call
+      debounceTimer = Timer(const Duration(milliseconds: 800), () async {
+        try {
+          if (currentUser != null) {
+            final token = await getAccessToken();
+            final result =
+                await GitOperations(token: token).validateRepositoryName(
+              owner: currentUser,
+              repoName: value,
+            );
+
+            setState(() {
+              isValidating = false;
+              isNameAvailable = result['isAvailable'] ?? false;
+              validationMessage =
+                  result['isAvailable'] == true ? null : result['message'];
+            });
+          } else {
+            setState(() {
+              isValidating = false;
+              isNameAvailable = false;
+              validationMessage = 'Unable to validate name. Please try again.';
+            });
+          }
+        } catch (e) {
+          setState(() {
+            isValidating = false;
+            isNameAvailable = false;
+            validationMessage = 'Failed to validate name. Please try again.';
+          });
+        }
+      });
+    }
+
+    if (mounted) {
+      showDialog(
+        context: context,
+        builder: (context) => StatefulBuilder(
+          builder: (context, setState) {
+            // Only run initial validation once
+            if (!hasInitialValidationRun) {
+              hasInitialValidationRun = true;
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (nameController.text.isNotEmpty && currentUser != null) {
+                  validateName(nameController.text, setState);
+                }
+              });
+            }
+
+            return AlertDialog(
+              title: Row(
+                children: [
+                  Icon(Icons.fork_right, color: Colors.blue.shade700),
+                  const SizedBox(width: 8),
+                  const Text('Fork Repository'),
+                ],
+              ),
+              content: SizedBox(
+                width: ScreenUtil().screenWidth * 0.8,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.blue.shade50,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.blue.shade200),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.info_outline,
+                              color: Colors.blue.shade600, size: 20),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'Forking "${repo['name']}" - Choose a name for your fork.',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.blue.shade700,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    const Text('Repository Name'),
+                    const SizedBox(height: 8),
+                    TextFormField(
+                      controller: nameController,
+                      decoration: InputDecoration(
+                        hintText: 'Enter repository name for your fork',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        suffixIcon: isValidating
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: Padding(
+                                  padding: EdgeInsets.all(12),
+                                  child:
+                                      CircularProgressIndicator(strokeWidth: 2),
+                                ),
+                              )
+                            : Icon(
+                                isNameAvailable
+                                    ? Icons.check_circle
+                                    : Icons.error,
+                                color:
+                                    isNameAvailable ? Colors.green : Colors.red,
+                              ),
+                        errorText: validationMessage,
+                      ),
+                      onChanged: (value) => validateName(value, setState),
+                    ),
+                    const SizedBox(height: 16),
+                    const Text('Description'),
+                    const SizedBox(height: 8),
+                    TextFormField(
+                      controller: descriptionController,
+                      maxLines: 3,
+                      decoration: InputDecoration(
+                        hintText: 'Enter description for your fork',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    // Fork Options Section
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade50,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.grey.shade200),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(Icons.settings,
+                                  color: Colors.grey.shade600, size: 18),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Fork Options',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.grey.shade700,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          Row(
+                            children: [
+                              Checkbox(
+                                value: forkDefaultBranchOnly,
+                                onChanged: (value) {
+                                  setState(() {
+                                    forkDefaultBranchOnly = value ?? true;
+                                  });
+                                },
+                                materialTapTargetSize:
+                                    MaterialTapTargetSize.shrinkWrap,
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      'Fork only the default branch',
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    Text(
+                                      'Copy only the default branch. Creates a smaller, cleaner fork.',
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        color: Colors.grey.shade600,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade100,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.fork_right,
+                              color: Colors.orange.shade600, size: 20),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              forkDefaultBranchOnly
+                                  ? 'This will create a copy of the default branch in your account.'
+                                  : 'This will create a copy of all branches in your account.',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey.shade700,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    debounceTimer?.cancel();
+                    Navigator.pop(context);
+                  },
+                  child: const Text('Cancel'),
+                ),
+                ElevatedButton.icon(
+                  onPressed: (!isValidating &&
+                          isNameAvailable &&
+                          nameController.text.isNotEmpty &&
+                          isEnable)
+                      ? () async {
+                          debounceTimer?.cancel();
+                          isEnable = await _handleFork(
+                            repo,
+                            nameController.text,
+                            descriptionController.text,
+                            forkDefaultBranchOnly,
+                          );
+                        }
+                      : null,
+                  icon: const Icon(Icons.fork_right),
+                  label: const Text('Create Fork'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    foregroundColor: Colors.white,
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
+      );
+    }
+  }
+
+// Handle fork action
+  Future<bool> _handleFork(Map repo, String newName, String newDescription,
+      bool forkDefaultBranchOnly) async {
+    try {
+      // Show loading dialog
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (dialogContext) => AlertDialog(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const CircularProgressIndicator(),
+              const SizedBox(height: 16),
+              Text('Forking "${repo['name']}" as "$newName"...'),
+            ],
+          ),
+        ),
+      );
+
+      // Perform fork operation
+      final token = await getAccessToken();
+      await GitOperations(token: token).forkRepository(
+        owner: repo['owner'],
+        repo: repo['name'],
+        newName: newName,
+        newDescription: newDescription,
+        defaultBranchOnly: forkDefaultBranchOnly,
+      );
+
+      if (mounted) {
+        Navigator.pop(context);
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => RepoListScreen(
+              repoName: newName,
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return true;
+
+      Navigator.pop(context);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to fork repository: $e')),
+      );
+    }
+    return false;
   }
 
   String convertToRawGitHubUrl(String? url) {
