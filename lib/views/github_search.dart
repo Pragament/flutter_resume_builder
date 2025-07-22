@@ -868,6 +868,11 @@ class _GitHubSearchConsumerState extends ConsumerState<GitHubSearch> {
                                               child: GestureDetector(
                                                 onTap: () {
                                                   debugPrint(image);
+                                                  // launchUrl(
+                                                  //   Uri.parse(image),
+                                                  //   mode: LaunchMode
+                                                  //       .inAppWebView,
+                                                  // );
                                                   showDialog(
                                                       context: context,
                                                       builder: (_) {
@@ -876,8 +881,10 @@ class _GitHubSearchConsumerState extends ConsumerState<GitHubSearch> {
                                                         return StatefulBuilder(
                                                             builder: (context,
                                                                 setState) {
+                                                          // Function to scroll to the selected item
                                                           void
                                                               scrollToSelectedItem() {
+                                                            // Wait for the layout to complete
                                                             WidgetsBinding
                                                                 .instance
                                                                 .addPostFrameCallback(
@@ -885,7 +892,7 @@ class _GitHubSearchConsumerState extends ConsumerState<GitHubSearch> {
                                                               if (scrollController
                                                                   .hasClients) {
                                                                 const itemWidth =
-                                                                    110.0;
+                                                                    110.0; // width + padding
                                                                 final screenWidth =
                                                                     MediaQuery.of(
                                                                             context)
