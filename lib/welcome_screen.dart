@@ -53,6 +53,20 @@ class WelcomeScreen extends ConsumerWidget {
                                 Text('Login with GitHub'),
                               ],
                             ),
+                          ),ElevatedButton(
+                            onPressed: () async =>
+                                await AuthProvider.signInWithGitLab(),
+                            child: const Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Padding(
+                                  padding:
+                                      EdgeInsets.symmetric(horizontal: 8.0),
+                                  child: Icon(Icons.login),
+                                ),
+                                Text('Login with GitLab'),
+                              ],
+                            ),
                           ),
                     ElevatedButton(
                       onPressed: () async {
