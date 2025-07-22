@@ -10,14 +10,16 @@ import 'dart:async';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:http/http.dart' as http;
 import 'package:resume_builder_app/utils/routes/app_colors.dart';
+import 'package:resume_builder_app/models/TemplateDataModel.dart';
 
 import 'classic_cv.dart';
 
 class ResumeScreen3 extends StatelessWidget {
 
   final TemplateData templateData;
+  final List<HighlightedProject> highlightedProjects;
   // final UserDetails userDetails;
-  const ResumeScreen3({super.key, required this.templateData});
+  const ResumeScreen3({super.key, required this.templateData, required this.highlightedProjects});
 
   Future<void> _generateAndPrintResume(BuildContext context) async {
     final pdfData = await generateResume(PdfPageFormat.a4, templateData);
@@ -141,6 +143,22 @@ class ResumeScreen3 extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          if (highlightedProjects.isNotEmpty) ...[
+                            const Text(
+                              "Highlighted Projects",
+                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                            ),
+                            SizedBox(height: 5),
+                            for (var project in highlightedProjects)
+                              _buildHighlightedProjectBlock(project),
+                            SizedBox(height: 10),
+                            Container(
+                              width: w * 0.87,
+                              color: Colors.grey,
+                              height: 2,
+                            ),
+                            SizedBox(height: 10),
+                          ],
                           const Text(
                             "Experience",
                             style: TextStyle(
@@ -238,6 +256,47 @@ class ResumeScreen3 extends StatelessWidget {
     );
   }
 
+  Widget _buildHighlightedProjectBlock(dynamic project) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.star, color: Colors.amber, size: 18),
+              const SizedBox(width: 6),
+              GestureDetector(
+                onTap: () async {
+                  if (project.url != null && project.url.isNotEmpty) {
+                    // You may want to use url_launcher for real apps
+                  }
+                },
+                child: Text(
+                  project.name,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blue,
+                    decoration: TextDecoration.underline,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          if (project.customDescription != null && project.customDescription.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(left: 24, top: 2),
+              child: Text(project.customDescription),
+            ),
+          if (project.techStack != null && project.techStack.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(left: 24, top: 2),
+              child: Text('Tech Stack: ${project.techStack.join(", ")}', style: const TextStyle(fontStyle: FontStyle.italic, fontSize: 12)),
+            ),
+        ],
+      ),
+    );
+  }
 
   Widget _buildBlock(String title, String desc) {
     return Padding(

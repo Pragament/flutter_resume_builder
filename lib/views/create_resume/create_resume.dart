@@ -15,6 +15,8 @@ import 'package:resume_builder_app/views/widgets/bg_gradient_color.dart';
 import 'package:resume_builder_app/views/widgets/custom_button.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:resume_builder_app/providers/repo_provider.dart';
+
 
 class CreateResume extends ConsumerStatefulWidget {
   CreateResume(
@@ -85,12 +87,31 @@ class _CreateResumeState extends ConsumerState<CreateResume> {
       ),
       bottomSheet: InkWell(
         onTap: () {
+          // 1. Get the current resume data
+          final templateDataModel = ref.watch(cvStateNotifierProvider)[widget.cvId]!;
+
+          // 2. Get highlighted repos from the provider
+          final highlightedRepos = ref.read(repoProvider).repositories
+              .where((repo) => repo.isHighlighted)
+              .map((repo) => HighlightedProject(
+                    name: repo.name,
+                    url: repo.htmlUrl ?? '',
+                    customDescription: repo.customDescription,
+                    techStack: repo.language != null ? [repo.language!] : [],
+                  ))
+              .toList();
+
+          // 3. Create a new TemplateDataModel with highlightedProjects
+          final updatedModel = templateDataModel.copyWith(
+            highlightedProjects: highlightedRepos,
+          );
+
+          // 4. Pass this to the resume preview
           Navigator.of(context).push(
             MaterialPageRoute(
               builder: (context) => ViewCv(
-                templateData: Constants.convertToTemplateData(
-                  ref.watch(cvStateNotifierProvider)[widget.cvId]!,
-                ),
+                templateData: Constants.convertToTemplateData(updatedModel),
+                highlightedProjects: updatedModel.highlightedProjects,
               ),
             ),
           );

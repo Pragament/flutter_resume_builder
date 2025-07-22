@@ -22,7 +22,7 @@ class _RepoListScreenState extends ConsumerState<RepoListScreen> {
   AuthStatus authStatus = AuthStatus.loading;
 
   final TextEditingController _searchController = TextEditingController();
-  final List<dynamic> _filteredRepos = [];
+  final List<GitRepo> _filteredRepos = [];
 
   @override
   void initState() {
@@ -35,7 +35,9 @@ class _RepoListScreenState extends ConsumerState<RepoListScreen> {
     await repo.getToken();
     await repo.fetchRepositories(true);
 
+    _filteredRepos.clear();
     _filteredRepos.addAll(repo.repositories);
+    setState(() {});
   }
 
   void _onSearchChanged(String value) {
@@ -46,7 +48,7 @@ class _RepoListScreenState extends ConsumerState<RepoListScreen> {
       _filteredRepos.clear();
       _filteredRepos.addAll(
         repos.repositories.where(
-          (repo) => repo['name'].toLowerCase().contains(query),
+          (repo) => repo.name.toLowerCase().contains(query),
         ),
       );
     });
@@ -110,41 +112,49 @@ class _RepoListScreenState extends ConsumerState<RepoListScreen> {
                         final repo = _filteredRepos[index];
                         return Card(
                           elevation: 0,
-                          child: ListTile(
-                              title: Text(repo['name']),
-                              subtitle:
-                                  Text(repo['description'] ?? 'No description'),
-                              onTap: () {
-                                Navigator.push(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              ListTile(
+                                title: Text(repo.name),
+                                subtitle: Text(repo.description ?? 'No description'),
+                                trailing: Checkbox(
+                                  value: repo.isHighlighted,
+                                  onChanged: (val) {
+                                    ref.read(repoProvider).toggleHighlight(repo.id);
+                                    setState(() {});
+                                  },
+                                ),
+                                onTap: () {
+                                  Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                        builder: (context) => RepoContentScreen(
-                                              repo: GitRepo(
-                                                  id: repo["id"],
-                                                  nodeId: repo["node_id"],
-                                                  name: repo["name"],
-                                                  fullName: repo["full_name"],
-                                                  owner: Owner(
-                                                      login: repo["owner"]
-                                                          ["login"],
-                                                      id: repo["owner"]["id"],
-                                                      avatarUrl: repo["owner"]
-                                                          ["avatar_url"]),
-                                                  private: repo["private"],
-                                                  defaultBranch:
-                                                      repo['default_branch'],
-                                                  permissions: Permissions(
-                                                      admin: repo['permissions']
-                                                          ['admin'],
-                                                      push: repo['permissions']
-                                                          ['push'],
-                                                      pull: repo['permissions']
-                                                          ['pull'])),
-                                              ops: GitOperations(
-                                                  token: repos.token),
-                                              path: "/",
-                                            )));
-                              }),
+                                      builder: (context) => RepoContentScreen(
+                                        repo: repo,
+                                        ops: GitOperations(token: repos.token),
+                                        path: "/",
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                              if (repo.isHighlighted)
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
+                                  child: TextField(
+                                    controller: TextEditingController(text: repo.customDescription ?? ""),
+                                    decoration: InputDecoration(
+                                      labelText: "Custom Description",
+                                      border: OutlineInputBorder(),
+                                    ),
+                                    onChanged: (val) {
+                                      ref.read(repoProvider).setCustomDescription(repo.id, val);
+                                    },
+                                    maxLines: 2,
+                                  ),
+                                ),
+                            ],
+                          ),
                         );
                       },
                     ),

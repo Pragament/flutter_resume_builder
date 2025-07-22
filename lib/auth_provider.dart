@@ -157,3 +157,21 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 }
+
+Future<List<dynamic>> fetchGitLabFiles(String repoId, String accessToken) async {
+  final url = 'https://gitlab.com/api/v4/projects/$repoId/repository/tree';
+  final response = await http.get(
+    Uri.parse(url),
+    headers: {'Authorization': 'Bearer $accessToken'},
+  );
+  return jsonDecode(response.body);
+}
+
+Future<String> fetchGitLabFileContent(String repoId, String filePath, String accessToken) async {
+  final url = 'https://gitlab.com/api/v4/projects/$repoId/repository/files/${Uri.encodeComponent(filePath)}/raw?ref=main';
+  final response = await http.get(
+    Uri.parse(url),
+    headers: {'Authorization': 'Bearer $accessToken'},
+  );
+  return response.body;
+}

@@ -18,6 +18,7 @@ class TemplateDataModel {
     List<String> hobbies=const[],
     String?  image,
     String? backgroundImage,
+    List<HighlightedProject> highlightedProjects = const [],
   }) {
     _fullName = fullName;
     _currentPosition = currentPosition;
@@ -33,6 +34,7 @@ class TemplateDataModel {
     _hobbies = hobbies;
     _image = image;
     _backgroundImage = backgroundImage;
+    _highlightedProjects = highlightedProjects;
   }
 
   String _fullName='';
@@ -49,6 +51,7 @@ class TemplateDataModel {
   List<String> _hobbies=[];
   String? _image;
   String? _backgroundImage;
+  List<HighlightedProject> _highlightedProjects = [];
 
   TemplateDataModel copyWith({String? fullName,
     String? currentPosition,
@@ -64,6 +67,7 @@ class TemplateDataModel {
     List<String>? hobbies,
     String? image,
     String? backgroundImage,
+    List<HighlightedProject>? highlightedProjects,
   }) => TemplateDataModel(  fullName: fullName ?? _fullName,
     currentPosition: currentPosition ?? _currentPosition,
     street: street ?? _street,
@@ -78,6 +82,7 @@ class TemplateDataModel {
     hobbies: hobbies ?? _hobbies,
     image: image ?? _image,
     backgroundImage: backgroundImage ?? _backgroundImage,
+    highlightedProjects: highlightedProjects ?? _highlightedProjects,
   );
 
   String get fullName => _fullName;
@@ -94,6 +99,7 @@ class TemplateDataModel {
   List<String> get hobbies => _hobbies;
   String? get image => _image;
   String? get backgroundImage => _backgroundImage;
+  List<HighlightedProject> get highlightedProjects => _highlightedProjects;
 
   static TemplateDataModel fromJson(Map<String, dynamic> json) {
     return TemplateDataModel(
@@ -119,6 +125,7 @@ class TemplateDataModel {
           .toList() ?? [],
       image: json['image'],
       backgroundImage: json['backgroundImage'],
+      highlightedProjects: (json['highlightedProjects'] as List<dynamic>?)?.map((item) => HighlightedProject.fromJson(item as Map<String, dynamic>)).toList() ?? [],
     );
   }
 
@@ -138,6 +145,7 @@ class TemplateDataModel {
       'hobbies': _hobbies,
       'image': _image,
       'backgroundImage': _backgroundImage,
+      'highlightedProjects': _highlightedProjects.map((item) => item.toJson()).toList(),
     };
   }
   
@@ -191,5 +199,37 @@ class TemplateDataModel {
       json['language'] ?? '',
       json['level'] ?? 1,
     );
+  }
+}
+
+class HighlightedProject {
+  final String name;
+  final String url;
+  final String? customDescription;
+  final List<String>? techStack;
+
+  HighlightedProject({
+    required this.name,
+    required this.url,
+    this.customDescription,
+    this.techStack,
+  });
+
+  factory HighlightedProject.fromJson(Map<String, dynamic> json) {
+    return HighlightedProject(
+      name: json['name'],
+      url: json['url'],
+      customDescription: json['customDescription'],
+      techStack: (json['techStack'] as List<dynamic>?)?.map((e) => e as String).toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'url': url,
+      'customDescription': customDescription,
+      'techStack': techStack,
+    };
   }
 }
