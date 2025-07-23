@@ -304,6 +304,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     Navigator.of(context).push(MaterialPageRoute(
                         builder: (context) => ViewCv(
                               templateData: templateData,
+                              highlightedProjects: userResume.highlightedProjects ?? [],
                             )));
                   }),
                 ],

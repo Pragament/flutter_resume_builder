@@ -83,6 +83,10 @@ class GitRepo {
   int? networkCount;
   int? subscribersCount;
 
+  // Highlighted project fields
+  bool isHighlighted;
+  String? customDescription;
+
   GitRepo({
     required this.id,
     required this.nodeId,
@@ -167,6 +171,8 @@ class GitRepo {
     this.organization,
     this.networkCount,
     this.subscribersCount,
+    this.isHighlighted = false,
+    this.customDescription,
   });
 
   GitRepo copyWith({
@@ -253,6 +259,8 @@ class GitRepo {
     Organization? organization,
     int? networkCount,
     int? subscribersCount,
+    bool? isHighlighted,
+    String? customDescription,
   }) =>
       GitRepo(
         id: id ?? this.id,
@@ -339,6 +347,8 @@ class GitRepo {
         organization: organization ?? this.organization,
         networkCount: networkCount ?? this.networkCount,
         subscribersCount: subscribersCount ?? this.subscribersCount,
+        isHighlighted: isHighlighted ?? this.isHighlighted,
+        customDescription: customDescription ?? this.customDescription,
       );
 
   factory GitRepo.fromMap(Map<String, dynamic> json) => GitRepo(
@@ -436,6 +446,8 @@ class GitRepo {
         : Organization.fromMap(json["organization"]),
     networkCount: json["network_count"],
     subscribersCount: json["subscribers_count"],
+    isHighlighted: json["isHighlighted"] ?? false,
+    customDescription: json["customDescription"],
   );
 
   Map<String, dynamic> toMap() => {
@@ -523,6 +535,8 @@ class GitRepo {
     "organization": organization?.toMap(),
     "network_count": networkCount,
     "subscribers_count": subscribersCount,
+    "isHighlighted": isHighlighted,
+    "customDescription": customDescription,
   };
 }
 

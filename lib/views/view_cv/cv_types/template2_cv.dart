@@ -9,13 +9,15 @@ import 'dart:async';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:http/http.dart' as http;
 import 'package:resume_builder_app/utils/routes/app_colors.dart';
+import 'package:resume_builder_app/models/TemplateDataModel.dart';
 
 class ResumeScreen4 extends StatelessWidget {
   final TemplateData templateData;
-  const ResumeScreen4({super.key, required this.templateData});
+  final List<HighlightedProject> highlightedProjects;
+  const ResumeScreen4({super.key, required this.templateData, required this.highlightedProjects});
 
   Future<void> _generateAndPrintResume(BuildContext context) async {
-    final pdfData = await generateResume(PdfPageFormat.a4, templateData);
+    final pdfData = await generateResume(PdfPageFormat.a4, templateData, highlightedProjects);
     await Printing.layoutPdf(onLayout: (PdfPageFormat format) async => pdfData);
   }
 
@@ -256,7 +258,7 @@ class ResumeScreen4 extends StatelessWidget {
 
 }
 
-Future<Uint8List> generateResume(PdfPageFormat format, TemplateData data) async {
+Future<Uint8List> generateResume(PdfPageFormat format, TemplateData data, List<HighlightedProject> highlightedProjects) async {
   final pdf = pw.Document(title: '${data.fullName} Résumé', author: data.fullName);
 
   // Fetch profile image dynamically
@@ -274,6 +276,16 @@ Future<Uint8List> generateResume(PdfPageFormat format, TemplateData data) async 
             child: pw.Column(
               crossAxisAlignment: pw.CrossAxisAlignment.start,
               children: [
+                if (highlightedProjects.isNotEmpty) ...[
+                  pw.Text(
+                    "Highlighted Projects",
+                    style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 18),
+                  ),
+                  pw.SizedBox(height: 5),
+                  for (var project in highlightedProjects)
+                    _buildHighlightedProjectBlock(project),
+                  pw.SizedBox(height: 10),
+                ],
                 // Header Section
                 pw.Text(
                   data.fullName ?? "",
@@ -488,4 +500,39 @@ class _UrlText extends pw.StatelessWidget {
           )),
     );
   }
+}
+
+pw.Widget _buildHighlightedProjectBlock(dynamic project) {
+  return pw.Padding(
+    padding: const pw.EdgeInsets.only(bottom: 10),
+    child: pw.Column(
+      crossAxisAlignment: pw.CrossAxisAlignment.start,
+      children: [
+        pw.Row(
+          children: [
+            pw.Icon(pw.IconData(0xe838), color: PdfColors.amber, size: 18),
+            pw.SizedBox(width: 6),
+            pw.Text(
+              project.name,
+              style: pw.TextStyle(
+                fontWeight: pw.FontWeight.bold,
+                color: PdfColors.blue,
+                decoration: pw.TextDecoration.underline,
+              ),
+            ),
+          ],
+        ),
+        if (project.customDescription != null && project.customDescription.isNotEmpty)
+          pw.Padding(
+            padding: const pw.EdgeInsets.only(left: 24, top: 2),
+            child: pw.Text(project.customDescription),
+          ),
+        if (project.techStack != null && project.techStack.isNotEmpty)
+          pw.Padding(
+            padding: const pw.EdgeInsets.only(left: 24, top: 2),
+            child: pw.Text('Tech Stack: ${project.techStack.join(", ")}', style: pw.TextStyle(fontStyle: pw.FontStyle.italic, fontSize: 12)),
+          ),
+      ],
+    ),
+  );
 }

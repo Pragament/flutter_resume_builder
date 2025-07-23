@@ -13,10 +13,12 @@ import 'package:resume_builder_app/views/widgets/app_bar.dart';
 
 import 'cv_types/template1_cv.dart';
 import 'cv_types/template3_cv.dart';
+import 'package:resume_builder_app/models/TemplateDataModel.dart';
 
 class ViewCv extends StatefulWidget {
-  const ViewCv({super.key,required this.templateData});
+  const ViewCv({super.key, required this.templateData, required this.highlightedProjects});
   final TemplateData templateData;
+  final List<HighlightedProject> highlightedProjects;
 
   @override
   State<ViewCv> createState() => _ViewCvState();
@@ -41,11 +43,11 @@ class _ViewCvState extends State<ViewCv> with SingleTickerProviderStateMixin {
       body:TabBarView(
         controller: tabController,
           children: [
-            ResumeScreen(templateData: widget.templateData),
-            ResumeScreen2(templateData: widget.templateData),
-            ResumeScreen3(templateData: widget.templateData),
-            ResumeScreen4(templateData: widget.templateData),
-            ResumeScreen5(templateData: widget.templateData),
+            ResumeScreen(templateData: widget.templateData, highlightedProjects: widget.highlightedProjects),
+            ResumeScreen2(templateData: widget.templateData, highlightedProjects: widget.highlightedProjects),
+            ResumeScreen3(templateData: widget.templateData, highlightedProjects: widget.highlightedProjects),
+            ResumeScreen4(templateData: widget.templateData, highlightedProjects: widget.highlightedProjects),
+            ResumeScreen5(templateData: widget.templateData, highlightedProjects: widget.highlightedProjects),
           ]
       ),
     );
